@@ -176,6 +176,7 @@ class _StakingOverviewPageState extends State<StakingOverviewPage> {
     String symbol = store.settings.networkState.tokenSymbol;
     String stashAddress = store.staking.ledger['stakingLedger']['stash'];
     List nominators = store.staking.ledger['nominators'];
+    final int decimals = store.settings.networkState.tokenDecimals;
 
     return Container(
       padding: EdgeInsets.only(bottom: 8),
@@ -212,7 +213,7 @@ class _StakingOverviewPageState extends State<StakingOverviewPage> {
             child: ListTile(
               leading: AddressIcon(id),
               title: Text(
-                  '${meStaked != null ? Fmt.token(meStaked) : '~'} $symbol'),
+                  '${meStaked != null ? Fmt.token(meStaked, decimals: decimals) : '~'} $symbol'),
               subtitle: Text(
                   accInfo != null && accInfo['identity']['display'] != null
                       ? accInfo['identity']['display'].toString().toUpperCase()

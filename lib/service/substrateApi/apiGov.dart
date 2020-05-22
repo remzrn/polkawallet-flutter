@@ -14,6 +14,8 @@ class ApiGovernance {
       all.addAll(info['members'].map((i) => i[0]));
       all.addAll(info['runnersUp'].map((i) => i[0]));
       all.addAll(info['candidates']);
+      info['votingBond']=info['votingBond'].toString();//We store them as string as they could overflow.
+      info['candidacyBond']=info['candidacyBond'].toString();//We store them as string as they could overflow.
       store.gov.setCouncilInfo(info);
       apiRoot.account.fetchAccountsIndex(all);
       apiRoot.account.getAddressIcons(all);

@@ -9,6 +9,8 @@ import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/utils/format.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
+import '../../common/consts/settings.dart';
+
 // TODO: Add biometrics
 class TxConfirmPage extends StatefulWidget {
   const TxConfirmPage(this.store);
@@ -31,6 +33,11 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
 
   Future<String> _getTxFee() async {
     if (_fee['partialFee'] != null) {
+      return _fee['partialFee'].toString();
+    }
+    // For edgeware, it seems this call never returns, and freezes the action.
+    if (networkEndpointEdgeware.info==store.settings.endpoint.info){
+      _fee['partialFee']="100000000000000000";//0.1
       return _fee['partialFee'].toString();
     }
     final Map args = ModalRoute.of(context).settings.arguments;

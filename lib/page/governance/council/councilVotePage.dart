@@ -102,7 +102,7 @@ class _CouncilVote extends State<CouncilVotePage> {
                             decoration: InputDecoration(
                               hintText: dic['amount'],
                               labelText:
-                                  '${dic['amount']} (${dic['balance']}: ${Fmt.token(balance)})',
+                                  '${dic['amount']} (${dic['balance']}: ${Fmt.token(balance, decimals: decimals)})',
                             ),
                             inputFormatters: [
                               RegExInputFormatter.withRegex(

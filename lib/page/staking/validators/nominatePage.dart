@@ -78,6 +78,7 @@ class _NominatePageState extends State<NominatePage> {
 
   Widget _buildListItem(BuildContext context, int i, List<ValidatorData> list) {
     Map accInfo = store.account.accountIndexMap[list[i].accountId];
+    final int decimals = store.settings.networkState.tokenDecimals;
     return GestureDetector(
       child: Container(
         padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -112,7 +113,7 @@ class _NominatePageState extends State<NominatePage> {
                     ],
                   ),
                   Text(
-                    '${I18n.of(context).staking['total']}: ${Fmt.token(list[i].total)}',
+                    '${I18n.of(context).staking['total']}: ${Fmt.token(list[i].total, decimals: decimals)}',
                     style: TextStyle(
                       color: Theme.of(context).unselectedWidgetColor,
                       fontSize: 12,
