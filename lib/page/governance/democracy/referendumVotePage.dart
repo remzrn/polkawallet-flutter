@@ -39,7 +39,7 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
       int decimals = store.settings.networkState.tokenDecimals;
       String amt = _amountCtrl.text.trim();
       Map vote = {
-        'balance': (double.parse(amt) * pow(10, decimals)).toInt(),
+        'balance': Fmt.amountToFullDecimalIntString(amt, decimals),
         'vote': {'aye': voteYes, 'conviction': _voteConviction},
       };
       var args = {
@@ -153,7 +153,7 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
                             decoration: InputDecoration(
                               hintText: dic['amount'],
                               labelText:
-                                  '${dic['amount']} (${dic['balance']}: ${Fmt.token(balance)})',
+                                  '${dic['amount']} (${dic['balance']}: ${Fmt.token(balance, decimals: decimals)})',
                             ),
                             inputFormatters: [
                               RegExInputFormatter.withRegex(

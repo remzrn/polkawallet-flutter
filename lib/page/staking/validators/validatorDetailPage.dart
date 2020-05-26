@@ -30,6 +30,8 @@ class ValidatorDetailPage extends StatelessWidget {
           Map rewardsChartData =
               store.staking.rewardsChartDataCache[detail.accountId];
 
+          final int decimals = store.settings.networkState.tokenDecimals;
+
           List<ChartLineInfo> pointsChartLines = [
             ChartLineInfo(
                 'Era Points', charts.MaterialPalette.yellow.shadeDefault),
@@ -69,11 +71,11 @@ class ValidatorDetailPage extends StatelessWidget {
                             children: <Widget>[
                               InfoItem(
                                 title: dic['stake.own'],
-                                content: Fmt.token(detail.bondOwn),
+                                content: Fmt.token(detail.bondOwn, decimals: decimals),
                               ),
                               InfoItem(
                                 title: dic['stake.other'],
-                                content: Fmt.token(detail.bondOther),
+                                content: Fmt.token(detail.bondOther, decimals: decimals),
                               ),
                             ],
                           ),

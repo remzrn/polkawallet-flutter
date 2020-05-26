@@ -59,7 +59,7 @@ final appThemeAcala = ThemeData(
 );
 
 final appThemeEdgeware = ThemeData(
-  primarySwatch: Colors.green,
+  primarySwatch: Colors.teal,
   textTheme: TextTheme(
       headline1: TextStyle(
         fontSize: 24,

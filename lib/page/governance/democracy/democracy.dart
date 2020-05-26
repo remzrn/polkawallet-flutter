@@ -30,8 +30,6 @@ class _DemocracyState extends State<Democracy> {
 
   final String _bestNumberSubscribeChannel = 'BestNumber';
 
-  final List _options = [0, 1, 2, 3, 4, 5, 6];
-
   Future<void> _fetchReferendums() async {
     if (store.settings.loading) {
       return;
@@ -82,6 +80,7 @@ class _DemocracyState extends State<Democracy> {
     return Observer(
       builder: (_) {
         String symbol = store.settings.networkState.tokenSymbol;
+        int decimals = store.settings.networkState.tokenDecimals;
         List<ReferendumInfo> list = store.gov.referendums;
         int bestNumber = store.gov.bestNumber;
         return RefreshIndicator(
@@ -105,6 +104,7 @@ class _DemocracyState extends State<Democracy> {
                           data: list[i],
                           bestNumber: bestNumber,
                           symbol: symbol,
+                          decimals: decimals,
                           onCancelVote: _submitCancelVote,
                         );
                       },

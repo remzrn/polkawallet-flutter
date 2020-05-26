@@ -26,7 +26,7 @@ class ApiAssets {
     store.assets.setTxsLoading(true);
 
     String address = store.account.currentAddress;
-    Map res = await PolkaScanApi.fetchTransfers(address, page);
+    Map res = await PolkaScanApi.fetchTransfers(address, page, network: store.settings.endpoint.info);
 
     if (page == 0) {
       store.assets.clearTxs();

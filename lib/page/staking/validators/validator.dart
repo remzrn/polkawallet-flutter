@@ -18,6 +18,7 @@ class Validator extends StatelessWidget {
   Widget build(BuildContext context) {
     var dic = I18n.of(context).staking;
     Map accInfo = store.account.accountIndexMap[validator.accountId];
+    final int decimals = store.settings.networkState.tokenDecimals;
 //    print(accInfo['identity']);
     bool hasDetail = validator.commission.isNotEmpty;
     return GestureDetector(
@@ -54,7 +55,7 @@ class Validator extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    '${dic['total']}: ${hasDetail ? Fmt.token(validator.total) : '~'}',
+                    '${dic['total']}: ${hasDetail ? Fmt.token(validator.total, decimals: decimals) : '~'}',
                     style: TextStyle(
                       color: Theme.of(context).unselectedWidgetColor,
                       fontSize: 12,

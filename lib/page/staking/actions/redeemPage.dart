@@ -33,7 +33,7 @@ class _RedeemPageState extends State<RedeemPage> {
       },
       "detail": jsonEncode({
         'amount':
-            Fmt.token(store.staking.ledger['redeemable'], length: decimals)
+            Fmt.token(store.staking.ledger['redeemable'], decimals: decimals, length: decimals)
       }),
       "params": [],
       'onFinish': (BuildContext txPageContext, Map res) {
@@ -74,6 +74,7 @@ class _RedeemPageState extends State<RedeemPage> {
                       ),
                       initialValue: Fmt.token(
                           store.staking.ledger['redeemable'],
+                          decimals: decimals,
                           length: decimals),
                       readOnly: true,
                     ),

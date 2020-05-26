@@ -18,7 +18,7 @@ EndpointData networkEndpointEdgeware = EndpointData.fromJson(const {
   'info': 'edgeware',
   'ss58': 7,
   'text': 'Edgeware Mainnet #3 (hosted by Commonwealth Labs)',
-  'value': 'wss://mainnet3.edgewa.re',
+  'value': 'wss://mainnet3.edgewa.re/',
 });
 
 List<EndpointData> networkEndpoints = [
@@ -53,13 +53,25 @@ List<EndpointData> networkEndpoints = [
     'info': 'edgeware',
     'ss58': 7,
     'text': 'Edgeware Mainnet #1 (hosted by Commonwealth Labs)',
-    'value': 'wss://mainnet1.edgewa.re',
+    'value': 'wss://mainnet1.edgewa.re/',
   }),
   EndpointData.fromJson(const {
     'info': 'edgeware',
     'ss58': 7,
     'text': 'Edgeware Mainnet #2 (hosted by Commonwealth Labs)',
-    'value': 'wss://mainnet2.edgewa.re',
+    'value': 'wss://mainnet2.edgewa.re/',
+  }),
+  EndpointData.fromJson(const {
+    'info': 'edgeware',
+    'ss58': 7,
+    'text': 'Edgeware Mainnet #4 (hosted by Commonwealth Labs)',
+    'value': 'wss://mainnet4.edgewa.re/',
+  }),
+  EndpointData.fromJson(const {
+    'info': 'edgeware',
+    'ss58': 7,
+    'text': 'Edgeware Mainnet #5 (hosted by Commonwealth Labs)',
+    'value': 'wss://mainnet5.edgewa.re/',
   }),
 ];
 
@@ -80,4 +92,4 @@ const String acala_stable_coin = 'AUSD';
 const String acala_stable_coin_view = 'aUSD';
 
 /// test app versions
-const String app_beta_version = '0.7.4-beta.4';
+const String app_beta_version = '0.7.5-beta.6';

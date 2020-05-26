@@ -13,12 +13,14 @@ import 'package:polka_wallet/utils/i18n/index.dart';
 class ReferendumPanel extends StatelessWidget {
   ReferendumPanel({
     this.symbol,
+    this.decimals,
     this.data,
     this.bestNumber,
     this.onCancelVote,
   });
 
   final String symbol;
+  final int decimals;
   final ReferendumInfo data;
   final int bestNumber;
   final Function(int) onCancelVote;
@@ -120,10 +122,13 @@ class ReferendumPanel extends StatelessWidget {
           data.isPassing
               ? Icon(Icons.check_circle, color: Colors.lightGreen, size: 20)
               : Icon(Icons.remove_circle, color: Colors.orange, size: 20),
-          Text(
-            dic['passing.${data.isPassing}'],
-            style: TextStyle(fontWeight: FontWeight.bold),
-          )
+          Padding(
+            padding: EdgeInsets.only(left: 4),
+            child: Text(
+              dic['passing.${data.isPassing}'],
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
         ],
       ),
       Row(
@@ -169,8 +174,8 @@ class ReferendumPanel extends StatelessWidget {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text('${Fmt.token(votedNay)} $symbol'),
-          Text('${Fmt.token(votedAye)} $symbol')
+          Text('${Fmt.token(votedNay, decimals: decimals)} $symbol'),
+          Text('${Fmt.token(votedAye, decimals: decimals)} $symbol')
         ],
       ),
       Row(
@@ -189,7 +194,7 @@ class ReferendumPanel extends StatelessWidget {
                     : dic['vote.change.down'],
               ),
               Text(
-                '${Fmt.balance(data.changeNay)} $symbol',
+                '${Fmt.balance(data.changeNay, decimals: decimals)} $symbol',
                 style: TextStyle(
                     color: Theme.of(context).unselectedWidgetColor,
                     fontSize: 13),
@@ -209,7 +214,7 @@ class ReferendumPanel extends StatelessWidget {
                     : dic['vote.change.down'],
               ),
               Text(
-                '${Fmt.balance(data.changeAye)} $symbol',
+                '${Fmt.balance(data.changeAye, decimals: decimals)} $symbol',
                 style: TextStyle(
                     color: Theme.of(context).unselectedWidgetColor,
                     fontSize: 13),
@@ -232,8 +237,8 @@ class ReferendumPanel extends StatelessWidget {
           child: Row(
             children: [
               InfoItem(
-                title: dic['vote.my'],
-                content: '$conviction ${dic[yes]} - $amount $symbol',
+                title: '${dic['vote.my']} - $conviction ${dic[yes]}',
+                content: '$amount $symbol',
               ),
               OutlinedButtonSmall(
                 content: dic['vote.remove'],

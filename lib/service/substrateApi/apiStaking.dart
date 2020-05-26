@@ -1,3 +1,4 @@
+import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/service/polkascan.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
@@ -28,8 +29,13 @@ class ApiStaking {
           var nominators = await apiRoot.evalJavascript(
               'api.query.staking.nominators("${stakingLedger[0]['stash']}")');
           if (nominators != null) {
-            ledger['nominators'] = nominators['targets'];
-            addressesNeedIcons.addAll(List.of(nominators['targets']));
+            if (networkEndpointEdgeware==store.settings.endpoint){
+              ledger['nominators'] = nominators[0]['targets'];
+              addressesNeedIcons.addAll(List.of(nominators[0]['targets']));
+            } else {
+              ledger['nominators'] = nominators['targets'];
+              addressesNeedIcons.addAll(List.of(nominators['targets']));
+            }
           } else {
             ledger['nominators'] = [];
           }
@@ -69,13 +75,13 @@ class ApiStaking {
       if (pubKey != null && (bonded > 0 || unlocking.length > 0)) {
         String address = store.account.currentAddress;
         print('fetching staking rewards...');
-        List res = await apiRoot
+        Map res = await apiRoot
             .evalJavascript('staking.loadAccountRewardsData("$address")');
         store.staking.setLedger(pubKey, {'rewards': res});
         return;
       }
     }
-    store.staking.setLedger(pubKey, {'rewards': []});
+    store.staking.setLedger(pubKey, {'rewards': {}});
   }
 
   Future<Map> fetchStakingOverview() async {
@@ -100,7 +106,7 @@ class ApiStaking {
     store.staking.setTxsLoading(true);
 
     Map res = await PolkaScanApi.fetchTxs(store.account.currentAddress,
-        page: page, module: PolkaScanApi.module_staking);
+        page: page, module: PolkaScanApi.module_staking, network: store.settings.endpoint.info);
 
     if (page == 0) {
       store.staking.clearTxs();

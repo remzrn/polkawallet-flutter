@@ -50,11 +50,11 @@ class _StakingOverviewPageState extends State<StakingOverviewPage> {
   Widget _buildTopCard(BuildContext context) {
     var dic = I18n.of(context).staking;
     bool hashData = store.staking.ledger['stakingLedger'] != null;
-    int bonded = 0;
+    BigInt bonded = BigInt.zero;
     List nominators = [];
     double nominatorListHeight = 48;
     if (hashData) {
-      bonded = store.staking.ledger['stakingLedger']['active'];
+      bonded = BigInt.parse(store.staking.ledger['stakingLedger']['active']);
       nominators = store.staking.ledger['nominators'];
       if (nominators.length > 0) {
         nominatorListHeight = double.parse((nominators.length * 60).toString());
@@ -98,7 +98,7 @@ class _StakingOverviewPageState extends State<StakingOverviewPage> {
             subtitle: Text(dic['nominating']),
             trailing: Container(
               width: 100,
-              child: isController && bonded > 0
+              child: isController && bonded > BigInt.zero
                   ? GestureDetector(
                       child: nominators.length > 0
                           ? Column(
@@ -176,6 +176,7 @@ class _StakingOverviewPageState extends State<StakingOverviewPage> {
     String symbol = store.settings.networkState.tokenSymbol;
     String stashAddress = store.staking.ledger['stakingLedger']['stash'];
     List nominators = store.staking.ledger['nominators'];
+    final int decimals = store.settings.networkState.tokenDecimals;
 
     return Container(
       padding: EdgeInsets.only(bottom: 8),
@@ -212,7 +213,7 @@ class _StakingOverviewPageState extends State<StakingOverviewPage> {
             child: ListTile(
               leading: AddressIcon(id),
               title: Text(
-                  '${meStaked != null ? Fmt.token(meStaked) : '~'} $symbol'),
+                  '${meStaked != null ? Fmt.token(meStaked, decimals: decimals) : '~'} $symbol'),
               subtitle: Text(
                   accInfo != null && accInfo['identity']['display'] != null
                       ? accInfo['identity']['display'].toString().toUpperCase()

@@ -60,7 +60,7 @@ class _CouncilVote extends State<CouncilVotePage> {
           // "votes"
           selected,
           // "voteValue"
-          (double.parse(amt) * pow(10, decimals)).toInt(),
+          Fmt.amountToFullDecimalIntString(amt, decimals),
         ],
         'onFinish': (BuildContext txPageContext, Map res) {
           Navigator.popUntil(txPageContext, ModalRoute.withName('/'));
@@ -102,7 +102,7 @@ class _CouncilVote extends State<CouncilVotePage> {
                             decoration: InputDecoration(
                               hintText: dic['amount'],
                               labelText:
-                                  '${dic['amount']} (${dic['balance']}: ${Fmt.token(balance)})',
+                                  '${dic['amount']} (${dic['balance']}: ${Fmt.token(balance, decimals: decimals)})',
                             ),
                             inputFormatters: [
                               RegExInputFormatter.withRegex(

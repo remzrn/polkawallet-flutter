@@ -24,7 +24,6 @@ import 'package:polka_wallet/utils/UI.dart';
 import 'package:polka_wallet/utils/format.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
-// TODO: english text display fix
 // TODO: txs list rendered in UI thread issue
 class StakingActions extends StatefulWidget {
   StakingActions(this.store);
@@ -149,6 +148,7 @@ class _StakingActions extends State<StakingActions>
     }
 
     String symbol = store.settings.networkState.tokenSymbol;
+    final int decimals = store.settings.networkState.tokenDecimals;
 
     BigInt balance = store.assets.balances[symbol].total;
     BigInt bonded = BigInt.zero;
@@ -196,7 +196,7 @@ class _StakingActions extends State<StakingActions>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      '${Fmt.balance(balance.toString())}',
+                      '${Fmt.balance(balance.toString(), decimals: decimals)}',
                       style: Theme.of(context).textTheme.headline4,
                     ),
                     Text(
@@ -225,6 +225,8 @@ class _StakingActions extends State<StakingActions>
             redeemable: redeemable,
             available: available,
             payee: payee,
+            decimals: decimals,
+            networkLoading: store.settings.loading,
           ),
           Divider(),
           StakingActionsPanel(
@@ -266,6 +268,9 @@ class _StakingActions extends State<StakingActions>
 
     return Observer(
       builder: (_) {
+        if (store.settings.loading) {
+          return CupertinoActivityIndicator();
+        }
         List<Widget> list = <Widget>[
           _buildActionCard(),
           Container(
@@ -431,6 +436,8 @@ class StakingInfoPanel extends StatelessWidget {
     this.redeemable,
     this.available,
     this.payee,
+    this.decimals,
+    this.networkLoading,
   });
 
   final bool hasData;
@@ -441,6 +448,8 @@ class StakingInfoPanel extends StatelessWidget {
   final BigInt redeemable;
   final BigInt available;
   final String payee;
+  final int decimals;
+  final bool networkLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -455,12 +464,12 @@ class StakingInfoPanel extends StatelessWidget {
             children: <Widget>[
               InfoItem(
                 title: dic['bonded'],
-                content: Fmt.token(bonded),
+                content: Fmt.token(bonded, decimals: decimals),
                 crossAxisAlignment: CrossAxisAlignment.center,
               ),
               InfoItem(
                 title: dic['bond.unlocking'],
-                content: Fmt.token(unlocking),
+                content: Fmt.token(unlocking, decimals: decimals),
                 crossAxisAlignment: CrossAxisAlignment.center,
               ),
               Expanded(
@@ -468,12 +477,12 @@ class StakingInfoPanel extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Text(dic['bond.redeemable'],
-                        style: TextStyle(fontSize: 13)),
+                        style: TextStyle(fontSize: 12)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(
-                          Fmt.token(redeemable),
+                          Fmt.token(redeemable, decimals: decimals),
                           style: Theme.of(context).textTheme.headline4,
                         ),
                         !isStash && redeemable > BigInt.zero
@@ -506,7 +515,7 @@ class StakingInfoPanel extends StatelessWidget {
             children: <Widget>[
               InfoItem(
                 title: dic['available'],
-                content: Fmt.token(available),
+                content: Fmt.token(available, decimals: decimals),
                 crossAxisAlignment: CrossAxisAlignment.center,
               ),
               InfoItem(
@@ -518,7 +527,7 @@ class StakingInfoPanel extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Text(dic['payout'], style: TextStyle(fontSize: 13)),
+                    Text(dic['payout'], style: TextStyle(fontSize: 12)),
                     GestureDetector(
                       child: Container(
                         padding: EdgeInsets.all(1),
@@ -529,7 +538,9 @@ class StakingInfoPanel extends StatelessWidget {
                         ),
                       ),
                       onTap: () {
-                        Navigator.of(context).pushNamed(PayoutPage.route);
+                        if (!networkLoading) {
+                          Navigator.of(context).pushNamed(PayoutPage.route);
+                        }
                       },
                     )
                   ],
@@ -560,22 +571,17 @@ class StakingActionsPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).staking;
 
-    num actionButtonWidth = MediaQuery.of(context).size.width / 4;
+    num actionButtonWidth = (MediaQuery.of(context).size.width - 64) / 3;
     Color actionButtonColor = Theme.of(context).primaryColor;
     Color disabledColor = Theme.of(context).unselectedWidgetColor;
 
-    String bondButtonString;
-    bool unbondDisabled = false;
-    Function onBondTap = () => null;
+    String bondButtonString = dic['action.bondAdjust'];
     bool setPayeeDisabled = true;
     Function onSetPayeeTap = () => null;
     bool setControllerDisabled = true;
     Function onSetControllerTap = () => null;
     if (isStash) {
       if (bonded > BigInt.zero) {
-        bondButtonString = dic['action.bondExtra'];
-        onBondTap = () => Navigator.of(context).pushNamed(BondExtraPage.route);
-
         setControllerDisabled = false;
         onSetControllerTap = () => Navigator.of(context)
             .pushNamed(SetControllerPage.route, arguments: controller);
@@ -587,18 +593,12 @@ class StakingActionsPanel extends StatelessWidget {
         }
       } else {
         bondButtonString = dic['action.bond'];
-        onBondTap = () => Navigator.of(context).pushNamed(BondPage.route);
       }
     } else {
-      bondButtonString = dic['action.unbond'];
       if (bonded > BigInt.zero) {
-        onBondTap = () => Navigator.of(context).pushNamed(UnBondPage.route);
-
         setPayeeDisabled = false;
         onSetPayeeTap =
             () => Navigator.of(context).pushNamed(SetPayeePage.route);
-      } else {
-        unbondDisabled = true;
       }
     }
 
@@ -612,19 +612,51 @@ class StakingActionsPanel extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   OutlinedCircle(
-                    icon: isStash ? Icons.add : Icons.remove,
-                    color: unbondDisabled ? disabledColor : actionButtonColor,
+                    icon: Icons.add,
+                    color: actionButtonColor,
                   ),
                   Text(
                     bondButtonString,
                     style: TextStyle(
-                      color: unbondDisabled ? disabledColor : actionButtonColor,
-                      fontSize: 12,
+                      color: actionButtonColor,
+                      fontSize: 11,
                     ),
                   )
                 ],
               ),
-              onTap: onBondTap,
+              onTap: () {
+                if (isStash && bonded == BigInt.zero) {
+                  Navigator.of(context).pushNamed(BondPage.route);
+                  return;
+                }
+                showCupertinoModalPopup(
+                  context: context,
+                  builder: (BuildContext context) => CupertinoActionSheet(
+                    actions: <Widget>[
+                      CupertinoActionSheetAction(
+                        child: Text(dic['action.bondExtra']),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pushNamed(BondExtraPage.route);
+                        },
+                      ),
+                      CupertinoActionSheetAction(
+                        child: Text(dic['action.unbond']),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pushNamed(UnBondPage.route);
+                        },
+                      ),
+                    ],
+                    cancelButton: CupertinoActionSheetAction(
+                      child: Text(I18n.of(context).home['cancel']),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -644,7 +676,7 @@ class StakingActionsPanel extends StatelessWidget {
                         color: setPayeeDisabled
                             ? disabledColor
                             : actionButtonColor,
-                        fontSize: 12),
+                        fontSize: 11),
                   )
                 ],
               ),
@@ -670,7 +702,7 @@ class StakingActionsPanel extends StatelessWidget {
                         color: setControllerDisabled
                             ? disabledColor
                             : actionButtonColor,
-                        fontSize: 12),
+                        fontSize: 11),
                   )
                 ],
               ),
