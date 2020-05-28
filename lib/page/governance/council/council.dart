@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polka_wallet/common/components/infoItem.dart';
 import 'package:polka_wallet/common/components/outlinedButtonSmall.dart';
+import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/page/governance/council/candidateDetailPage.dart';
 import 'package:polka_wallet/page/governance/council/councilVotePage.dart';
@@ -45,7 +46,7 @@ class _CouncilState extends State<Council> {
     var args = {
       "title": govDic['vote.remove'],
       "txInfo": {
-        "module": 'electionsPhragmen',
+        "module": store.settings.endpoint.info==networkEndpointEdgeware.info?'elections':'electionsPhragmen',
         "call": 'removeVoter',
       },
       "detail": '{}',

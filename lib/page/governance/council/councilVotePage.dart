@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polka_wallet/common/components/addressIcon.dart';
 import 'package:polka_wallet/common/components/roundedButton.dart';
+import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/common/regInputFormatter.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/page/governance/council/candidateListPage.dart';
@@ -36,7 +37,9 @@ class _CouncilVote extends State<CouncilVotePage> {
     var res = await Navigator.of(context)
         .pushNamed(CandidateListPage.route, arguments: _selected);
     if (res != null) {
-      _selected = List<List>.of(res);
+      setState(() { 
+        _selected = List<List>.of(res);
+      });
     }
   }
 
@@ -49,7 +52,7 @@ class _CouncilVote extends State<CouncilVotePage> {
       var args = {
         "title": govDic['vote.candidate'],
         "txInfo": {
-          "module": 'electionsPhragmen',
+          "module": store.settings.endpoint.info==networkEndpointEdgeware.info?'elections':'electionsPhragmen',
           "call": 'vote',
         },
         "detail": jsonEncode({

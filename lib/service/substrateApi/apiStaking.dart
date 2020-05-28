@@ -29,7 +29,7 @@ class ApiStaking {
           var nominators = await apiRoot.evalJavascript(
               'api.query.staking.nominators("${stakingLedger[0]['stash']}")');
           if (nominators != null) {
-            if (networkEndpointEdgeware==store.settings.endpoint){
+            if (networkEndpointEdgeware.info==store.settings.endpoint.info){
               ledger['nominators'] = nominators[0]['targets'];
               addressesNeedIcons.addAll(List.of(nominators[0]['targets']));
             } else {
