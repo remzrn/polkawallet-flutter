@@ -34,6 +34,7 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
     networkEndpointPolkadot,
     networkEndpointKusama,
     networkEndpointAcala,
+    networkEndpointEdgeware,
   ];
 
   EndpointData _selectedNetwork;
@@ -44,6 +45,7 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
       _networkChanging = true;
     });
     await store.settings.setBestNode(info: _selectedNetwork.info);
+    store.settings.networkName=store.settings.endpoint.info;
     store.settings.loadNetworkStateCache();
     store.settings.setNetworkLoading(true);
     store.assets.clearTxs();
@@ -71,6 +73,11 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
         store.staking.loadAccountCache();
       }
 
+      if (store.settings.endpoint.info == networkEndpointEdgeware.info) {
+        // refresh user's staking info
+        store.staking.loadAccountCache();
+      }
+
       bool isCurrentNetwork =
           _selectedNetwork.info == store.settings.endpoint.info;
       if (isCurrentNetwork) {
@@ -95,8 +102,15 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
 
   List<Widget> _buildAccountList() {
     Color primaryColor = Theme.of(context).primaryColor;
-    bool isAcala = store.settings.endpoint.info == networkEndpointAcala.info;
-    bool isKusama = store.settings.endpoint.info == networkEndpointKusama.info;
+    String colorSuffix
+      = networkEndpointAcala.info == store.settings.endpoint.info ?
+      'indigo'//Acala
+      : networkEndpointKusama.info == store.settings.endpoint.info ?
+      'pink800'//Kusama
+      : networkEndpointEdgeware.info == store.settings.endpoint.info ?
+      'green'//Edgeware
+      : //Default
+      'pink';
     List<Widget> res = [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -107,7 +121,7 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
           ),
           IconButton(
             icon: Image.asset(
-                'assets/images/assets/plus_${isAcala ? 'indigo' : isKusama ? 'pink800' : 'pink'}.png'),
+                'assets/images/assets/plus_$colorSuffix.png'),
             color: primaryColor,
             onPressed: () => _onCreateAccount(),
           )

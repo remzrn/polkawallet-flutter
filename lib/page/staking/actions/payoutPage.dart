@@ -83,7 +83,7 @@ class _PayoutPageState extends State<PayoutPage> {
         "call": 'batch',
       },
       "detail": jsonEncode({
-        'amount': Fmt.token(store.staking.accountRewardTotal, length: decimals),
+        'amount': Fmt.token(store.staking.accountRewardTotal, decimals: decimals, length: decimals),
         'txs': params,
       }),
       "params": [],

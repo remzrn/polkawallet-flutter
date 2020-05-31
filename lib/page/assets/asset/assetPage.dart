@@ -49,6 +49,11 @@ class _AssetPageState extends State<AssetPage>
       webApi.staking.fetchAccountStaking(pubKey);
       res = await webApi.assets.updateTxs(_txsPage);
     }
+    // For now we just do the same for Edgeware
+    if (store.settings.endpoint.info == networkEndpointEdgeware.info) {
+      webApi.staking.fetchAccountStaking(pubKey);
+      res = await webApi.assets.updateTxs(_txsPage);
+    }
 
     if (res['transfers'] == null ||
         res['transfers'].length < tx_list_page_size) {

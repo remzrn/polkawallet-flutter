@@ -67,7 +67,7 @@ class _BondExtraPageState extends State<BondExtraPage> {
                         decoration: InputDecoration(
                           hintText: assetDic['amount'],
                           labelText:
-                              '${assetDic['amount']} (${dic['available']}: ${Fmt.token(available)} $symbol)',
+                              '${assetDic['amount']} (${dic['available']}: ${Fmt.token(available, decimals: decimals)} $symbol)',
                         ),
                         inputFormatters: [
                           RegExInputFormatter.withRegex(
@@ -108,9 +108,7 @@ class _BondExtraPageState extends State<BondExtraPage> {
                         }),
                         "params": [
                           // "amount"
-                          (double.parse(_amountCtrl.text.trim()) *
-                                  pow(10, decimals))
-                              .toInt(),
+                          Fmt.amountToFullDecimalIntString(_amountCtrl.text, decimals),
                         ],
                         'onFinish': (BuildContext txPageContext, Map res) {
                           Navigator.popUntil(

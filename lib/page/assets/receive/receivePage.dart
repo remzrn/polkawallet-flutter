@@ -19,8 +19,15 @@ class ReceivePage extends StatelessWidget {
     String codeAddress =
         'substrate:${store.account.currentAddress}:${store.account.currentAccount.pubKey}:${store.account.currentAccount.name}';
     Color themeColor = Theme.of(context).primaryColor;
-    bool isAcala = store.settings.endpoint.info == networkEndpointAcala.info;
-    bool isKusama = store.settings.endpoint.info == networkEndpointKusama.info;
+    String colorSuffix
+      = networkEndpointAcala.info == store.settings.endpoint.info ?
+      'indigo'//Acala
+      : networkEndpointKusama.info == store.settings.endpoint.info ?
+      'pink800'//Kusama
+      : networkEndpointEdgeware.info == store.settings.endpoint.info ?
+      'green'//Edgeware
+      : //Default
+      'pink';
     return Scaffold(
       backgroundColor: Colors.grey,
       appBar: AppBar(
@@ -37,7 +44,7 @@ class ReceivePage extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.only(top: 32),
                   child: Image.asset(
-                      'assets/images/assets/receive_line_${isAcala ? 'indigo' : isKusama ? 'pink800' : 'pink'}.png'),
+                      'assets/images/assets/receive_line_$colorSuffix.png'),
                 ),
                 Container(
                   margin: EdgeInsets.only(top: 40),

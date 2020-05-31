@@ -30,8 +30,13 @@ class ApiStaking {
           var nominators = await apiRoot.evalJavascript(
               'api.query.staking.nominators("${stakingLedger[0]['stash']}")');
           if (nominators != null) {
-            ledger['nominators'] = nominators['targets'];
-            addressesNeedIcons.addAll(List.of(nominators['targets']));
+            if (networkEndpointEdgeware.info==store.settings.endpoint.info){
+              ledger['nominators'] = nominators[0]['targets'];
+              addressesNeedIcons.addAll(List.of(nominators[0]['targets']));
+            } else {
+              ledger['nominators'] = nominators['targets'];
+              addressesNeedIcons.addAll(List.of(nominators['targets']));
+            }
           } else {
             ledger['nominators'] = [];
           }
@@ -110,6 +115,7 @@ class ApiStaking {
       page: page,
       module: PolkaScanApi.module_staking,
       network: store.settings.networkName.toLowerCase(),
+      // network: store.settings.endpoint.info //xox
     );
 
     if (page == 0) {

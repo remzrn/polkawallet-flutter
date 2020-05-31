@@ -39,7 +39,8 @@ class _UnBondPageState extends State<UnBondPage> {
     bool hasData = store.staking.ledger['stakingLedger'] != null;
     if (hasData) {
       bonded = Fmt.token(BigInt.parse(
-          store.staking.ledger['stakingLedger']['active'].toString()));
+          store.staking.ledger['stakingLedger']['active'].toString()),
+          decimals: decimals);
     }
 
     return Scaffold(
@@ -105,9 +106,7 @@ class _UnBondPageState extends State<UnBondPage> {
                         }),
                         "params": [
                           // "amount"
-                          (double.parse(_amountCtrl.text.trim()) *
-                                  pow(10, decimals))
-                              .toInt(),
+                          Fmt.amountToFullDecimalIntString(_amountCtrl.text, decimals),
                         ],
                         'onFinish': (BuildContext txPageContext, Map res) {
                           Navigator.popUntil(

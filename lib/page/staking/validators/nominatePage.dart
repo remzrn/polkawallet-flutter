@@ -81,6 +81,7 @@ class _NominatePageState extends State<NominatePage> {
     Map accInfo = store.account.accountIndexMap[list[i].accountId];
     bool hasPhalaAirdrop =
         store.staking.phalaAirdropWhiteList[list[i].accountId] ?? false;
+    final int decimals = store.settings.networkState.tokenDecimals;
     return GestureDetector(
       child: Container(
         padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -115,7 +116,7 @@ class _NominatePageState extends State<NominatePage> {
                     ],
                   ),
                   Text(
-                    '${dic['total']}: ${Fmt.token(list[i].total)}',
+                    '${dic['total']}: ${Fmt.token(list[i].total, decimals: decimals)}',
                     style: TextStyle(
                       color: Theme.of(context).unselectedWidgetColor,
                       fontSize: 12,

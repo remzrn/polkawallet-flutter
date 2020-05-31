@@ -129,6 +129,15 @@ class _AssetsState extends State<Assets> {
     bool isKusama = store.settings.endpoint.info == networkEndpointKusama.info;
     bool isPolkadot =
         store.settings.endpoint.info == networkEndpointPolkadot.info;
+    String colorSuffix
+      = isAcala ?
+      'indigo'//Acala
+      : isKusama ?
+      'pink800'//Kusama
+      : networkEndpointEdgeware.info == store.settings.endpoint.info ?
+      'green'//Edgeware
+      : //Default
+      'pink';
 
     return RoundedCard(
       margin: EdgeInsets.fromLTRB(16, 4, 16, 0),
@@ -205,7 +214,7 @@ class _AssetsState extends State<Assets> {
             title: Text(Fmt.address(store.account.currentAddress)),
             trailing: IconButton(
               icon: Image.asset(
-                  'assets/images/assets/qrcode_${isAcala ? 'indigo' : isKusama ? 'pink800' : 'pink'}.png'),
+                  'assets/images/assets/qrcode_$colorSuffix.png'),
               onPressed: () {
                 if (acc.address != '') {
                   Navigator.pushNamed(context, ReceivePage.route);

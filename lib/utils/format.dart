@@ -190,6 +190,16 @@ class Fmt {
     return priceFloor(price, lengthFixed: lengthFixed, lengthMax: lengthMax);
   }
 
+  static String amountToFullDecimalIntString(
+    String amount,
+    int decimals
+  ){
+      String s=(double.parse(amount.trim()) * pow(10, decimals)).toString();
+      if (s.endsWith(".0"))
+        return s.substring(0,s.length-2);
+      return s;
+  }
+
   static bool isAddress(String txt) {
     var reg = RegExp(r'^[A-z\d]{47,48}$');
     return reg.hasMatch(txt);

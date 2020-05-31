@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polka_wallet/common/components/infoItem.dart';
 import 'package:polka_wallet/common/components/outlinedButtonSmall.dart';
+import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/page/governance/council/candidateDetailPage.dart';
 import 'package:polka_wallet/page/governance/council/councilVotePage.dart';
@@ -45,7 +46,7 @@ class _CouncilState extends State<Council> {
     var args = {
       "title": govDic['vote.remove'],
       "txInfo": {
-        "module": 'electionsPhragmen',
+        "module": store.settings.endpoint.info==networkEndpointEdgeware.info?'elections':'electionsPhragmen',
         "call": 'removeVoter',
       },
       "detail": '{}',
@@ -185,6 +186,7 @@ class _CouncilState extends State<Council> {
                               iconSize: 32,
                               accInfo: accInfo,
                               balance: [i],
+                              tokenDecimals: store.settings.networkState.tokenDecimals,
                               tokenSymbol:
                                   store.settings.networkState.tokenSymbol,
                               noTap: true,
@@ -240,6 +242,7 @@ class _CouncilState extends State<Council> {
                         return CandidateItem(
                           accInfo: accInfo,
                           balance: i,
+                          tokenDecimals: store.settings.networkState.tokenDecimals,
                           tokenSymbol: store.settings.networkState.tokenSymbol,
                         );
                       }).toList(),
@@ -260,6 +263,7 @@ class _CouncilState extends State<Council> {
                         return CandidateItem(
                           accInfo: accInfo,
                           balance: i,
+                          tokenDecimals: store.settings.networkState.tokenDecimals,
                           tokenSymbol: store.settings.networkState.tokenSymbol,
                         );
                       }).toList(),
@@ -281,6 +285,7 @@ class _CouncilState extends State<Council> {
                               return CandidateItem(
                                 accInfo: accInfo,
                                 balance: [i],
+                                tokenDecimals: store.settings.networkState.tokenDecimals,
                                 tokenSymbol:
                                     store.settings.networkState.tokenSymbol,
                               );
@@ -302,6 +307,7 @@ class CandidateItem extends StatelessWidget {
   CandidateItem({
     this.accInfo,
     this.balance,
+    this.tokenDecimals,
     this.tokenSymbol,
     this.switchValue,
     this.onSwitch,
@@ -311,6 +317,7 @@ class CandidateItem extends StatelessWidget {
   final Map accInfo;
   // balance == [<candidate_address>, <0x_candidate_backing_amount>]
   final List balance;
+  final int tokenDecimals;
   final String tokenSymbol;
   final bool switchValue;
   final Function(bool) onSwitch;
@@ -337,7 +344,7 @@ class CandidateItem extends StatelessWidget {
       subtitle: balance.length == 1
           ? null
           : Text(
-              '${I18n.of(context).gov['backing']}: ${Fmt.token(BigInt.parse(balance[1].toString()))} $tokenSymbol'),
+              '${I18n.of(context).gov['backing']}: ${Fmt.token(BigInt.parse(balance[1].toString()), decimals:  tokenDecimals)} $tokenSymbol'),
       onTap: noTap
           ? null
           : () => Navigator.of(context).pushNamed(CandidateDetailPage.route,

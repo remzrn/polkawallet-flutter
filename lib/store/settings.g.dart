@@ -49,168 +49,179 @@ mixin _$SettingsStore on _SettingsStore, Store {
 
   @override
   String get existentialDeposit => (_$existentialDepositComputed ??=
-          Computed<String>(() => super.existentialDeposit,
-              name: '_SettingsStore.existentialDeposit'))
+          Computed<String>(() => super.existentialDeposit))
       .value;
   Computed<String> _$transactionBaseFeeComputed;
 
   @override
   String get transactionBaseFee => (_$transactionBaseFeeComputed ??=
-          Computed<String>(() => super.transactionBaseFee,
-              name: '_SettingsStore.transactionBaseFee'))
+          Computed<String>(() => super.transactionBaseFee))
       .value;
   Computed<String> _$transactionByteFeeComputed;
 
   @override
   String get transactionByteFee => (_$transactionByteFeeComputed ??=
-          Computed<String>(() => super.transactionByteFee,
-              name: '_SettingsStore.transactionByteFee'))
+          Computed<String>(() => super.transactionByteFee))
       .value;
 
   final _$loadingAtom = Atom(name: '_SettingsStore.loading');
 
   @override
   bool get loading {
-    _$loadingAtom.reportRead();
+    _$loadingAtom.context.enforceReadPolicy(_$loadingAtom);
+    _$loadingAtom.reportObserved();
     return super.loading;
   }
 
   @override
   set loading(bool value) {
-    _$loadingAtom.reportWrite(value, super.loading, () {
+    _$loadingAtom.context.conditionallyRunInAction(() {
       super.loading = value;
-    });
+      _$loadingAtom.reportChanged();
+    }, _$loadingAtom, name: '${_$loadingAtom.name}_set');
   }
 
   final _$localeCodeAtom = Atom(name: '_SettingsStore.localeCode');
 
   @override
   String get localeCode {
-    _$localeCodeAtom.reportRead();
+    _$localeCodeAtom.context.enforceReadPolicy(_$localeCodeAtom);
+    _$localeCodeAtom.reportObserved();
     return super.localeCode;
   }
 
   @override
   set localeCode(String value) {
-    _$localeCodeAtom.reportWrite(value, super.localeCode, () {
+    _$localeCodeAtom.context.conditionallyRunInAction(() {
       super.localeCode = value;
-    });
+      _$localeCodeAtom.reportChanged();
+    }, _$localeCodeAtom, name: '${_$localeCodeAtom.name}_set');
   }
 
   final _$endpointAtom = Atom(name: '_SettingsStore.endpoint');
 
   @override
   EndpointData get endpoint {
-    _$endpointAtom.reportRead();
+    _$endpointAtom.context.enforceReadPolicy(_$endpointAtom);
+    _$endpointAtom.reportObserved();
     return super.endpoint;
   }
 
   @override
   set endpoint(EndpointData value) {
-    _$endpointAtom.reportWrite(value, super.endpoint, () {
+    _$endpointAtom.context.conditionallyRunInAction(() {
       super.endpoint = value;
-    });
+      _$endpointAtom.reportChanged();
+    }, _$endpointAtom, name: '${_$endpointAtom.name}_set');
   }
 
   final _$customSS58FormatAtom = Atom(name: '_SettingsStore.customSS58Format');
 
   @override
   Map<String, dynamic> get customSS58Format {
-    _$customSS58FormatAtom.reportRead();
+    _$customSS58FormatAtom.context.enforceReadPolicy(_$customSS58FormatAtom);
+    _$customSS58FormatAtom.reportObserved();
     return super.customSS58Format;
   }
 
   @override
   set customSS58Format(Map<String, dynamic> value) {
-    _$customSS58FormatAtom.reportWrite(value, super.customSS58Format, () {
+    _$customSS58FormatAtom.context.conditionallyRunInAction(() {
       super.customSS58Format = value;
-    });
+      _$customSS58FormatAtom.reportChanged();
+    }, _$customSS58FormatAtom, name: '${_$customSS58FormatAtom.name}_set');
   }
 
   final _$networkNameAtom = Atom(name: '_SettingsStore.networkName');
 
   @override
   String get networkName {
-    _$networkNameAtom.reportRead();
+    _$networkNameAtom.context.enforceReadPolicy(_$networkNameAtom);
+    _$networkNameAtom.reportObserved();
     return super.networkName;
   }
 
   @override
   set networkName(String value) {
-    _$networkNameAtom.reportWrite(value, super.networkName, () {
+    _$networkNameAtom.context.conditionallyRunInAction(() {
       super.networkName = value;
-    });
+      _$networkNameAtom.reportChanged();
+    }, _$networkNameAtom, name: '${_$networkNameAtom.name}_set');
   }
 
   final _$networkStateAtom = Atom(name: '_SettingsStore.networkState');
 
   @override
   NetworkState get networkState {
-    _$networkStateAtom.reportRead();
+    _$networkStateAtom.context.enforceReadPolicy(_$networkStateAtom);
+    _$networkStateAtom.reportObserved();
     return super.networkState;
   }
 
   @override
   set networkState(NetworkState value) {
-    _$networkStateAtom.reportWrite(value, super.networkState, () {
+    _$networkStateAtom.context.conditionallyRunInAction(() {
       super.networkState = value;
-    });
+      _$networkStateAtom.reportChanged();
+    }, _$networkStateAtom, name: '${_$networkStateAtom.name}_set');
   }
 
   final _$networkConstAtom = Atom(name: '_SettingsStore.networkConst');
 
   @override
-  Map<dynamic, dynamic> get networkConst {
-    _$networkConstAtom.reportRead();
+  Map get networkConst {
+    _$networkConstAtom.context.enforceReadPolicy(_$networkConstAtom);
+    _$networkConstAtom.reportObserved();
     return super.networkConst;
   }
 
   @override
-  set networkConst(Map<dynamic, dynamic> value) {
-    _$networkConstAtom.reportWrite(value, super.networkConst, () {
+  set networkConst(Map value) {
+    _$networkConstAtom.context.conditionallyRunInAction(() {
       super.networkConst = value;
-    });
+      _$networkConstAtom.reportChanged();
+    }, _$networkConstAtom, name: '${_$networkConstAtom.name}_set');
   }
 
   final _$contactListAtom = Atom(name: '_SettingsStore.contactList');
 
   @override
   ObservableList<AccountData> get contactList {
-    _$contactListAtom.reportRead();
+    _$contactListAtom.context.enforceReadPolicy(_$contactListAtom);
+    _$contactListAtom.reportObserved();
     return super.contactList;
   }
 
   @override
   set contactList(ObservableList<AccountData> value) {
-    _$contactListAtom.reportWrite(value, super.contactList, () {
+    _$contactListAtom.context.conditionallyRunInAction(() {
       super.contactList = value;
-    });
+      _$contactListAtom.reportChanged();
+    }, _$contactListAtom, name: '${_$contactListAtom.name}_set');
   }
 
-  final _$initAsyncAction = AsyncAction('_SettingsStore.init');
+  final _$initAsyncAction = AsyncAction('init');
 
   @override
   Future<void> init(String sysLocaleCode) {
     return _$initAsyncAction.run(() => super.init(sysLocaleCode));
   }
 
-  final _$setLocalCodeAsyncAction = AsyncAction('_SettingsStore.setLocalCode');
+  final _$setLocalCodeAsyncAction = AsyncAction('setLocalCode');
 
   @override
   Future<void> setLocalCode(String code) {
     return _$setLocalCodeAsyncAction.run(() => super.setLocalCode(code));
   }
 
-  final _$loadLocalCodeAsyncAction =
-      AsyncAction('_SettingsStore.loadLocalCode');
+  final _$loadLocalCodeAsyncAction = AsyncAction('loadLocalCode');
 
   @override
   Future<void> loadLocalCode() {
     return _$loadLocalCodeAsyncAction.run(() => super.loadLocalCode());
   }
 
-  final _$setNetworkStateAsyncAction =
-      AsyncAction('_SettingsStore.setNetworkState');
+  final _$setNetworkStateAsyncAction = AsyncAction('setNetworkState');
 
   @override
   Future<void> setNetworkState(Map<String, dynamic> data) {
@@ -218,7 +229,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
   }
 
   final _$loadNetworkStateCacheAsyncAction =
-      AsyncAction('_SettingsStore.loadNetworkStateCache');
+      AsyncAction('loadNetworkStateCache');
 
   @override
   Future<void> loadNetworkStateCache() {
@@ -226,45 +237,42 @@ mixin _$SettingsStore on _SettingsStore, Store {
         .run(() => super.loadNetworkStateCache());
   }
 
-  final _$setNetworkConstAsyncAction =
-      AsyncAction('_SettingsStore.setNetworkConst');
+  final _$setNetworkConstAsyncAction = AsyncAction('setNetworkConst');
 
   @override
   Future<void> setNetworkConst(Map<String, dynamic> data) {
     return _$setNetworkConstAsyncAction.run(() => super.setNetworkConst(data));
   }
 
-  final _$loadContactsAsyncAction = AsyncAction('_SettingsStore.loadContacts');
+  final _$loadContactsAsyncAction = AsyncAction('loadContacts');
 
   @override
   Future<void> loadContacts() {
     return _$loadContactsAsyncAction.run(() => super.loadContacts());
   }
 
-  final _$addContactAsyncAction = AsyncAction('_SettingsStore.addContact');
+  final _$addContactAsyncAction = AsyncAction('addContact');
 
   @override
   Future<void> addContact(Map<String, dynamic> con) {
     return _$addContactAsyncAction.run(() => super.addContact(con));
   }
 
-  final _$removeContactAsyncAction =
-      AsyncAction('_SettingsStore.removeContact');
+  final _$removeContactAsyncAction = AsyncAction('removeContact');
 
   @override
   Future<void> removeContact(AccountData con) {
     return _$removeContactAsyncAction.run(() => super.removeContact(con));
   }
 
-  final _$updateContactAsyncAction =
-      AsyncAction('_SettingsStore.updateContact');
+  final _$updateContactAsyncAction = AsyncAction('updateContact');
 
   @override
   Future<void> updateContact(Map<String, dynamic> con) {
     return _$updateContactAsyncAction.run(() => super.updateContact(con));
   }
 
-  final _$loadEndpointAsyncAction = AsyncAction('_SettingsStore.loadEndpoint');
+  final _$loadEndpointAsyncAction = AsyncAction('loadEndpoint');
 
   @override
   Future<void> loadEndpoint(String sysLocaleCode) {
@@ -272,8 +280,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
         .run(() => super.loadEndpoint(sysLocaleCode));
   }
 
-  final _$loadCustomSS58FormatAsyncAction =
-      AsyncAction('_SettingsStore.loadCustomSS58Format');
+  final _$loadCustomSS58FormatAsyncAction = AsyncAction('loadCustomSS58Format');
 
   @override
   Future<void> loadCustomSS58Format() {
@@ -281,7 +288,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
         .run(() => super.loadCustomSS58Format());
   }
 
-  final _$setBestNodeAsyncAction = AsyncAction('_SettingsStore.setBestNode');
+  final _$setBestNodeAsyncAction = AsyncAction('setBestNode');
 
   @override
   Future<void> setBestNode({String info}) {
@@ -293,8 +300,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
 
   @override
   void setNetworkLoading(bool isLoading) {
-    final _$actionInfo = _$_SettingsStoreActionController.startAction(
-        name: '_SettingsStore.setNetworkLoading');
+    final _$actionInfo = _$_SettingsStoreActionController.startAction();
     try {
       return super.setNetworkLoading(isLoading);
     } finally {
@@ -304,8 +310,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
 
   @override
   void setNetworkName(String name) {
-    final _$actionInfo = _$_SettingsStoreActionController.startAction(
-        name: '_SettingsStore.setNetworkName');
+    final _$actionInfo = _$_SettingsStoreActionController.startAction();
     try {
       return super.setNetworkName(name);
     } finally {
@@ -315,8 +320,7 @@ mixin _$SettingsStore on _SettingsStore, Store {
 
   @override
   void setEndpoint(EndpointData value) {
-    final _$actionInfo = _$_SettingsStoreActionController.startAction(
-        name: '_SettingsStore.setEndpoint');
+    final _$actionInfo = _$_SettingsStoreActionController.startAction();
     try {
       return super.setEndpoint(value);
     } finally {
@@ -326,29 +330,11 @@ mixin _$SettingsStore on _SettingsStore, Store {
 
   @override
   void setCustomSS58Format(Map<String, dynamic> value) {
-    final _$actionInfo = _$_SettingsStoreActionController.startAction(
-        name: '_SettingsStore.setCustomSS58Format');
+    final _$actionInfo = _$_SettingsStoreActionController.startAction();
     try {
       return super.setCustomSS58Format(value);
     } finally {
       _$_SettingsStoreActionController.endAction(_$actionInfo);
     }
-  }
-
-  @override
-  String toString() {
-    return '''
-loading: ${loading},
-localeCode: ${localeCode},
-endpoint: ${endpoint},
-customSS58Format: ${customSS58Format},
-networkName: ${networkName},
-networkState: ${networkState},
-networkConst: ${networkConst},
-contactList: ${contactList},
-existentialDeposit: ${existentialDeposit},
-transactionBaseFee: ${transactionBaseFee},
-transactionByteFee: ${transactionByteFee}
-    ''';
   }
 }

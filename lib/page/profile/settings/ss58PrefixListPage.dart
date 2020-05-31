@@ -12,6 +12,7 @@ const default_ss58_prefix = {
 const prefixList = [
   default_ss58_prefix,
   {'info': 'substrate', 'text': 'Substrate (development)', 'value': 42},
+  {'info': 'edgeware', 'text': 'Substrate (development)', 'value': 7},
   {'info': 'kusama', 'text': 'Kusama (canary)', 'value': 2},
   {'info': 'polkadot', 'text': 'Polkadot (live)', 'value': 0}
 ];

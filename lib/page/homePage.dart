@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   _HomePageState(this.store);
 
   final AppStore store;
-
+  
   final PageController _pageController = PageController();
 
   NotificationPlugin _notificationPlugin;
@@ -38,11 +38,17 @@ class _HomePageState extends State<HomePage> {
 
   List<BottomNavigationBarItem> _navBarItems(int activeItem) {
     Map<String, String> tabs = I18n.of(context).home;
-    bool isKusama = store.settings.endpoint.info == networkEndpointKusama.info;
+    String imageColor
+      = networkEndpointKusama.info == store.settings.endpoint.info ?
+      'pink800'//Kusama
+      : networkEndpointEdgeware.info == store.settings.endpoint.info ?
+      'green'//Edgeware
+      : //Default
+      'pink';
     return _tabList
         .map((i) => BottomNavigationBarItem(
               icon: Image.asset(_tabList[activeItem] == i
-                  ? 'assets/images/public/${i}_pink${isKusama ? '800' : ''}.png'
+                  ? 'assets/images/public/${i}_$imageColor.png'
                   : 'assets/images/public/${i}_dark.png'),
               title: Text(
                 tabs[i.toLowerCase()],
@@ -70,8 +76,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<Widget> _buildPages() {
-    bool isKusama = store.settings.endpoint.info == networkEndpointKusama.info;
-    String imageColor = isKusama ? 'pink800' : 'pink';
+    String imageColor
+      = networkEndpointKusama.info == store.settings.endpoint.info ?
+      'pink800'//Kusama
+      : networkEndpointEdgeware.info == store.settings.endpoint.info ?
+      'green'//Edgeware
+      : //Default
+      'pink';
     return [0, 1, 2, 3].map((i) {
       if (i == 0) {
         // return assets page

@@ -80,6 +80,7 @@ class _DemocracyState extends State<Democracy> {
     return Observer(
       builder: (_) {
         String symbol = store.settings.networkState.tokenSymbol;
+        int decimals = store.settings.networkState.tokenDecimals;
         List<ReferendumInfo> list = store.gov.referendums;
         int bestNumber = store.gov.bestNumber;
         return RefreshIndicator(
@@ -103,6 +104,7 @@ class _DemocracyState extends State<Democracy> {
                           data: list[i],
                           bestNumber: bestNumber,
                           symbol: symbol,
+                          decimals: decimals,
                           onCancelVote: _submitCancelVote,
                           blockDuration: store.settings.networkConst['babe']
                               ['expectedBlockTime'],

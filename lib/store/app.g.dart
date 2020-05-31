@@ -13,124 +13,125 @@ mixin _$AppStore on _AppStore, Store {
 
   @override
   SettingsStore get settings {
-    _$settingsAtom.reportRead();
+    _$settingsAtom.context.enforceReadPolicy(_$settingsAtom);
+    _$settingsAtom.reportObserved();
     return super.settings;
   }
 
   @override
   set settings(SettingsStore value) {
-    _$settingsAtom.reportWrite(value, super.settings, () {
+    _$settingsAtom.context.conditionallyRunInAction(() {
       super.settings = value;
-    });
+      _$settingsAtom.reportChanged();
+    }, _$settingsAtom, name: '${_$settingsAtom.name}_set');
   }
 
   final _$accountAtom = Atom(name: '_AppStore.account');
 
   @override
   AccountStore get account {
-    _$accountAtom.reportRead();
+    _$accountAtom.context.enforceReadPolicy(_$accountAtom);
+    _$accountAtom.reportObserved();
     return super.account;
   }
 
   @override
   set account(AccountStore value) {
-    _$accountAtom.reportWrite(value, super.account, () {
+    _$accountAtom.context.conditionallyRunInAction(() {
       super.account = value;
-    });
+      _$accountAtom.reportChanged();
+    }, _$accountAtom, name: '${_$accountAtom.name}_set');
   }
 
   final _$assetsAtom = Atom(name: '_AppStore.assets');
 
   @override
   AssetsStore get assets {
-    _$assetsAtom.reportRead();
+    _$assetsAtom.context.enforceReadPolicy(_$assetsAtom);
+    _$assetsAtom.reportObserved();
     return super.assets;
   }
 
   @override
   set assets(AssetsStore value) {
-    _$assetsAtom.reportWrite(value, super.assets, () {
+    _$assetsAtom.context.conditionallyRunInAction(() {
       super.assets = value;
-    });
+      _$assetsAtom.reportChanged();
+    }, _$assetsAtom, name: '${_$assetsAtom.name}_set');
   }
 
   final _$stakingAtom = Atom(name: '_AppStore.staking');
 
   @override
   StakingStore get staking {
-    _$stakingAtom.reportRead();
+    _$stakingAtom.context.enforceReadPolicy(_$stakingAtom);
+    _$stakingAtom.reportObserved();
     return super.staking;
   }
 
   @override
   set staking(StakingStore value) {
-    _$stakingAtom.reportWrite(value, super.staking, () {
+    _$stakingAtom.context.conditionallyRunInAction(() {
       super.staking = value;
-    });
+      _$stakingAtom.reportChanged();
+    }, _$stakingAtom, name: '${_$stakingAtom.name}_set');
   }
 
   final _$govAtom = Atom(name: '_AppStore.gov');
 
   @override
   GovernanceStore get gov {
-    _$govAtom.reportRead();
+    _$govAtom.context.enforceReadPolicy(_$govAtom);
+    _$govAtom.reportObserved();
     return super.gov;
   }
 
   @override
   set gov(GovernanceStore value) {
-    _$govAtom.reportWrite(value, super.gov, () {
+    _$govAtom.context.conditionallyRunInAction(() {
       super.gov = value;
-    });
+      _$govAtom.reportChanged();
+    }, _$govAtom, name: '${_$govAtom.name}_set');
   }
 
   final _$acalaAtom = Atom(name: '_AppStore.acala');
 
   @override
   AcalaStore get acala {
-    _$acalaAtom.reportRead();
+    _$acalaAtom.context.enforceReadPolicy(_$acalaAtom);
+    _$acalaAtom.reportObserved();
     return super.acala;
   }
 
   @override
   set acala(AcalaStore value) {
-    _$acalaAtom.reportWrite(value, super.acala, () {
+    _$acalaAtom.context.conditionallyRunInAction(() {
       super.acala = value;
-    });
+      _$acalaAtom.reportChanged();
+    }, _$acalaAtom, name: '${_$acalaAtom.name}_set');
   }
 
   final _$isReadyAtom = Atom(name: '_AppStore.isReady');
 
   @override
   bool get isReady {
-    _$isReadyAtom.reportRead();
+    _$isReadyAtom.context.enforceReadPolicy(_$isReadyAtom);
+    _$isReadyAtom.reportObserved();
     return super.isReady;
   }
 
   @override
   set isReady(bool value) {
-    _$isReadyAtom.reportWrite(value, super.isReady, () {
+    _$isReadyAtom.context.conditionallyRunInAction(() {
       super.isReady = value;
-    });
+      _$isReadyAtom.reportChanged();
+    }, _$isReadyAtom, name: '${_$isReadyAtom.name}_set');
   }
 
-  final _$initAsyncAction = AsyncAction('_AppStore.init');
+  final _$initAsyncAction = AsyncAction('init');
 
   @override
   Future<void> init(String sysLocaleCode) {
     return _$initAsyncAction.run(() => super.init(sysLocaleCode));
-  }
-
-  @override
-  String toString() {
-    return '''
-settings: ${settings},
-account: ${account},
-assets: ${assets},
-staking: ${staking},
-gov: ${gov},
-acala: ${acala},
-isReady: ${isReady}
-    ''';
   }
 }

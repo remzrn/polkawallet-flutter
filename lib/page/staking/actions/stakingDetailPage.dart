@@ -18,6 +18,7 @@ class StakingDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     var dic = I18n.of(context).staking;
     String symbol = store.settings.networkState.tokenSymbol;
+    final int decimals = store.settings.networkState.tokenDecimals;
     final TxData detail = ModalRoute.of(context).settings.arguments;
     List<DetailInfoItem> info = <DetailInfoItem>[
       DetailInfoItem(label: dic['action'], title: detail.call),
@@ -30,7 +31,7 @@ class StakingDetailPage extends StatelessWidget {
           value = Fmt.address(value);
           break;
         case "Compact<BalanceOf>":
-          value = Fmt.balance(value);
+          value = Fmt.balance(value, decimals: decimals);
           break;
       }
       return DetailInfoItem(
