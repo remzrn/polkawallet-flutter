@@ -40,16 +40,32 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
   EndpointData _selectedNetwork;
   bool _networkChanging = false;
 
+  void _loadAccountCache() {
+    // refresh balance
+    store.assets.clearTxs();
+    store.assets.loadAccountCache();
+
+    if (store.settings.endpoint.info == networkEndpointAcala.info) {
+      store.acala.loadCache();
+    } else {
+      // refresh user's staking info if network is kusama or polkadot
+      store.staking.clearState();
+      store.staking.loadAccountCache();
+    }
+  }
+
   Future<void> _reloadNetwork() async {
     setState(() {
       _networkChanging = true;
     });
-    await store.settings.setBestNode(info: _selectedNetwork.info);
-    store.settings.networkName=store.settings.endpoint.info;
+    store.settings.setEndpoint(_selectedNetwork);
+
     store.settings.loadNetworkStateCache();
     store.settings.setNetworkLoading(true);
-    store.assets.clearTxs();
-    store.staking.clearState();
+
+    store.gov.setReferendums([]);
+    _loadAccountCache();
+
     webApi.launchWebview();
     changeTheme();
     if (mounted) {
@@ -62,16 +78,7 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
   Future<void> _onSelect(AccountData i, String address) async {
     if (address != store.account.currentAddress) {
       /// set current account
-      store.account.setCurrentAccount(i);
-      // refresh balance
-      store.assets.loadAccountCache();
-
-      if (store.settings.endpoint.info == networkEndpointAcala.info) {
-        store.acala.loadCache();
-      } else {
-        // refresh user's staking info if network is kusama or polkadot
-        store.staking.loadAccountCache();
-      }
+      store.account.setCurrentAccount(i.pubKey);
 
       if (store.settings.endpoint.info == networkEndpointEdgeware.info) {
         // refresh user's staking info
@@ -81,6 +88,8 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
       bool isCurrentNetwork =
           _selectedNetwork.info == store.settings.endpoint.info;
       if (isCurrentNetwork) {
+        _loadAccountCache();
+
         /// reload account info
         webApi.assets.fetchBalance(i.pubKey);
       } else {
@@ -215,6 +224,7 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
                           if (!isCurrent) {
                             setState(() {
                               _selectedNetwork = i;
+                              _reloadNetwork();
                             });
                           }
                         },

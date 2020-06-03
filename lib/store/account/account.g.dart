@@ -9,6 +9,12 @@ part of 'account.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$AccountStore on _AccountStore, Store {
+  Computed<AccountData> _$currentAccountComputed;
+
+  @override
+  AccountData get currentAccount => (_$currentAccountComputed ??=
+          Computed<AccountData>(() => super.currentAccount))
+      .value;
   Computed<ObservableList<AccountData>> _$optionalAccountsComputed;
 
   @override
@@ -81,21 +87,24 @@ mixin _$AccountStore on _AccountStore, Store {
     }, _$newAccountAtom, name: '${_$newAccountAtom.name}_set');
   }
 
-  final _$currentAccountAtom = Atom(name: '_AccountStore.currentAccount');
+  final _$currentAccountPubKeyAtom =
+      Atom(name: '_AccountStore.currentAccountPubKey');
 
   @override
-  AccountData get currentAccount {
-    _$currentAccountAtom.context.enforceReadPolicy(_$currentAccountAtom);
-    _$currentAccountAtom.reportObserved();
-    return super.currentAccount;
+  String get currentAccountPubKey {
+    _$currentAccountPubKeyAtom.context
+        .enforceReadPolicy(_$currentAccountPubKeyAtom);
+    _$currentAccountPubKeyAtom.reportObserved();
+    return super.currentAccountPubKey;
   }
 
   @override
-  set currentAccount(AccountData value) {
-    _$currentAccountAtom.context.conditionallyRunInAction(() {
-      super.currentAccount = value;
-      _$currentAccountAtom.reportChanged();
-    }, _$currentAccountAtom, name: '${_$currentAccountAtom.name}_set');
+  set currentAccountPubKey(String value) {
+    _$currentAccountPubKeyAtom.context.conditionallyRunInAction(() {
+      super.currentAccountPubKey = value;
+      _$currentAccountPubKeyAtom.reportChanged();
+    }, _$currentAccountPubKeyAtom,
+        name: '${_$currentAccountPubKeyAtom.name}_set');
   }
 
   final _$accountListAtom = Atom(name: '_AccountStore.accountList');
@@ -217,6 +226,14 @@ mixin _$AccountStore on _AccountStore, Store {
     }, _$recoveryInfoAtom, name: '${_$recoveryInfoAtom.name}_set');
   }
 
+  final _$updateAccountNameAsyncAction = AsyncAction('updateAccountName');
+
+  @override
+  Future<void> updateAccountName(String name) {
+    return _$updateAccountNameAsyncAction
+        .run(() => super.updateAccountName(name));
+  }
+
   final _$updateAccountAsyncAction = AsyncAction('updateAccount');
 
   @override
@@ -329,30 +346,20 @@ mixin _$AccountStore on _AccountStore, Store {
   }
 
   @override
-  void resetNewAccount(String name, String password) {
+  void resetNewAccount() {
     final _$actionInfo = _$_AccountStoreActionController.startAction();
     try {
-      return super.resetNewAccount(name, password);
+      return super.resetNewAccount();
     } finally {
       _$_AccountStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void setCurrentAccount(AccountData acc) {
+  void setCurrentAccount(String pubKey) {
     final _$actionInfo = _$_AccountStoreActionController.startAction();
     try {
-      return super.setCurrentAccount(acc);
-    } finally {
-      _$_AccountStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void updateAccountName(String name) {
-    final _$actionInfo = _$_AccountStoreActionController.startAction();
-    try {
-      return super.updateAccountName(name);
+      return super.setCurrentAccount(pubKey);
     } finally {
       _$_AccountStoreActionController.endAction(_$actionInfo);
     }

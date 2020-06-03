@@ -45,6 +45,12 @@ Map<String, dynamic> _$EndpointDataToJson(EndpointData instance) =>
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$SettingsStore on _SettingsStore, Store {
+  Computed<List<EndpointData>> _$endpointListComputed;
+
+  @override
+  List<EndpointData> get endpointList => (_$endpointListComputed ??=
+          Computed<List<EndpointData>>(() => super.endpointList))
+      .value;
   Computed<String> _$existentialDepositComputed;
 
   @override
@@ -286,13 +292,6 @@ mixin _$SettingsStore on _SettingsStore, Store {
   Future<void> loadCustomSS58Format() {
     return _$loadCustomSS58FormatAsyncAction
         .run(() => super.loadCustomSS58Format());
-  }
-
-  final _$setBestNodeAsyncAction = AsyncAction('setBestNode');
-
-  @override
-  Future<void> setBestNode({String info}) {
-    return _$setBestNodeAsyncAction.run(() => super.setBestNode(info: info));
   }
 
   final _$_SettingsStoreActionController =
