@@ -34,6 +34,7 @@ class StakingDetailPage extends StatelessWidget {
           value = Fmt.balance(value, decimals: decimals);
           break;
         case "AccountId":
+          value = value.contains('0x') ? value : '0x$value';
           String address = store
               .account.pubKeyAddressMap[store.settings.endpoint.ss58][value];
           value = Fmt.address(address);
