@@ -9,21 +9,18 @@ import 'package:polka_wallet/utils/format.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
 class Validator extends StatelessWidget {
-  Validator(this.store, this.validator);
+  Validator(this.validator, this.accInfo, this.decimals, {this.hasPhalaAirdrop = false});
 
-  final AppStore store;
   final ValidatorData validator;
+  final Map accInfo;
+  final int decimals;
+  final bool hasPhalaAirdrop;
 
   @override
   Widget build(BuildContext context) {
     var dic = I18n.of(context).staking;
-    Map accInfo = store.account.accountIndexMap[validator.accountId];
-    final int decimals = store.settings.networkState.tokenDecimals;
 //    print(accInfo['identity']);
     bool hasDetail = validator.commission.isNotEmpty;
-
-    bool hasPhalaAirdrop =
-        store.staking.phalaAirdropWhiteList[validator.accountId] ?? false;
     return GestureDetector(
       child: Container(
         color: Colors.white,

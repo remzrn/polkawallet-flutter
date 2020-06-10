@@ -51,6 +51,12 @@ mixin _$SettingsStore on _SettingsStore, Store {
   List<EndpointData> get endpointList => (_$endpointListComputed ??=
           Computed<List<EndpointData>>(() => super.endpointList))
       .value;
+  Computed<List<AccountData>> _$contactListAllComputed;
+
+  @override
+  List<AccountData> get contactListAll => (_$contactListAllComputed ??=
+          Computed<List<AccountData>>(() => super.contactListAll))
+      .value;
   Computed<String> _$existentialDepositComputed;
 
   @override
