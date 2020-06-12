@@ -81,10 +81,11 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
   Future<void> _showTxQrCode(BuildContext context) async {
     final Map args = ModalRoute.of(context).settings.arguments;
 
-    Map txInfo = args['txInfo'];
-    txInfo['pubKey'] = store.account.currentAccount.pubKey;
-    print(txInfo);
-    print(args['params']);
+    print('show qr');
+//    Map txInfo = args['txInfo'];
+//    txInfo['pubKey'] = store.account.currentAccount.pubKey;
+//    print(txInfo);
+//    print(args['params']);
 //    Navigator.of(context).pushNamed(routeName, arguments: );
   }
 
@@ -147,8 +148,6 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
   }
 
   Future<bool> _validateProxy() async {
-    if (null == _proxyAccount)
-      return false;
     List proxies =
         await webApi.account.queryRecoveryProxies([_proxyAccount.address]);
     print(proxies);
@@ -156,8 +155,7 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
   }
 
   Future<void> _showPasswordDialog(BuildContext context) async {
-    bool isProxyAvailable = await _validateProxy();
-    if (!isProxyAvailable && null != _proxyAccount) {
+    if (_proxyAccount != null && !(await _validateProxy())) {
       String address = store.account
           .pubKeyAddressMap[store.settings.endpoint.ss58][_proxyAccount.pubKey];
       showCupertinoDialog(
@@ -446,7 +444,7 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
                               ? dic['submit.no.sign']
                               : (isObservation && _proxyAccount == null) ||
                                       isProxyObservation
-                                  ? dic['submit.qr']
+                                  ? 'invalid' // dic['submit.qr']
                                   : dic['submit'],
                           style: TextStyle(color: Colors.white),
                         ),

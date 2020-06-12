@@ -115,7 +115,7 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
       = networkEndpointAcala.info == store.settings.endpoint.info ?
       'indigo'//Acala
       : networkEndpointKusama.info == store.settings.endpoint.info ?
-      'pink800'//Kusama
+      'black'//Kusama
       : networkEndpointEdgeware.info == store.settings.endpoint.info ?
       'green'//Edgeware
       : //Default

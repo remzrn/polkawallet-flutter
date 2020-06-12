@@ -133,7 +133,7 @@ class _AssetsState extends State<Assets> {
       = isAcala ?
       'indigo'//Acala
       : isKusama ?
-      'pink800'//Kusama
+      'black'//Kusama
       : networkEndpointEdgeware.info == store.settings.endpoint.info ?
       'green'//Edgeware
       : //Default

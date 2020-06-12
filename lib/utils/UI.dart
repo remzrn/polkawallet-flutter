@@ -76,7 +76,7 @@ class UI {
 
   static Future<void> checkUpdate(BuildContext context, Map versions,
       {bool autoCheck = false}) async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (versions == null || !Platform.isAndroid && !Platform.isIOS) return;
     String platform = Platform.isAndroid ? 'android' : 'ios';
     bool needUpdate = false;
     if (null == I18n.of(context)){

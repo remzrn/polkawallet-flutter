@@ -65,7 +65,7 @@ class Api {
 
     _web.onStateChanged.listen((viewState) async {
       if (viewState.type == WebViewState.finishLoad) {
-        String network = 'kusama';
+        String network = store.settings.endpoint.info=='edgeware'?'edgeware':'kusama';
         print('webview loaded for network $network');
         if (store.settings.endpoint.info.contains('acala')) {
           network = 'acala';
@@ -196,7 +196,7 @@ class Api {
     store.settings.setNetworkName(info[2]);
 
     // fetch account balance
-    if (store.account.accountList.length > 0) {
+    if (store.account.accountListAll.length > 0) {
       if (store.settings.endpoint.info == networkEndpointAcala.info) {
         await assets.fetchBalance();
         return;

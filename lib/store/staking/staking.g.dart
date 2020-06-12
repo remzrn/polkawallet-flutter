@@ -36,6 +36,13 @@ mixin _$StakingStore on _StakingStore, Store {
   BigInt get accountRewardTotal => (_$accountRewardTotalComputed ??=
           Computed<BigInt>(() => super.accountRewardTotal))
       .value;
+  Computed<List<String>> _$recommendedValidatorListComputed;
+
+  @override
+  List<String> get recommendedValidatorList =>
+      (_$recommendedValidatorListComputed ??=
+              Computed<List<String>>(() => super.recommendedValidatorList))
+          .value;
 
   final _$cacheTxsTimestampAtom = Atom(name: '_StakingStore.cacheTxsTimestamp');
 
@@ -267,6 +274,26 @@ mixin _$StakingStore on _StakingStore, Store {
         name: '${_$phalaAirdropWhiteListAtom.name}_set');
   }
 
+  final _$recommendedValidatorsAtom =
+      Atom(name: '_StakingStore.recommendedValidators');
+
+  @override
+  Map get recommendedValidators {
+    _$recommendedValidatorsAtom.context
+        .enforceReadPolicy(_$recommendedValidatorsAtom);
+    _$recommendedValidatorsAtom.reportObserved();
+    return super.recommendedValidators;
+  }
+
+  @override
+  set recommendedValidators(Map value) {
+    _$recommendedValidatorsAtom.context.conditionallyRunInAction(() {
+      super.recommendedValidators = value;
+      _$recommendedValidatorsAtom.reportChanged();
+    }, _$recommendedValidatorsAtom,
+        name: '${_$recommendedValidatorsAtom.name}_set');
+  }
+
   final _$clearTxsAsyncAction = AsyncAction('clearTxs');
 
   @override
@@ -310,6 +337,15 @@ mixin _$StakingStore on _StakingStore, Store {
   Future<void> setPhalaAirdropWhiteList(List ls) {
     return _$setPhalaAirdropWhiteListAsyncAction
         .run(() => super.setPhalaAirdropWhiteList(ls));
+  }
+
+  final _$setRecommendedValidatorListAsyncAction =
+      AsyncAction('setRecommendedValidatorList');
+
+  @override
+  Future<void> setRecommendedValidatorList(Map data) {
+    return _$setRecommendedValidatorListAsyncAction
+        .run(() => super.setRecommendedValidatorList(data));
   }
 
   final _$_StakingStoreActionController =

@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
     Map<String, String> tabs = I18n.of(context).home;
     String imageColor
       = networkEndpointKusama.info == store.settings.endpoint.info ?
-      'pink800'//Kusama
+      'black'//Kusama
       : networkEndpointEdgeware.info == store.settings.endpoint.info ?
       'green'//Edgeware
       : //Default
@@ -78,7 +78,7 @@ class _HomePageState extends State<HomePage> {
   List<Widget> _buildPages() {
     String imageColor
       = networkEndpointKusama.info == store.settings.endpoint.info ?
-      'pink800'//Kusama
+      'black'//Kusama
       : networkEndpointEdgeware.info == store.settings.endpoint.info ?
       'green'//Edgeware
       : //Default
