@@ -9,6 +9,12 @@ part of 'staking.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$StakingStore on _StakingStore, Store {
+  Computed<List<ValidatorData>> _$validatorsAllComputed;
+
+  @override
+  List<ValidatorData> get validatorsAll => (_$validatorsAllComputed ??=
+          Computed<List<ValidatorData>>(() => super.validatorsAll))
+      .value;
   Computed<List<ValidatorData>> _$activeNominatingListComputed;
 
   @override
@@ -22,11 +28,11 @@ mixin _$StakingStore on _StakingStore, Store {
   List<ValidatorData> get nominatingList => (_$nominatingListComputed ??=
           Computed<List<ValidatorData>>(() => super.nominatingList))
       .value;
-  Computed<Map<String, List<String>>> _$nominationsAllComputed;
+  Computed<Map<String, List>> _$nominationsAllComputed;
 
   @override
-  Map<String, List<String>> get nominationsAll => (_$nominationsAllComputed ??=
-          Computed<Map<String, List<String>>>(() => super.nominationsAll))
+  Map<String, List> get nominationsAll => (_$nominationsAllComputed ??=
+          Computed<Map<String, List>>(() => super.nominationsAll))
       .value;
   Computed<BigInt> _$accountUnlockingTotalComputed;
 
@@ -360,16 +366,6 @@ mixin _$StakingStore on _StakingStore, Store {
     final _$actionInfo = _$_StakingStoreActionController.startAction();
     try {
       return super.setValidatorsInfo(data, shouldCache: shouldCache);
-    } finally {
-      _$_StakingStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setNextUpsInfo(dynamic list) {
-    final _$actionInfo = _$_StakingStoreActionController.startAction();
-    try {
-      return super.setNextUpsInfo(list);
     } finally {
       _$_StakingStoreActionController.endAction(_$actionInfo);
     }
