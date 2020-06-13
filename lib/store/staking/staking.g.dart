@@ -9,21 +9,25 @@ part of 'staking.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$StakingStore on _StakingStore, Store {
-  Computed<ObservableList<ValidatorData>> _$activeNominatingListComputed;
+  Computed<List<ValidatorData>> _$activeNominatingListComputed;
 
   @override
-  ObservableList<ValidatorData> get activeNominatingList =>
+  List<ValidatorData> get activeNominatingList =>
       (_$activeNominatingListComputed ??=
-              Computed<ObservableList<ValidatorData>>(
-                  () => super.activeNominatingList))
+              Computed<List<ValidatorData>>(() => super.activeNominatingList))
           .value;
-  Computed<ObservableList<ValidatorData>> _$nominatingListComputed;
+  Computed<List<ValidatorData>> _$nominatingListComputed;
 
   @override
-  ObservableList<ValidatorData> get nominatingList =>
-      (_$nominatingListComputed ??= Computed<ObservableList<ValidatorData>>(
-              () => super.nominatingList))
-          .value;
+  List<ValidatorData> get nominatingList => (_$nominatingListComputed ??=
+          Computed<List<ValidatorData>>(() => super.nominatingList))
+      .value;
+  Computed<Map<String, List<String>>> _$nominationsAllComputed;
+
+  @override
+  Map<String, List<String>> get nominationsAll => (_$nominationsAllComputed ??=
+          Computed<Map<String, List<String>>>(() => super.nominationsAll))
+      .value;
   Computed<BigInt> _$accountUnlockingTotalComputed;
 
   @override
@@ -115,14 +119,14 @@ mixin _$StakingStore on _StakingStore, Store {
   final _$validatorsInfoAtom = Atom(name: '_StakingStore.validatorsInfo');
 
   @override
-  ObservableList<ValidatorData> get validatorsInfo {
+  List<ValidatorData> get validatorsInfo {
     _$validatorsInfoAtom.context.enforceReadPolicy(_$validatorsInfoAtom);
     _$validatorsInfoAtom.reportObserved();
     return super.validatorsInfo;
   }
 
   @override
-  set validatorsInfo(ObservableList<ValidatorData> value) {
+  set validatorsInfo(List<ValidatorData> value) {
     _$validatorsInfoAtom.context.conditionallyRunInAction(() {
       super.validatorsInfo = value;
       _$validatorsInfoAtom.reportChanged();
@@ -132,14 +136,14 @@ mixin _$StakingStore on _StakingStore, Store {
   final _$nextUpsInfoAtom = Atom(name: '_StakingStore.nextUpsInfo');
 
   @override
-  ObservableList<ValidatorData> get nextUpsInfo {
+  List<ValidatorData> get nextUpsInfo {
     _$nextUpsInfoAtom.context.enforceReadPolicy(_$nextUpsInfoAtom);
     _$nextUpsInfoAtom.reportObserved();
     return super.nextUpsInfo;
   }
 
   @override
-  set nextUpsInfo(ObservableList<ValidatorData> value) {
+  set nextUpsInfo(List<ValidatorData> value) {
     _$nextUpsInfoAtom.context.conditionallyRunInAction(() {
       super.nextUpsInfo = value;
       _$nextUpsInfoAtom.reportChanged();
