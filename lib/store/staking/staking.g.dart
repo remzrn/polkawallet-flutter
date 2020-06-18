@@ -9,6 +9,12 @@ part of 'staking.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$StakingStore on _StakingStore, Store {
+  Computed<List<ValidatorData>> _$nextUpsInfoComputed;
+
+  @override
+  List<ValidatorData> get nextUpsInfo => (_$nextUpsInfoComputed ??=
+          Computed<List<ValidatorData>>(() => super.nextUpsInfo))
+      .value;
   Computed<List<ValidatorData>> _$validatorsAllComputed;
 
   @override
@@ -137,23 +143,6 @@ mixin _$StakingStore on _StakingStore, Store {
       super.validatorsInfo = value;
       _$validatorsInfoAtom.reportChanged();
     }, _$validatorsInfoAtom, name: '${_$validatorsInfoAtom.name}_set');
-  }
-
-  final _$nextUpsInfoAtom = Atom(name: '_StakingStore.nextUpsInfo');
-
-  @override
-  List<ValidatorData> get nextUpsInfo {
-    _$nextUpsInfoAtom.context.enforceReadPolicy(_$nextUpsInfoAtom);
-    _$nextUpsInfoAtom.reportObserved();
-    return super.nextUpsInfo;
-  }
-
-  @override
-  set nextUpsInfo(List<ValidatorData> value) {
-    _$nextUpsInfoAtom.context.conditionallyRunInAction(() {
-      super.nextUpsInfo = value;
-      _$nextUpsInfoAtom.reportChanged();
-    }, _$nextUpsInfoAtom, name: '${_$nextUpsInfoAtom.name}_set');
   }
 
   final _$ledgerAtom = Atom(name: '_StakingStore.ledger');

@@ -56,19 +56,15 @@ class Validator extends StatelessWidget {
                           : Container(),
                       hasPhalaAirdrop ? TextTag(dic['phala']) : Container(),
                       Expanded(
-                        child: Text(accInfo != null &&
-                                accInfo['identity']['display'] != null
-                            ? accInfo['identity']['display']
-                                .toString()
-                                .toUpperCase()
-                            : Fmt.address(validator.accountId, pad: 6)),
+                        child:
+                            Text(Fmt.validatorDisplayName(validator, accInfo)),
                       ),
                     ],
                   ),
                   Text(
                     !isWaiting
                         ? '${dic['total']}: ${hasDetail ? Fmt.token(validator.total, decimals: decimals) : '~'}'
-                        : '${dic['nominating']}: ${nominations.length}',
+                        : '${dic['nominators']}: ${nominations.length}',
                     style: TextStyle(
                       color: Theme.of(context).unselectedWidgetColor,
                       fontSize: 12,

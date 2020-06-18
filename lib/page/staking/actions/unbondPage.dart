@@ -59,8 +59,8 @@ class _UnBondPageState extends State<UnBondPage> {
                     padding: EdgeInsets.all(16),
                     children: <Widget>[
                       AddressFormItem(
-                        dic['controller'],
                         store.account.currentAccount,
+                        label: dic['controller'],
                       ),
                       TextFormField(
                         decoration: InputDecoration(

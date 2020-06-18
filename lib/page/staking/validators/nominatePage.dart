@@ -77,13 +77,13 @@ class _NominatePageState extends State<NominatePage> {
     Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: args);
   }
 
-  Widget _buildListItem(BuildContext context, int i, List<ValidatorData> list) {
+  Widget _buildListItem(BuildContext context, ValidatorData validator) {
     final dic = I18n.of(context).staking;
-    final Map accInfo = store.account.accountIndexMap[list[i].accountId];
+    final Map accInfo = store.account.accountIndexMap[validator.accountId];
     final bool hasPhalaAirdrop =
-        store.staking.phalaAirdropWhiteList[list[i].accountId] ?? false;
-    final bool isWaiting = list[i].total == BigInt.zero;
-    final nominations = store.staking.nominationsAll[list[i].accountId] ?? [];
+        store.staking.phalaAirdropWhiteList[validator.accountId] ?? false;
+    final bool isWaiting = validator.total == BigInt.zero;
+    final nominations = store.staking.nominationsAll[validator.accountId] ?? [];
     final int decimals = store.settings.networkState.tokenDecimals;
     return GestureDetector(
       child: Container(
@@ -93,7 +93,7 @@ class _NominatePageState extends State<NominatePage> {
           children: <Widget>[
             Container(
               margin: EdgeInsets.only(right: 16),
-              child: AddressIcon(list[i].accountId),
+              child: AddressIcon(validator.accountId),
             ),
             Expanded(
               child: Column(
@@ -110,17 +110,15 @@ class _NominatePageState extends State<NominatePage> {
                                   'assets/images/assets/success.png'),
                             )
                           : Container(),
-                      Text(accInfo != null &&
-                              accInfo['identity']['display'] != null
-                          ? accInfo['identity']['display']
-                              .toString()
-                              .toUpperCase()
-                          : Fmt.address(list[i].accountId, pad: 6)),
+                      Expanded(
+                        child:
+                            Text(Fmt.validatorDisplayName(validator, accInfo)),
+                      ),
                     ],
                   ),
                   !isWaiting
                       ? Text(
-                          '${dic['total']}: ${Fmt.token(list[i].total, decimals: decimals)}',
+                          '${dic['total']}: ${Fmt.token(validator.total, decimals: decimals)}',
                           style: TextStyle(
                             color: Theme.of(context).unselectedWidgetColor,
                             fontSize: 12,
@@ -130,7 +128,7 @@ class _NominatePageState extends State<NominatePage> {
                   Text(
                     isWaiting
                         ? dic['waiting']
-                        : '${dic['commission']}: ${list[i].commission}',
+                        : '${dic['commission']}: ${validator.commission}',
                     style: TextStyle(
                       color: Theme.of(context).unselectedWidgetColor,
                       fontSize: 12,
@@ -140,8 +138,8 @@ class _NominatePageState extends State<NominatePage> {
                     children: [
                       Text(
                         isWaiting
-                            ? '${dic['nominating']}: ${nominations.length}'
-                            : '${dic['points']}: ${list[i].points}',
+                            ? '${dic['nominators']}: ${nominations.length}'
+                            : '${dic['points']}: ${validator.points}',
                         style: TextStyle(
                           color: Theme.of(context).unselectedWidgetColor,
                           fontSize: 12,
@@ -154,21 +152,21 @@ class _NominatePageState extends State<NominatePage> {
               ),
             ),
             CupertinoSwitch(
-              value: _selectedMap[list[i].accountId],
+              value: _selectedMap[validator.accountId],
               onChanged: (bool value) {
                 setState(() {
-                  _selectedMap[list[i].accountId] = value;
+                  _selectedMap[validator.accountId] = value;
                 });
                 Timer(Duration(milliseconds: 300), () {
                   setState(() {
                     if (value) {
-                      _selected.add(list[i]);
+                      _selected.add(validator);
                       _notSelected.removeWhere(
-                          (item) => item.accountId == list[i].accountId);
+                          (item) => item.accountId == validator.accountId);
                     } else {
                       _selected.removeWhere(
-                          (item) => item.accountId == list[i].accountId);
-                      _notSelected.add(list[i]);
+                          (item) => item.accountId == validator.accountId);
+                      _notSelected.add(validator);
                     }
                   });
                 });
@@ -178,7 +176,7 @@ class _NominatePageState extends State<NominatePage> {
         ),
       ),
       onTap: () => Navigator.of(context)
-          .pushNamed(ValidatorDetailPage.route, arguments: list[i]),
+          .pushNamed(ValidatorDetailPage.route, arguments: validator),
     );
   }
 
@@ -263,7 +261,7 @@ class _NominatePageState extends State<NominatePage> {
                 child: ListView.builder(
                   itemCount: list.length,
                   itemBuilder: (BuildContext context, int i) {
-                    return _buildListItem(context, i, list);
+                    return _buildListItem(context, list[i]);
                   },
                 ),
               ),
