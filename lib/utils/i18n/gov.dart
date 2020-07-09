@@ -1,6 +1,18 @@
 const Map<String, String> enGov = {
   'democracy': 'Democracy',
+  'democracy.brief':
+      'This application lets you view proposals and vote for or against a referendum. Anyone can create a proposal by bonding the minimum deposit for a certain period of time (No. of Blocks).',
+  'democracy.referendum': 'Referendums',
+  'democracy.proposal': 'Proposals',
   'council': 'Council',
+  'council.brief':
+      'This application lets you vote for council members or submit a candidate.',
+  'council.motion': 'Motions',
+  'treasury': 'Treasury',
+  'treasury.brief':
+      'This application lets you view and vote to approve or deny treasury spend proposals.',
+  'treasury.proposal': 'Proposals',
+  'treasury.tip': 'Tips',
   'seats': 'Seats',
   'member': 'Members',
   'up': 'Runners Up',
@@ -38,8 +50,17 @@ const Map<String, String> enGov = {
 };
 
 const Map<String, String> zhGov = {
-  'democracy': '民主',
+  'democracy': '民主权利',
+  'democracy.brief': '提交一个民主提案或为其他人的提案进行投票。',
+  'democracy.referendum': '公投',
+  'democracy.proposal': '提案',
   'council': '议会',
+  'council.brief': '在这里为议会成员或候选人投票，还可以提交自己作为候选人。',
+  'council.motion': '议案',
+  'treasury': '财政',
+  'treasury.brief': '查看网络的财政支出项目，或为其投票。',
+  'treasury.proposal': '财政提案',
+  'treasury.tip': '小费',
   'seats': '席位',
   'member': '成员',
   'up': '候补',
