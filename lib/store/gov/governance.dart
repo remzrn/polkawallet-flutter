@@ -2,6 +2,8 @@ import 'package:mobx/mobx.dart';
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/store/gov/types/referendumInfoData.dart';
 import 'package:polka_wallet/store/gov/types/councilInfoData.dart';
+import 'package:polka_wallet/store/gov/types/treasuryOverviewData.dart';
+import 'package:polka_wallet/store/gov/types/treasuryTipData.dart';
 
 part 'governance.g.dart';
 
@@ -37,6 +39,12 @@ abstract class _GovernanceStore with Store {
 
   @observable
   ObservableList<ReferendumInfo> referendums;
+
+  @observable
+  TreasuryOverviewData treasuryOverview = TreasuryOverviewData();
+
+  @observable
+  List<TreasuryTipData> treasuryTips = [];
 
   @action
   void setCouncilInfo(Map info, {bool shouldCache = true}) {
@@ -78,5 +86,17 @@ abstract class _GovernanceStore with Store {
       setCouncilInfo(data['data'], shouldCache: false);
       cacheCouncilTimestamp = data['cacheTime'];
     }
+  }
+
+  @action
+  void setTreasuryOverview(Map data) {
+    treasuryOverview = TreasuryOverviewData.fromJson(data);
+  }
+
+  @action
+  void setTreasuryTips(List data) {
+    treasuryTips = data
+        .map((e) => TreasuryTipData.fromJson(Map<String, dynamic>.of(e)))
+        .toList();
   }
 }

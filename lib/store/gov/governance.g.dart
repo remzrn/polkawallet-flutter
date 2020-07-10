@@ -102,6 +102,37 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
     });
   }
 
+  final _$treasuryOverviewAtom =
+      Atom(name: '_GovernanceStore.treasuryOverview');
+
+  @override
+  TreasuryOverviewData get treasuryOverview {
+    _$treasuryOverviewAtom.reportRead();
+    return super.treasuryOverview;
+  }
+
+  @override
+  set treasuryOverview(TreasuryOverviewData value) {
+    _$treasuryOverviewAtom.reportWrite(value, super.treasuryOverview, () {
+      super.treasuryOverview = value;
+    });
+  }
+
+  final _$treasuryTipsAtom = Atom(name: '_GovernanceStore.treasuryTips');
+
+  @override
+  List<TreasuryTipData> get treasuryTips {
+    _$treasuryTipsAtom.reportRead();
+    return super.treasuryTips;
+  }
+
+  @override
+  set treasuryTips(List<TreasuryTipData> value) {
+    _$treasuryTipsAtom.reportWrite(value, super.treasuryTips, () {
+      super.treasuryTips = value;
+    });
+  }
+
   final _$loadCacheAsyncAction = AsyncAction('_GovernanceStore.loadCache');
 
   @override
@@ -168,6 +199,28 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   }
 
   @override
+  void setTreasuryOverview(Map<dynamic, dynamic> data) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setTreasuryOverview');
+    try {
+      return super.setTreasuryOverview(data);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setTreasuryTips(List<dynamic> data) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setTreasuryTips');
+    try {
+      return super.setTreasuryTips(data);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 cacheCouncilTimestamp: ${cacheCouncilTimestamp},
@@ -175,7 +228,9 @@ bestNumber: ${bestNumber},
 council: ${council},
 councilVotes: ${councilVotes},
 userCouncilVotes: ${userCouncilVotes},
-referendums: ${referendums}
+referendums: ${referendums},
+treasuryOverview: ${treasuryOverview},
+treasuryTips: ${treasuryTips}
     ''';
   }
 }

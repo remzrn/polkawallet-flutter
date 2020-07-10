@@ -1,5 +1,6 @@
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
+import 'package:polka_wallet/store/gov/types/treasuryOverviewData.dart';
 
 class ApiGovernance {
   ApiGovernance(this.apiRoot);
@@ -48,6 +49,63 @@ class ApiGovernance {
       });
       store.gov.setReferendums(List<Map<String, dynamic>>.from(list));
     }
+    return data;
+  }
+
+  Future<Map> fetchTreasuryOverview() async {
+//    Map data = await apiRoot.evalJavascript('gov.getTreasuryOverview()');
+
+    const Map<String, dynamic> treasuryProposal33 = {
+      "proposer": "DfyDF9aumWDoF6FhUEsw6LJVvCfv3eCV8EnM3zunEkoiwSG",
+      "value": 2300000000000000,
+      "beneficiary": "DfyDF9aumWDoF6FhUEsw6LJVvCfv3eCV8EnM3zunEkoiwSG",
+      "bond": 115000000000000
+    };
+    final Map<String, dynamic> treasuryOverview = {
+      "approvals": [
+        {"council": [], "id": 33, "proposal": treasuryProposal33},
+        {
+          "council": [],
+          "id": 34,
+          "proposal": {
+            "proposer": "FyLYnuNoMAVkz1VZMMGZFHDPghQQm1916fCon1CqNt2aXbX",
+            "value": 2500000000000000,
+            "beneficiary": "FyLYnuNoMAVkz1VZMMGZFHDPghQQm1916fCon1CqNt2aXbX",
+            "bond": 125000000000000
+          }
+        },
+        {
+          "council": [],
+          "id": 35,
+          "proposal": {
+            "proposer": "D3akXZ5Aawj7ZQMsvL5oTcxaWpJTLXQPJxhnG5HsBQSswBs",
+            "value": 4400000000000000,
+            "beneficiary": "D3akXZ5Aawj7ZQMsvL5oTcxaWpJTLXQPJxhnG5HsBQSswBs",
+            "bond": 220000000000000
+          }
+        }
+      ],
+      "proposalCount": 36,
+      "proposals": [],
+      "balance": '210216858000000000',
+    };
+    Map data = treasuryOverview;
+    store.gov.setTreasuryOverview(data);
+    List<String> addresses = [];
+    List<MoneyProposalData> allProposals =
+        store.gov.treasuryOverview.proposals.toList();
+    allProposals.addAll(store.gov.treasuryOverview.approvals);
+    allProposals.forEach((e) {
+      addresses.add(e.proposal.proposer);
+      addresses.add(e.proposal.beneficiary);
+    });
+    await apiRoot.account.getAddressIcons(addresses);
+    return data;
+  }
+
+  Future<List> fetchTreasuryTips() async {
+    List data = await apiRoot.evalJavascript('gov.getTreasuryTips()');
+    store.gov.setTreasuryTips(data);
     return data;
   }
 }
