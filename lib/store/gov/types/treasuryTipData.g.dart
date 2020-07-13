@@ -9,21 +9,6 @@ part of 'treasuryTipData.dart';
 TreasuryTipData _$TreasuryTipDataFromJson(Map<String, dynamic> json) {
   return TreasuryTipData()
     ..hash = json['hash'] as String
-    ..detail = json['detail'] == null
-        ? null
-        : TreasuryTipDetailData.fromJson(
-            json['detail'] as Map<String, dynamic>);
-}
-
-Map<String, dynamic> _$TreasuryTipDataToJson(TreasuryTipData instance) =>
-    <String, dynamic>{
-      'hash': instance.hash,
-      'detail': instance.detail,
-    };
-
-TreasuryTipDetailData _$TreasuryTipDetailDataFromJson(
-    Map<String, dynamic> json) {
-  return TreasuryTipDetailData()
     ..reason = json['reason'] as String
     ..who = json['who'] as String
     ..finder = json['finder'] == null
@@ -36,9 +21,9 @@ TreasuryTipDetailData _$TreasuryTipDetailDataFromJson(
         ?.toList();
 }
 
-Map<String, dynamic> _$TreasuryTipDetailDataToJson(
-        TreasuryTipDetailData instance) =>
+Map<String, dynamic> _$TreasuryTipDataToJson(TreasuryTipData instance) =>
     <String, dynamic>{
+      'hash': instance.hash,
       'reason': instance.reason,
       'who': instance.who,
       'finder': instance.finder,

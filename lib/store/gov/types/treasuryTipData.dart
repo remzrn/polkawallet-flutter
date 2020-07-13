@@ -10,16 +10,6 @@ class TreasuryTipData extends _TreasuryTipData {
 
 abstract class _TreasuryTipData {
   String hash;
-  TreasuryTipDetailData detail;
-}
-
-@JsonSerializable()
-class TreasuryTipDetailData extends _TreasuryTipDetailData {
-  static TreasuryTipDetailData fromJson(Map<String, dynamic> json) =>
-      _$TreasuryTipDetailDataFromJson(json);
-}
-
-abstract class _TreasuryTipDetailData {
   String reason;
   String who;
   TreasuryTipItemData finder;

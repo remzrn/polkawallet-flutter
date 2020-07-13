@@ -150,13 +150,8 @@ class _CouncilVote extends State<CouncilVotePage> {
                                         CrossAxisAlignment.start,
                                     children: <Widget>[
                                       accInfo != null
-                                          ? accInfo['identity']['display'] !=
-                                                  null
-                                              ? Text(accInfo['identity']
-                                                      ['display']
-                                                  .toString()
-                                                  .toUpperCase())
-                                              : Container()
+                                          ? Text(Fmt.accountDisplayName(
+                                              i[0], accInfo))
                                           : Container(),
                                       Text(
                                         Fmt.address(i[0]),

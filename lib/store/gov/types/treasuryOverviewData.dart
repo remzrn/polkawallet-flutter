@@ -11,28 +11,28 @@ class TreasuryOverviewData extends _TreasuryOverviewData {
 abstract class _TreasuryOverviewData {
   String balance;
   int proposalCount;
-  List<MoneyProposalData> proposals;
-  List<MoneyProposalData> approvals;
+  List<SpendProposalData> proposals;
+  List<SpendProposalData> approvals;
 }
 
 @JsonSerializable()
-class MoneyProposalData extends _MoneyProposalData {
-  static MoneyProposalData fromJson(Map<String, dynamic> json) =>
-      _$MoneyProposalDataFromJson(json);
+class SpendProposalData extends _SpendProposalData {
+  static SpendProposalData fromJson(Map<String, dynamic> json) =>
+      _$SpendProposalDataFromJson(json);
 }
 
-abstract class _MoneyProposalData {
+abstract class _SpendProposalData {
   int id;
-  MoneyProposalDetailData proposal;
+  SpendProposalDetailData proposal;
 }
 
 @JsonSerializable()
-class MoneyProposalDetailData extends _MoneyProposalDetailData {
-  static MoneyProposalDetailData fromJson(Map<String, dynamic> json) =>
-      _$MoneyProposalDetailDataFromJson(json);
+class SpendProposalDetailData extends _SpendProposalDetailData {
+  static SpendProposalDetailData fromJson(Map<String, dynamic> json) =>
+      _$SpendProposalDetailDataFromJson(json);
 }
 
-abstract class _MoneyProposalDetailData {
+abstract class _SpendProposalDetailData {
   String proposer;
   String beneficiary;
   int value;

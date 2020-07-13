@@ -44,7 +44,7 @@ abstract class _GovernanceStore with Store {
   TreasuryOverviewData treasuryOverview = TreasuryOverviewData();
 
   @observable
-  List<TreasuryTipData> treasuryTips = [];
+  List<TreasuryTipData> treasuryTips;
 
   @action
   void setCouncilInfo(Map info, {bool shouldCache = true}) {

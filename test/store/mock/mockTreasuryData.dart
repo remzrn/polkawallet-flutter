@@ -37,36 +37,26 @@ final Map<String, dynamic> treasuryOverview = {
 
 const Map<String, dynamic> tip0x58 = {
   "hash": "0x58d8cf7fe32e228276c89a3abe7298c21787cf3d962f9bd3d453a51b0dd45804",
-  "detail": {
-    "reason":
-        "Translation into Russian - https://twitter.com/block_25/status/1277561502954852352",
-    "who": "EGX4yJNtThEW9axmM3qB262Z7VVuYuXfWRKvujSxiDJmHy7",
-    "finder": {
-      "address": "EGX4yJNtThEW9axmM3qB262Z7VVuYuXfWRKvujSxiDJmHy7",
-      "value": 303333333278
-    },
-    "closes": null,
-    "tips": [
-      {
-        "address": "DTLcUu92NoQw4gg6VmNgXeYQiNywDhfYMQBPYg2Y1W6AkJF",
-        "value": 0
-      },
-      {
-        "address": "DfiSM1qqP11ECaekbA64L2ENcsWEpGk8df8wf1LAfV2sBd4",
-        "value": 0
-      },
-      {"address": "EGVQCe73TpFyAZx5uKfE1222XfkT3BSKozjgcqzLBnc5eYo", "value": 0}
-    ]
-  }
+  "reason":
+      "Translation into Russian - https://twitter.com/block_25/status/1277561502954852352",
+  "who": "EGX4yJNtThEW9axmM3qB262Z7VVuYuXfWRKvujSxiDJmHy7",
+  "finder": {
+    "address": "EGX4yJNtThEW9axmM3qB262Z7VVuYuXfWRKvujSxiDJmHy7",
+    "value": 303333333278
+  },
+  "closes": null,
+  "tips": [
+    {"address": "DTLcUu92NoQw4gg6VmNgXeYQiNywDhfYMQBPYg2Y1W6AkJF", "value": 0},
+    {"address": "DfiSM1qqP11ECaekbA64L2ENcsWEpGk8df8wf1LAfV2sBd4", "value": 0},
+    {"address": "EGVQCe73TpFyAZx5uKfE1222XfkT3BSKozjgcqzLBnc5eYo", "value": 0}
+  ]
 };
 const Map<String, dynamic> tip0xf2 = {
   "hash": "0xf202c6feae1a7a880f028c665b69b5b35ec8674fdb886282bf5cd943d74fd8aa",
-  "detail": {
-    "reason":
-        "For polkadot wiki Japanese transation, 3% and progressing: https://crowdin.com/project/polkadot-wiki/ja#",
-    "who": "Gf7EzU2aHeaqFX7AWU93Pb4YDz3vn7fhdYRteNunXYPe9DP",
-    "finder": null,
-    "closes": null,
-    "tips": []
-  }
+  "reason":
+      "For polkadot wiki Japanese transation, 3% and progressing: https://crowdin.com/project/polkadot-wiki/ja#",
+  "who": "Gf7EzU2aHeaqFX7AWU93Pb4YDz3vn7fhdYRteNunXYPe9DP",
+  "finder": null,
+  "closes": null,
+  "tips": []
 };

@@ -231,7 +231,7 @@ class Fmt {
       List<ValidatorData> ls, String filter, Map accIndexMap) {
     ls.retainWhere((i) {
       Map accInfo = accIndexMap[i.accountId];
-      return Fmt.validatorDisplayName(i, accInfo)
+      return Fmt.accountDisplayName(i.accountId, accInfo)
           .toLowerCase()
           .contains(filter.trim().toLowerCase());
     });
@@ -318,8 +318,8 @@ class Fmt {
     return '${acc.name ?? ''}${(acc.observation ?? false) ? ' (${I18n.of(context).account['observe']})' : ''}';
   }
 
-  static String validatorDisplayName(ValidatorData validator, Map accInfo) {
-    String display = Fmt.address(validator.accountId, pad: 6);
+  static String accountDisplayName(String address, Map accInfo) {
+    String display = Fmt.address(address, pad: 6);
     if (accInfo != null && accInfo['identity']['display'] != null) {
       display = accInfo['identity']['display'];
       if (accInfo['identity']['displayParent'] != null) {

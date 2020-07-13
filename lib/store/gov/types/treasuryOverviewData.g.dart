@@ -13,12 +13,12 @@ TreasuryOverviewData _$TreasuryOverviewDataFromJson(Map<String, dynamic> json) {
     ..proposals = (json['proposals'] as List)
         ?.map((e) => e == null
             ? null
-            : MoneyProposalData.fromJson(e as Map<String, dynamic>))
+            : SpendProposalData.fromJson(e as Map<String, dynamic>))
         ?.toList()
     ..approvals = (json['approvals'] as List)
         ?.map((e) => e == null
             ? null
-            : MoneyProposalData.fromJson(e as Map<String, dynamic>))
+            : SpendProposalData.fromJson(e as Map<String, dynamic>))
         ?.toList();
 }
 
@@ -31,32 +31,32 @@ Map<String, dynamic> _$TreasuryOverviewDataToJson(
       'approvals': instance.approvals,
     };
 
-MoneyProposalData _$MoneyProposalDataFromJson(Map<String, dynamic> json) {
-  return MoneyProposalData()
+SpendProposalData _$SpendProposalDataFromJson(Map<String, dynamic> json) {
+  return SpendProposalData()
     ..id = json['id'] as int
     ..proposal = json['proposal'] == null
         ? null
-        : MoneyProposalDetailData.fromJson(
+        : SpendProposalDetailData.fromJson(
             json['proposal'] as Map<String, dynamic>);
 }
 
-Map<String, dynamic> _$MoneyProposalDataToJson(MoneyProposalData instance) =>
+Map<String, dynamic> _$SpendProposalDataToJson(SpendProposalData instance) =>
     <String, dynamic>{
       'id': instance.id,
       'proposal': instance.proposal,
     };
 
-MoneyProposalDetailData _$MoneyProposalDetailDataFromJson(
+SpendProposalDetailData _$SpendProposalDetailDataFromJson(
     Map<String, dynamic> json) {
-  return MoneyProposalDetailData()
+  return SpendProposalDetailData()
     ..proposer = json['proposer'] as String
     ..beneficiary = json['beneficiary'] as String
     ..value = json['value'] as int
     ..bond = json['bond'] as int;
 }
 
-Map<String, dynamic> _$MoneyProposalDetailDataToJson(
-        MoneyProposalDetailData instance) =>
+Map<String, dynamic> _$SpendProposalDetailDataToJson(
+        SpendProposalDetailData instance) =>
     <String, dynamic>{
       'proposer': instance.proposer,
       'beneficiary': instance.beneficiary,

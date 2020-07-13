@@ -92,7 +92,7 @@ class ApiGovernance {
     Map data = treasuryOverview;
     store.gov.setTreasuryOverview(data);
     List<String> addresses = [];
-    List<MoneyProposalData> allProposals =
+    List<SpendProposalData> allProposals =
         store.gov.treasuryOverview.proposals.toList();
     allProposals.addAll(store.gov.treasuryOverview.approvals);
     allProposals.forEach((e) {
@@ -100,12 +100,22 @@ class ApiGovernance {
       addresses.add(e.proposal.beneficiary);
     });
     await apiRoot.account.getAddressIcons(addresses);
+    await apiRoot.account.fetchAccountsIndex(addresses);
     return data;
   }
 
   Future<List> fetchTreasuryTips() async {
     List data = await apiRoot.evalJavascript('gov.getTreasuryTips()');
     store.gov.setTreasuryTips(data);
+    List<String> addresses = [];
+    store.gov.treasuryTips.toList().forEach((e) {
+      addresses.add(e.who);
+      if (e.finder != null) {
+        addresses.add(e.finder.address);
+      }
+    });
+    await apiRoot.account.getAddressIcons(addresses);
+    await apiRoot.account.fetchAccountsIndex(addresses);
     return data;
   }
 }

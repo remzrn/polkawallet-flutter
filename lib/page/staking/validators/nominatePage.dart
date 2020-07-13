@@ -110,8 +110,8 @@ class _NominatePageState extends State<NominatePage> {
                             )
                           : Container(),
                       Expanded(
-                        child:
-                            Text(Fmt.validatorDisplayName(validator, accInfo)),
+                        child: Text(Fmt.accountDisplayName(
+                            validator.accountId, accInfo)),
                       ),
                     ],
                   ),

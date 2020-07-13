@@ -330,10 +330,7 @@ class CandidateItem extends StatelessWidget {
                 )
               : Container(),
           Expanded(
-            child: Text(
-                accInfo != null && accInfo['identity']['display'] != null
-                    ? accInfo['identity']['display'].toString().toUpperCase()
-                    : Fmt.address(balance[0], pad: 6)),
+            child: Text(Fmt.accountDisplayName(balance[0], accInfo)),
           )
         ],
       ),

@@ -24,7 +24,7 @@ void main() {
       expect(store.treasuryOverview.proposals.length, 0);
       expect(store.treasuryOverview.approvals.length, 3);
       expect(store.treasuryOverview.approvals[0].id, 33);
-      final MoneyProposalDetailData proposal =
+      final SpendProposalDetailData proposal =
           store.treasuryOverview.approvals[0].proposal;
       expect(proposal.value, treasuryProposal33['value']);
       expect(proposal.bond, treasuryProposal33['bond']);
@@ -36,18 +36,17 @@ void main() {
       store.setTreasuryTips(tips);
       expect(store.treasuryTips.length, 2);
       expect(store.treasuryTips[0].hash, tip0x58['hash']);
-      expect(store.treasuryTips[0].detail.who, tip0x58['detail']['who']);
-      expect(store.treasuryTips[0].detail.reason, tip0x58['detail']['reason']);
-      expect(store.treasuryTips[0].detail.finder.address,
-          tip0x58['detail']['finder']['address']);
-      expect(store.treasuryTips[0].detail.finder.value,
-          tip0x58['detail']['finder']['value']);
-      expect(store.treasuryTips[0].detail.tips.length,
-          List.of(tip0x58['detail']['tips']).length);
-      expect(store.treasuryTips[0].detail.tips[0].value,
-          List.of(tip0x58['detail']['tips'])[0]['value']);
-      expect(store.treasuryTips[0].detail.tips[0].address,
-          List.of(tip0x58['detail']['tips'])[0]['address']);
+      expect(store.treasuryTips[0].who, tip0x58['who']);
+      expect(store.treasuryTips[0].reason, tip0x58['reason']);
+      expect(
+          store.treasuryTips[0].finder.address, tip0x58['finder']['address']);
+      expect(store.treasuryTips[0].finder.value, tip0x58['finder']['value']);
+      expect(
+          store.treasuryTips[0].tips.length, List.of(tip0x58['tips']).length);
+      expect(store.treasuryTips[0].tips[0].value,
+          List.of(tip0x58['tips'])[0]['value']);
+      expect(store.treasuryTips[0].tips[0].address,
+          List.of(tip0x58['tips'])[0]['address']);
     });
   });
 }
