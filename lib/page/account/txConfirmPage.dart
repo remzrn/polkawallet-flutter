@@ -137,8 +137,7 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
 
   Future<void> _showPasswordDialog(BuildContext context) async {
     if (_proxyAccount != null && !(await _validateProxy())) {
-      String address = store.account
-          .pubKeyAddressMap[store.settings.endpoint.ss58][_proxyAccount.pubKey];
+      String address = Fmt.addressOfAccount(_proxyAccount, store);
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {

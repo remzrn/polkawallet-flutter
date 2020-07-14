@@ -29,7 +29,7 @@ abstract class _GovernanceStore with Store {
   int bestNumber = 0;
 
   @observable
-  CouncilInfoData council;
+  CouncilInfoData council = CouncilInfoData();
 
   @observable
   Map<String, Map<String, dynamic>> councilVotes;

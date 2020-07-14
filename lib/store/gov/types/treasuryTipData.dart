@@ -12,6 +12,7 @@ abstract class _TreasuryTipData {
   String hash;
   String reason;
   String who;
+  int closes;
   TreasuryTipItemData finder;
   List<TreasuryTipItemData> tips;
 }

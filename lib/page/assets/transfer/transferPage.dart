@@ -168,9 +168,6 @@ class _TransferPageState extends State<TransferPage> {
             ? store.assets.balances[symbol.toUpperCase()].transferable
             : Fmt.balanceInt(store.assets.tokenBalances[symbol.toUpperCase()]);
 
-        final Map pubKeyAddressMap =
-            store.account.pubKeyAddressMap[store.settings.endpoint.ss58];
-
         return Scaffold(
           appBar: AppBar(
             title: Text(dic['transfer']),
@@ -213,9 +210,8 @@ class _TransferPageState extends State<TransferPage> {
                                     if (to != null) {
                                       AccountData acc = to as AccountData;
                                       setState(() {
-                                        _addressCtrl.text = acc.encoded == null
-                                            ? acc.address
-                                            : pubKeyAddressMap[acc.pubKey];
+                                        _addressCtrl.text =
+                                            Fmt.addressOfAccount(acc, store);
                                       });
                                     }
                                   },

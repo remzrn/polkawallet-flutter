@@ -11,6 +11,7 @@ TreasuryTipData _$TreasuryTipDataFromJson(Map<String, dynamic> json) {
     ..hash = json['hash'] as String
     ..reason = json['reason'] as String
     ..who = json['who'] as String
+    ..closes = json['closes'] as int
     ..finder = json['finder'] == null
         ? null
         : TreasuryTipItemData.fromJson(json['finder'] as Map<String, dynamic>)
@@ -26,6 +27,7 @@ Map<String, dynamic> _$TreasuryTipDataToJson(TreasuryTipData instance) =>
       'hash': instance.hash,
       'reason': instance.reason,
       'who': instance.who,
+      'closes': instance.closes,
       'finder': instance.finder,
       'tips': instance.tips,
     };
