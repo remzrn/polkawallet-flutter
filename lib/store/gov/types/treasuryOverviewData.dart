@@ -24,7 +24,45 @@ class SpendProposalData extends _SpendProposalData {
 abstract class _SpendProposalData {
   int id;
   bool isApproval;
+  List<SpendProposalCouncilData> council;
   SpendProposalDetailData proposal;
+}
+
+@JsonSerializable()
+class SpendProposalCouncilData extends _SpendProposalCouncilData {
+  static SpendProposalCouncilData fromJson(Map<String, dynamic> json) =>
+      _$SpendProposalCouncilDataFromJson(json);
+}
+
+abstract class _SpendProposalCouncilData {
+  String hash;
+  CouncilProposalData proposal;
+  CouncilProposalVotesData votes;
+}
+
+@JsonSerializable()
+class CouncilProposalData extends _CouncilProposalData {
+  static CouncilProposalData fromJson(Map<String, dynamic> json) =>
+      _$CouncilProposalDataFromJson(json);
+}
+
+abstract class _CouncilProposalData {
+  String callIndex;
+  Map args;
+}
+
+@JsonSerializable()
+class CouncilProposalVotesData extends _CouncilProposalVotesData {
+  static CouncilProposalVotesData fromJson(Map<String, dynamic> json) =>
+      _$CouncilProposalVotesDataFromJson(json);
+}
+
+abstract class _CouncilProposalVotesData {
+  int index;
+  int threshold;
+  List<String> ayes;
+  List<String> nays;
+  int end;
 }
 
 @JsonSerializable()

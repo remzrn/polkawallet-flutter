@@ -37,8 +37,8 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
   BigInt _tipValue = BigInt.zero;
   AccountData _proxyAccount;
 
-  Future<String> _getTxFee() async {
-    if (_fee['partialFee'] != null) {
+  Future<String> _getTxFee({bool reload = false}) async {
+    if (_fee['partialFee'] != null && !reload) {
       return _fee['partialFee'].toString();
     }
     if (store.account.currentAccount.observation ?? false) {
@@ -47,7 +47,11 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
 
     final Map args = ModalRoute.of(context).settings.arguments;
     Map txInfo = args['txInfo'];
-    txInfo['address'] = store.account.currentAddress;
+    txInfo['pubKey'] = store.account.currentAccount.pubKey;
+    if (_proxyAccount != null) {
+      txInfo['address'] = store.account.currentAddress;
+      txInfo['proxy'] = _proxyAccount.pubKey;
+    }
     Map fee = await webApi.account
         .estimateTxFees(txInfo, args['params'], rawParam: args['rawParam']);
     setState(() {
@@ -72,6 +76,7 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
         _proxyAccount = null;
       });
     }
+    _getTxFee(reload: true);
   }
 
   void _onTxFinish(BuildContext context, Map res) {

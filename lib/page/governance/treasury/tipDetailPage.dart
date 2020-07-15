@@ -200,11 +200,13 @@ class _TipDetailPageState extends State<TipDetailPage> {
       isFinder = true;
     }
     bool isCouncil = false;
-    widget.store.gov.council.members.forEach((e) {
-      if (widget.store.account.currentAddress == e[0]) {
-        isCouncil = true;
-      }
-    });
+    if (widget.store.gov.council.members != null) {
+      widget.store.gov.council.members.forEach((e) {
+        if (widget.store.account.currentAddress == e[0]) {
+          isCouncil = true;
+        }
+      });
+    }
     int blockTime = 6000;
     if (widget.store.settings.networkConst['treasury'] != null) {
       blockTime =

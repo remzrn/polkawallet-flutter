@@ -21,15 +21,35 @@ void main() {
       store.setTreasuryOverview(treasuryOverview);
       expect(store.treasuryOverview.balance, treasuryBalance);
       expect(store.treasuryOverview.proposalCount, treasuryCount);
-      expect(store.treasuryOverview.proposals.length, 0);
+      // check proposal data
+      expect(store.treasuryOverview.proposals.length, 1);
+      expect(store.treasuryOverview.proposals[0].id, 36);
+      final SpendProposalCouncilData councilProposal =
+          store.treasuryOverview.proposals[0].council[0];
+      expect(councilProposal.hash, councilProposalOf36['hash']);
+      expect(councilProposal.proposal.callIndex,
+          councilProposalOf36['proposal']['callIndex']);
+      expect(councilProposal.proposal.args,
+          councilProposalOf36['proposal']['args']);
+      expect(
+          councilProposal.votes.index, councilProposalOf36['votes']['index']);
+      expect(councilProposal.votes.threshold,
+          councilProposalOf36['votes']['threshold']);
+      expect(councilProposal.votes.end, councilProposalOf36['votes']['end']);
+      expect(councilProposal.votes.ayes.length,
+          List.of(councilProposalOf36['votes']['ayes']).length);
+      expect(councilProposal.votes.nays.length,
+          List.of(councilProposalOf36['votes']['nays']).length);
+
+      // check approval data
       expect(store.treasuryOverview.approvals.length, 3);
       expect(store.treasuryOverview.approvals[0].id, 33);
-      final SpendProposalDetailData proposal =
+      final SpendProposalDetailData approval =
           store.treasuryOverview.approvals[0].proposal;
-      expect(proposal.value, treasuryProposal33['value']);
-      expect(proposal.bond, treasuryProposal33['bond']);
-      expect(proposal.proposer, treasuryProposal33['proposer']);
-      expect(proposal.beneficiary, treasuryProposal33['beneficiary']);
+      expect(approval.value, treasuryProposal33['value']);
+      expect(approval.bond, treasuryProposal33['bond']);
+      expect(approval.proposer, treasuryProposal33['proposer']);
+      expect(approval.beneficiary, treasuryProposal33['beneficiary']);
     });
     test('set treasury tips properly', () {
       final List tips = [tip0x58, tip0xf2];

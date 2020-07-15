@@ -43,6 +43,7 @@ class GovEntry extends StatelessWidget {
                   if (store.settings.loading) {
                     return CupertinoActivityIndicator();
                   }
+                  Color primaryColor = Theme.of(context).primaryColor;
                   return ListView(
                     padding: EdgeInsets.all(16),
                     children: <Widget>[
@@ -57,7 +58,7 @@ class GovEntry extends StatelessWidget {
                               color: Colors.white,
                               size: 56,
                             ),
-                            color: Colors.black87,
+                            color: primaryColor,
                           ),
                           onTap: () => Navigator.of(context)
                               .pushNamed(DemocracyPage.route),
@@ -74,7 +75,7 @@ class GovEntry extends StatelessWidget {
                               color: Colors.white,
                               size: 56,
                             ),
-                            color: Colors.black87,
+                            color: primaryColor,
                           ),
                           onTap: () => Navigator.of(context)
                               .pushNamed(CouncilPage.route),
@@ -91,7 +92,7 @@ class GovEntry extends StatelessWidget {
                               color: Colors.white,
                               size: 56,
                             ),
-                            color: Colors.black87,
+                            color: primaryColor,
                           ),
                           onTap: () => Navigator.of(context)
                               .pushNamed(TreasuryPage.route),
