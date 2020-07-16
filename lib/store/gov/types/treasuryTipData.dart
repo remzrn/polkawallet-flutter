@@ -25,5 +25,5 @@ class TreasuryTipItemData extends _TreasuryTipItemData {
 
 abstract class _TreasuryTipItemData {
   String address;
-  int value;
+  dynamic value;
 }

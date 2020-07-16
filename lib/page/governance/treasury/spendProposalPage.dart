@@ -8,6 +8,7 @@ import 'package:polka_wallet/common/components/addressIcon.dart';
 import 'package:polka_wallet/common/components/infoItem.dart';
 import 'package:polka_wallet/common/components/roundedButton.dart';
 import 'package:polka_wallet/common/components/roundedCard.dart';
+import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/service/substrateApi/types/genExternalLinksParams.dart';
@@ -122,7 +123,7 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
     var dic = I18n.of(context).gov;
     final SpendProposalData proposal =
         ModalRoute.of(context).settings.arguments;
-    final SpendProposalCouncilData councilProposal = proposal.council[0];
+    final CouncilMotionData councilProposal = proposal.council[0];
     var args = {
       "title": dic['treasury.vote'],
       "txInfo": {
@@ -148,10 +149,10 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     final Map dic = I18n.of(context).gov;
-    final String symbol = widget.store.settings.networkState.tokenSymbol;
-    final int decimals = widget.store.settings.networkState.tokenDecimals;
+    final String symbol = widget.store.settings.networkState.tokenSymbol ?? '';
+    final int decimals = widget.store.settings.networkState.tokenDecimals ??
+        kusama_token_decimals;
     final SpendProposalData proposal =
         ModalRoute.of(context).settings.arguments;
     final AccountData proposer = AccountData();
@@ -218,15 +219,15 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
                         proposal.proposal.beneficiary, accInfoBeneficiary),
                     subtitle: Text(dic['treasury.beneficiary']),
                   ),
-                  FutureBuilder(
-                    future: _getExternalLinks(proposal.id),
-                    builder: (_, AsyncSnapshot<List> snapshot) {
-                      if (snapshot.hasData) {
-                        return ExternalLinks(snapshot.data);
-                      }
-                      return Container();
-                    },
-                  ),
+//                  FutureBuilder(
+//                    future: _getExternalLinks(proposal.id),
+//                    builder: (_, AsyncSnapshot<List> snapshot) {
+//                      if (snapshot.hasData) {
+//                        return ExternalLinks(snapshot.data);
+//                      }
+//                      return Container();
+//                    },
+//                  ),
                   isApproval
                       ? Container()
                       : Padding(
@@ -316,7 +317,7 @@ class ProposalVotingList extends StatelessWidget {
   ProposalVotingList({this.store, this.council});
 
   final AppStore store;
-  final SpendProposalCouncilData council;
+  final CouncilMotionData council;
 
   @override
   Widget build(BuildContext context) {

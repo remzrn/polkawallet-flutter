@@ -279,8 +279,9 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
     final Map<String, String> dic = I18n.of(context).home;
     final Map<String, String> dicAcc = I18n.of(context).account;
     final Map<String, String> dicAsset = I18n.of(context).assets;
-    final String symbol = store.settings.networkState.tokenSymbol;
-    final int decimals = store.settings.networkState.tokenDecimals;
+    final String symbol = store.settings.networkState.tokenSymbol ?? '';
+    final int decimals =
+        store.settings.networkState.tokenDecimals ?? kusama_token_decimals;
 
     final Map<String, dynamic> args = ModalRoute.of(context).settings.arguments;
 

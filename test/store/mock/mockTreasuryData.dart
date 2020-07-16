@@ -10,7 +10,15 @@ const Map<String, dynamic> councilProposalOf36 = {
   "hash": "0xd917e5b9558a7f2a6244ccbec580970d9199b5872bb8050c97533d042cb48914",
   "proposal": {
     "callIndex": "0x1202",
-    "args": {"proposal_id": 36}
+    "args": [36],
+    "meta": {
+      "name": "approve_proposal",
+      "args": [
+        {"name": "proposal_id", "type": "Compact<ProposalIndex>"}
+      ],
+      "documentation":
+          " Approve a proposal. At a later time, the proposal will be allocated to the beneficiary and the original deposit will be returned."
+    }
   },
   "votes": {
     "index": 178,
@@ -97,3 +105,57 @@ const Map<String, dynamic> tip0xf2 = {
   "closes": null,
   "tips": []
 };
+
+const Map<String, dynamic> councilMotion0 = {
+  "hash": "0xf3d7d91e7cfb2d484b5b78b40025a6ad90aa286a0851900b9a952393289b95bc",
+  "proposal": {
+    "args": ["0"],
+    "callIndex": "0x1002",
+    "method": "approveProposal",
+    "section": "treasury",
+    "meta": {
+      "name": "approve_proposal",
+      "args": [
+        {"name": "proposal_id", "type": "Compact<ProposalIndex>"}
+      ],
+      "documentation":
+          " Approve a proposal. At a later time, the proposal will be allocated to the beneficiary and the original deposit will be returned."
+    }
+  },
+  "votes": {
+    "index": 0,
+    "threshold": 4,
+    "ayes": ["5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"],
+    "nays": [],
+    "end": 146922
+  }
+};
+
+const List<Map<String, dynamic>> councilMotions = [
+  councilMotion0,
+  {
+    "hash":
+        "0x7fb731dc431ed1c4a0d1a4aaf013c8ef534c8bdfff9e2cd876f64d35d8830fdd",
+    "proposal": {
+      "args": ["1"],
+      "callIndex": "0x1001",
+      "method": "rejectProposal",
+      "section": "treasury",
+      "meta": {
+        "name": "reject_proposal",
+        "args": [
+          {"name": "proposal_id", "type": "Compact<ProposalIndex>"}
+        ],
+        "documentation":
+            " Reject a proposed spend. The original deposit will be slashed."
+      }
+    },
+    "votes": {
+      "index": 1,
+      "threshold": 4,
+      "ayes": ["5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"],
+      "nays": [],
+      "end": 146996
+    }
+  }
+];

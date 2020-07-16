@@ -128,7 +128,7 @@ class ApiGovernance {
       ],
       "balance": '210216858000000000',
     };
-    data['proposals'] = treasuryOverview['proposals'];
+//    data['proposals'] = treasuryOverview['proposals'];
     data['approvals'] = treasuryOverview['approvals'];
     store.gov.setTreasuryOverview(data);
     List<String> addresses = [];
@@ -157,5 +157,17 @@ class ApiGovernance {
     await apiRoot.account.getAddressIcons(addresses);
     await apiRoot.account.fetchAccountsIndex(addresses);
     return data;
+  }
+
+  Future<List> fetchCouncilMotions() async {
+    List data = await apiRoot.evalJavascript('gov.getCouncilMotions()');
+    store.gov.setCouncilMotions(data);
+    return data;
+  }
+
+  Future<void> updateBestNumber() async {
+    final int bestNumber =
+        await apiRoot.evalJavascript('api.derive.chain.bestNumber()');
+    store.gov.setBestNumber(bestNumber);
   }
 }

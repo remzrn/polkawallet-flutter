@@ -56,6 +56,21 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
     });
   }
 
+  final _$councilMotionsAtom = Atom(name: '_GovernanceStore.councilMotions');
+
+  @override
+  List<CouncilMotionData> get councilMotions {
+    _$councilMotionsAtom.reportRead();
+    return super.councilMotions;
+  }
+
+  @override
+  set councilMotions(List<CouncilMotionData> value) {
+    _$councilMotionsAtom.reportWrite(value, super.councilMotions, () {
+      super.councilMotions = value;
+    });
+  }
+
   final _$councilVotesAtom = Atom(name: '_GovernanceStore.councilVotes');
 
   @override
@@ -221,11 +236,23 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   }
 
   @override
+  void setCouncilMotions(List<dynamic> data) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setCouncilMotions');
+    try {
+      return super.setCouncilMotions(data);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 cacheCouncilTimestamp: ${cacheCouncilTimestamp},
 bestNumber: ${bestNumber},
 council: ${council},
+councilMotions: ${councilMotions},
 councilVotes: ${councilVotes},
 userCouncilVotes: ${userCouncilVotes},
 referendums: ${referendums},

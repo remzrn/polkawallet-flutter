@@ -35,7 +35,7 @@ Map<String, dynamic> _$TreasuryTipDataToJson(TreasuryTipData instance) =>
 TreasuryTipItemData _$TreasuryTipItemDataFromJson(Map<String, dynamic> json) {
   return TreasuryTipItemData()
     ..address = json['address'] as String
-    ..value = json['value'] as int;
+    ..value = json['value'];
 }
 
 Map<String, dynamic> _$TreasuryTipItemDataToJson(
