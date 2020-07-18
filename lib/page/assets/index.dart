@@ -313,7 +313,7 @@ class _AssetsState extends State<Assets> {
                   child: Padding(
                     padding: EdgeInsets.only(left: 4),
                     child: Image.asset(
-                      'assets/images/assets/qrcode_${isAcala ? 'indigo' : isKusama ? 'black' : 'pink'}.png',
+                      'assets/images/assets/qrcode_$colorSuffix.png',
                       width: 18,
                     ),
                   ),
