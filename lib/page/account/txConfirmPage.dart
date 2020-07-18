@@ -247,6 +247,8 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
 
     final bool isKusama =
         store.settings.endpoint.info == networkEndpointKusama.info;
+    final bool isAcala =
+        store.settings.endpoint.info == networkEndpointAcala.info;
 
     bool isUnsigned = args['txInfo']['isUnsigned'] ?? false;
     return Scaffold(
@@ -394,6 +396,15 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
                                             Text(
                                               '$fee $symbol',
                                             ),
+                                            isAcala
+                                                ? Text(
+                                                    I18n.of(context)
+                                                        .acala['tx.fee.or'],
+                                                    style: TextStyle(
+                                                      fontSize: 13,
+                                                    ),
+                                                  )
+                                                : Container(),
                                             Text(
                                               '${_fee['weight']} Weight',
                                               style: TextStyle(
