@@ -7,6 +7,7 @@ import 'package:polka_wallet/common/components/TapTooltip.dart';
 import 'package:polka_wallet/common/components/addressFormItem.dart';
 import 'package:polka_wallet/common/components/passwordInputDialog.dart';
 import 'package:polka_wallet/common/consts/settings.dart';
+import 'package:polka_wallet/page/account/uos/qrSenderPage.dart';
 import 'package:polka_wallet/page/profile/contacts/contactListPage.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/account/types/accountData.dart';
@@ -34,10 +35,12 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
   final AppStore store;
 
   Map _fee = {};
+  double _tip = 0;
+  BigInt _tipValue = BigInt.zero;
   AccountData _proxyAccount;
 
-  Future<String> _getTxFee() async {
-    if (_fee['partialFee'] != null) {
+  Future<String> _getTxFee({bool reload = false}) async {
+    if (_fee['partialFee'] != null && !reload) {
       return _fee['partialFee'].toString();
     }
     // For edgeware, it seems this call never returns, and freezes the action.
@@ -51,7 +54,11 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
 
     final Map args = ModalRoute.of(context).settings.arguments;
     Map txInfo = args['txInfo'];
-    txInfo['address'] = store.account.currentAddress;
+    txInfo['pubKey'] = store.account.currentAccount.pubKey;
+    if (_proxyAccount != null) {
+      txInfo['address'] = store.account.currentAddress;
+      txInfo['proxy'] = _proxyAccount.pubKey;
+    }
     Map fee = await webApi.account
         .estimateTxFees(txInfo, args['params'], rawParam: args['rawParam']);
     setState(() {
@@ -76,17 +83,7 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
         _proxyAccount = null;
       });
     }
-  }
-
-  Future<void> _showTxQrCode(BuildContext context) async {
-    final Map args = ModalRoute.of(context).settings.arguments;
-
-    print('show qr');
-//    Map txInfo = args['txInfo'];
-//    txInfo['pubKey'] = store.account.currentAccount.pubKey;
-//    print(txInfo);
-//    print(args['params']);
-//    Navigator.of(context).pushNamed(routeName, arguments: );
+    _getTxFee(reload: true);
   }
 
   void _onTxFinish(BuildContext context, Map res) {
@@ -134,10 +131,6 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
           content: Text(errorMsg),
           actions: <Widget>[
             CupertinoButton(
-              child: Text(dic['cancel']),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            CupertinoButton(
               child: Text(dic['ok']),
               onPressed: () => Navigator.of(context).pop(),
             ),
@@ -156,8 +149,7 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
 
   Future<void> _showPasswordDialog(BuildContext context) async {
     if (_proxyAccount != null && !(await _validateProxy())) {
-      String address = store.account
-          .pubKeyAddressMap[store.settings.endpoint.ss58][_proxyAccount.pubKey];
+      String address = Fmt.addressOfAccount(_proxyAccount, store);
       showCupertinoDialog(
         context: context,
         builder: (BuildContext context) {
@@ -194,7 +186,11 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
     );
   }
 
-  Future<void> _onSubmit(BuildContext context, {String password}) async {
+  Future<void> _onSubmit(
+    BuildContext context, {
+    String password,
+    bool viaQr = false,
+  }) async {
     final Map<String, String> dic = I18n.of(context).home;
     final Map args = ModalRoute.of(context).settings.arguments;
 
@@ -215,19 +211,68 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
     Map txInfo = args['txInfo'];
     txInfo['pubKey'] = store.account.currentAccount.pubKey;
     txInfo['password'] = password;
+    txInfo['tip'] = _tipValue.toString();
     if (_proxyAccount != null) {
+      txInfo['address'] = store.account.currentAddress;
       txInfo['proxy'] = _proxyAccount.pubKey;
+      txInfo['ss58'] = store.settings.endpoint.ss58.toString();
     }
     print(txInfo);
     print(args['params']);
-    Map res = await webApi.account.sendTx(
-        txInfo, args['params'], args['title'], dic['notify.submitted'],
-        rawParam: args['rawParam']);
+
+    final Map res = viaQr
+        ? await _sendTxViaQr(context, args)
+        : await _sendTx(context, args);
     if (res['hash'] == null) {
       _onTxError(context, res['error']);
     } else {
       _onTxFinish(context, res);
     }
+  }
+
+  Future<Map> _sendTx(BuildContext context, Map args) async {
+    return await webApi.account.sendTx(
+      args['txInfo'],
+      args['params'],
+      args['title'],
+      I18n.of(context).home['notify.submitted'],
+      rawParam: args['rawParam'],
+    );
+  }
+
+  Future<Map> _sendTxViaQr(BuildContext context, Map args) async {
+    final Map dic = I18n.of(context).account;
+    print('show qr');
+    final signed = await Navigator.of(context)
+        .pushNamed(QrSenderPage.route, arguments: args);
+    if (signed == null) {
+      store.assets.setSubmitting(false);
+      return {'error': dic['uos.canceled']};
+    }
+    return await webApi.account.addSignatureAndSend(
+      signed.toString(),
+      args['txInfo'],
+      args['title'],
+      I18n.of(context).home['notify.submitted'],
+    );
+  }
+
+  void _onTipChanged(double tip) {
+    final decimals = store.settings.networkState.tokenDecimals;
+
+    /// tip division from 0 to 19:
+    /// 0-10 for 0-0.1
+    /// 10-19 for 0.1-1
+    BigInt value =
+        Fmt.tokenInt('0.01', decimals: decimals) * BigInt.from(tip.toInt());
+    if (tip > 10) {
+      value = Fmt.tokenInt('0.1', decimals: decimals) *
+          BigInt.from((tip - 9).toInt());
+    }
+    setState(() {
+      _tip = tip;
+      _tipValue = value;
+    });
   }
 
   @override
@@ -240,8 +285,10 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
   Widget build(BuildContext context) {
     final Map<String, String> dic = I18n.of(context).home;
     final Map<String, String> dicAcc = I18n.of(context).account;
-    final String symbol = store.settings.networkState.tokenSymbol;
-    final int decimals = store.settings.networkState.tokenDecimals;
+    final Map<String, String> dicAsset = I18n.of(context).assets;
+    final String symbol = store.settings.networkState.tokenSymbol ?? '';
+    final int decimals =
+        store.settings.networkState.tokenDecimals ?? kusama_token_decimals;
 
     final Map<String, dynamic> args = ModalRoute.of(context).settings.arguments;
 
@@ -424,6 +471,45 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
                               ],
                             ),
                           ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            width: 64,
+                            child: Text(dicAsset['tip']),
+                          ),
+                          Text(
+                              '${Fmt.token(_tipValue, decimals: decimals)} $symbol'),
+                          TapTooltip(
+                            message: dicAsset['tip.tip'],
+                            child: Icon(
+                              Icons.info,
+                              color: Theme.of(context).unselectedWidgetColor,
+                              size: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 16, right: 16),
+                      child: Row(
+                        children: <Widget>[
+                          Text('0'),
+                          Expanded(
+                            child: Slider(
+                              min: 0,
+                              max: 19,
+                              divisions: 19,
+                              value: _tip,
+                              onChanged: _onTipChanged,
+                            ),
+                          ),
+                          Text('1')
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -456,8 +542,8 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
                               ? dic['submit.no.sign']
                               : (isObservation && _proxyAccount == null) ||
                                       isProxyObservation
-                                  ? // dic['submit.qr']
-                                  dicAcc['observe.invalid']
+                                  ? dic['submit.qr']
+                                  // dicAcc['observe.invalid']
                                   : dic['submit'],
                           style: TextStyle(color: Colors.white),
                         ),
@@ -465,7 +551,7 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
                             ? () => _onSubmit(context)
                             : (isObservation && _proxyAccount == null) ||
                                     isProxyObservation
-                                ? () => _showTxQrCode(context)
+                                ? () => _onSubmit(context, viaQr: true)
                                 : _fee['partialFee'] == null ||
                                         store.assets.submitting
                                     ? null

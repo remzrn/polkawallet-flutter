@@ -38,7 +38,6 @@ class ApiAcala {
       tokens.retainWhere((i) => i != symbol);
       String queries =
           tokens.map((i) => 'acala.getTokens("$address", "$i")').join(",");
-      print(queries);
       var res = await apiRoot.evalJavascript('Promise.all([$queries])',
           allowRepeat: true);
       Map balances = {};
@@ -88,7 +87,10 @@ class ApiAcala {
   }
 
   Future<Map> _fetchPriceOfLDOT() async {
-    var res = await apiRoot.evalJavascript('acala.fetchLDOTPrice(api)');
+    var res = await apiRoot.evalJavascript(
+      'acala.fetchLDOTPrice(api)',
+      allowRepeat: true,
+    );
     return {
       "token": 'LDOT',
       "price": {

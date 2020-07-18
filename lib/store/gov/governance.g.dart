@@ -63,6 +63,23 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
     }, _$councilAtom, name: '${_$councilAtom.name}_set');
   }
 
+  final _$councilMotionsAtom = Atom(name: '_GovernanceStore.councilMotions');
+
+  @override
+  List<CouncilMotionData> get councilMotions {
+    _$councilMotionsAtom.context.enforceReadPolicy(_$councilMotionsAtom);
+    _$councilMotionsAtom.reportObserved();
+    return super.councilMotions;
+  }
+
+  @override
+  set councilMotions(List<CouncilMotionData> value) {
+    _$councilMotionsAtom.context.conditionallyRunInAction(() {
+      super.councilMotions = value;
+      _$councilMotionsAtom.reportChanged();
+    }, _$councilMotionsAtom, name: '${_$councilMotionsAtom.name}_set');
+  }
+
   final _$councilVotesAtom = Atom(name: '_GovernanceStore.councilVotes');
 
   @override
@@ -113,6 +130,41 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
       super.referendums = value;
       _$referendumsAtom.reportChanged();
     }, _$referendumsAtom, name: '${_$referendumsAtom.name}_set');
+  }
+
+  final _$treasuryOverviewAtom =
+      Atom(name: '_GovernanceStore.treasuryOverview');
+
+  @override
+  TreasuryOverviewData get treasuryOverview {
+    _$treasuryOverviewAtom.context.enforceReadPolicy(_$treasuryOverviewAtom);
+    _$treasuryOverviewAtom.reportObserved();
+    return super.treasuryOverview;
+  }
+
+  @override
+  set treasuryOverview(TreasuryOverviewData value) {
+    _$treasuryOverviewAtom.context.conditionallyRunInAction(() {
+      super.treasuryOverview = value;
+      _$treasuryOverviewAtom.reportChanged();
+    }, _$treasuryOverviewAtom, name: '${_$treasuryOverviewAtom.name}_set');
+  }
+
+  final _$treasuryTipsAtom = Atom(name: '_GovernanceStore.treasuryTips');
+
+  @override
+  List<TreasuryTipData> get treasuryTips {
+    _$treasuryTipsAtom.context.enforceReadPolicy(_$treasuryTipsAtom);
+    _$treasuryTipsAtom.reportObserved();
+    return super.treasuryTips;
+  }
+
+  @override
+  set treasuryTips(List<TreasuryTipData> value) {
+    _$treasuryTipsAtom.context.conditionallyRunInAction(() {
+      super.treasuryTips = value;
+      _$treasuryTipsAtom.reportChanged();
+    }, _$treasuryTipsAtom, name: '${_$treasuryTipsAtom.name}_set');
   }
 
   final _$loadCacheAsyncAction = AsyncAction('loadCache');
@@ -170,6 +222,36 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
     final _$actionInfo = _$_GovernanceStoreActionController.startAction();
     try {
       return super.setReferendums(ls);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setTreasuryOverview(Map data) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+    try {
+      return super.setTreasuryOverview(data);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setTreasuryTips(List data) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+    try {
+      return super.setTreasuryTips(data);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setCouncilMotions(List data) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+    try {
+      return super.setCouncilMotions(data);
     } finally {
       _$_GovernanceStoreActionController.endAction(_$actionInfo);
     }

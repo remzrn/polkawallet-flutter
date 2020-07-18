@@ -7,7 +7,6 @@ import 'package:polka_wallet/common/components/roundedButton.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/page/profile/recovery/initiateRecoveryPage.dart';
 import 'package:polka_wallet/page/profile/recovery/recoverySettingPage.dart';
-import 'package:polka_wallet/service/subscan.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/account/types/accountRecoveryInfo.dart';
 import 'package:polka_wallet/store/app.dart';
@@ -38,8 +37,8 @@ class _RecoveryStatePage extends State<RecoveryStatePage> {
 
   Future<void> _fetchData() async {
     webApi.assets.fetchBalance();
-    Map res = await SubScanApi.fetchTxs(
-      SubScanApi.module_Recovery,
+    Map res = await webApi.subScanApi.fetchTxsAsync(
+      webApi.subScanApi.moduleRecovery,
       call: 'initiate_recovery',
       sender: widget.store.account.currentAddress,
     );
@@ -81,13 +80,15 @@ class _RecoveryStatePage extends State<RecoveryStatePage> {
           .toList();
       List statusList = List.of(status[2]);
 
+      int invalidCount = 0;
       statusList.toList().asMap().forEach((k, v) {
         // recovery status is null if recovery was closed
         if (v == null) {
           print('remove $k');
-          ls.removeAt(k);
-          infoList.removeAt(k);
-          statusList.removeAt(k);
+          ls.removeAt(k - invalidCount);
+          infoList.removeAt(k - invalidCount);
+          statusList.removeAt(k - invalidCount);
+          invalidCount++;
         }
       });
 

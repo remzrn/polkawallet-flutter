@@ -11,7 +11,7 @@ description: PolkaWallet made with Flutter.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.7.7+774
+version: 0.8.3+834
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -45,7 +45,10 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   # QR code generator & reader
-  qr_flutter: ^3.1.0
+  qr_flutter:
+    git:
+      url: https://github.com/polkawallet-io/qr.flutter.git
+      ref: master
   flutter_qr_scan:
     git:
       url: https://github.com/polkawallet-io/flutter_qr_reader.git
@@ -56,12 +59,12 @@ dependencies:
   # charts
   charts_flutter: ^0.8.1
   # svg renderer
-  flutter_svg: ^0.17.2
+  flutter_svg: ^0.17.4
   # open link in browser
   url_launcher: ^5.4.2
 
 dev_dependencies:
-  flutter_launcher_icons: "^0.7.3"
+#  flutter_launcher_icons: ^0.7.5
   build_runner: ^1.7.4
   json_serializable: ^3.0.0
   mockito: ^4.1.1
@@ -99,13 +102,14 @@ flutter:
     - assets/images/public/acala-mandala_gray.png
     - assets/images/public/acala.png
     - assets/images/public/acala_gray.png
+    - assets/images/public/edgeware.png
+    - assets/images/public/edgeware_gray.png
     - assets/images/assets/ACA.png
     - assets/images/assets/AUSD.png
     - assets/images/assets/XBTC.png
     - assets/images/assets/LDOT.png
     - assets/images/assets/KAR.png
-    - assets/images/public/edgeware.png
-    - assets/images/public/edgeware_gray.png
+    - assets/images/assets/scanner.png
     ## images - acala
     - assets/images/assets/scanner_indigo.png
     - assets/images/assets/top_bg_indigo.png

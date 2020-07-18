@@ -11,14 +11,15 @@ EndpointData networkEndpointKusama = EndpointData.fromJson(const {
   'info': 'kusama',
   'ss58': 2,
   'text': 'Kusama (Polkadot Canary, hosted by Polkawallet)',
-  'value': 'ws://mandala-01.acala.network:9954/',
+//  'value': 'ws://mandala-01.acala.network:9954/',
+  'value': 'ws://10.230.199.40:9944/',
 });
 
 EndpointData networkEndpointAcala = EndpointData.fromJson(const {
   'info': 'acala-mandala',
   'ss58': 42,
-  'text': 'Acala Mandala (Hosted by Polkawallet)',
-  'value': 'wss://39.99.168.67/wss',
+  'text': 'Acala Mandala (Hosted by Acala Network)',
+  'value': 'wss://testnet-node-1.acala.laminar.one/ws',
 });
 
 EndpointData networkEndpointEdgeware = EndpointData.fromJson(const {
@@ -43,38 +44,31 @@ List<EndpointData> networkEndpoints = [
     'value': 'ws://62.171.154.98:9944',
   }),
   networkEndpointKusama,
-  EndpointData.fromJson(const {
-    'info': 'kusama',
-    'ss58': 2,
-    'text': 'Kusama (Polkadot Canary, hosted by Parity)',
-    'value': 'wss://kusama-rpc.polkadot.io/',
-  }),
-  EndpointData.fromJson(const {
-    'info': 'kusama',
-    'ss58': 2,
-    'text': 'Kusama (Polkadot Canary, hosted by Web3 Foundation)',
-    'value': 'wss://cc3-5.kusama.network/',
-  }),
-//  networkEndpointAcala,
+//  EndpointData.fromJson(const {
+//    'info': 'kusama',
+//    'ss58': 2,
+//    'text': 'Kusama (Polkadot Canary, hosted by Parity)',
+//    'value': 'wss://kusama-rpc.polkadot.io/',
+//  }),
+//  EndpointData.fromJson(const {
+//    'info': 'kusama',
+//    'ss58': 2,
+//    'text': 'Kusama (Polkadot Canary, hosted by Web3 Foundation)',
+//    'value': 'wss://cc3-5.kusama.network/',
+//  }),
+  networkEndpointAcala,
   EndpointData.fromJson(const {
     'info': 'acala-mandala',
     'ss58': 42,
-    'text': 'Mandala TC3 Node 1 (Hosted by OnFinality)',
-    'value':
-        'wss://node-6680668387259867136.jm.onfinality.io/ws?apikey=a382f87e-cf1d-4d64-ad0d-8d0869f12bfb'
+    'text': 'Mandala TC4 Node 1 (Hosted by OnFinality)',
+    'value': 'wss://node-6684611762228215808.jm.onfinality.io/ws'
   }),
-//  EndpointData.fromJson(const {
-//    'info': 'acala-mandala',
-//    'ss58': 42,
-//    'text': 'Mandala TC3 Node 2 (Hosted by OnFinality)',
-//    'value': 'wss://node-6661046769218965504.rz.onfinality.io/ws'
-//  }),
-//  EndpointData.fromJson(const {
-//    'info': 'acala-mandala',
-//    'ss58': 42,
-//    'text': 'Acala Mandala (Hosted by Acala Network)',
-//    'value': 'wss://testnet-node-1.acala.laminar.one/ws',
-//  }),
+  EndpointData.fromJson(const {
+    'info': 'acala-mandala',
+    'ss58': 42,
+    'text': 'Mandala TC4 Node 2 (Hosted by OnFinality)',
+    'value': 'wss://node-6684611760525328384.rz.onfinality.io/ws'
+  }),
   networkEndpointEdgeware,
   EndpointData.fromJson(const {
     'info': 'edgeware',
@@ -82,24 +76,24 @@ List<EndpointData> networkEndpoints = [
     'text': 'Edgeware Mainnet #2 (hosted by Commonwealth Labs)',
     'value': 'wss://mainnet2.edgewa.re/',
   }),
-  EndpointData.fromJson(const {
-    'info': 'edgeware',
-    'ss58': 7,
-    'text': 'Edgeware Mainnet #3 (hosted by Commonwealth Labs)',
-    'value': 'wss://mainnet3.edgewa.re/',
-  }),
-  EndpointData.fromJson(const {
-    'info': 'edgeware',
-    'ss58': 7,
-    'text': 'Edgeware Mainnet #4 (hosted by Commonwealth Labs)',
-    'value': 'wss://mainnet4.edgewa.re/',
-  }),
-  EndpointData.fromJson(const {
-    'info': 'edgeware',
-    'ss58': 7,
-    'text': 'Edgeware Mainnet #5 (hosted by Commonwealth Labs)',
-    'value': 'wss://mainnet5.edgewa.re/',
-  }),
+  // EndpointData.fromJson(const {
+  //   'info': 'edgeware',
+  //   'ss58': 7,
+  //   'text': 'Edgeware Mainnet #3 (hosted by Commonwealth Labs)',
+  //   'value': 'wss://mainnet3.edgewa.re/',
+  // }),
+  // EndpointData.fromJson(const {
+  //   'info': 'edgeware',
+  //   'ss58': 7,
+  //   'text': 'Edgeware Mainnet #4 (hosted by Commonwealth Labs)',
+  //   'value': 'wss://mainnet4.edgewa.re/',
+  // }),
+  // EndpointData.fromJson(const {
+  //   'info': 'edgeware',
+  //   'ss58': 7,
+  //   'text': 'Edgeware Mainnet #5 (hosted by Commonwealth Labs)',
+  //   'value': 'wss://mainnet5.edgewa.re/',
+  // }),
 ];
 
 const network_ss58_map = {
@@ -111,6 +105,7 @@ const network_ss58_map = {
 };
 
 const int acala_token_decimals = 18;
+const int kusama_token_decimals = 12;
 
 const int SECONDS_OF_DAY = 24 * 60 * 60; // seconds of one day
 const int SECONDS_OF_YEAR = 365 * 24 * 60 * 60; // seconds of one year
@@ -119,4 +114,4 @@ const String acala_stable_coin = 'AUSD';
 const String acala_stable_coin_view = 'aUSD';
 
 /// test app versions
-const String app_beta_version = '0.7.7-beta.4';
+const String app_beta_version = '0.8.3-beta.4';

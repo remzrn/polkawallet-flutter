@@ -1,5 +1,19 @@
-# 0.7.8
-- update Acalanetwork to TC4
+# 0.8.3
+- add tx sending with tips
+- fix Acala token transfer history bug
+- fix UI bugs of Acala pages
+- fix staking history display bug
+- fix scan to transfer balance display
+
+# 0.8.2
+- add acala TC4 support
+- fix UI stall issue in IOS
+
+# 0.8.1
+- fix bugs of social recovery
+
+# 0.8.0
+- Offline signature support
 
 # 0.7.7
 - add social recovery

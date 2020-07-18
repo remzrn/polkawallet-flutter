@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/store/account/types/accountData.dart';
+import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/store/staking/types/validatorData.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
@@ -205,6 +206,11 @@ class Fmt {
     return reg.hasMatch(txt);
   }
 
+  static bool isHexString(String hex) {
+    var reg = RegExp(r'^[a-f0-9]+$');
+    return reg.hasMatch(hex);
+  }
+
   static bool checkPassword(String pass) {
     var reg = RegExp(r'^(?![0-9]+$)(?![a-zA-Z]+$)[\S]{6,20}$');
     return reg.hasMatch(pass);
@@ -236,7 +242,7 @@ class Fmt {
       List<ValidatorData> ls, String filter, Map accIndexMap) {
     ls.retainWhere((i) {
       Map accInfo = accIndexMap[i.accountId];
-      return Fmt.validatorDisplayName(i, accInfo)
+      return Fmt.accountDisplayNameString(i.accountId, accInfo)
           .toLowerCase()
           .contains(filter.trim().toLowerCase());
     });
@@ -323,8 +329,8 @@ class Fmt {
     return '${acc.name ?? ''}${(acc.observation ?? false) ? ' (${I18n.of(context).account['observe']})' : ''}';
   }
 
-  static String validatorDisplayName(ValidatorData validator, Map accInfo) {
-    String display = Fmt.address(validator.accountId, pad: 6);
+  static String accountDisplayNameString(String address, Map accInfo) {
+    String display = Fmt.address(address, pad: 6);
     if (accInfo != null && accInfo['identity']['display'] != null) {
       display = accInfo['identity']['display'];
       if (accInfo['identity']['displayParent'] != null) {
@@ -333,5 +339,29 @@ class Fmt {
       display = display.toUpperCase();
     }
     return display;
+  }
+
+  static Widget accountDisplayName(String address, Map accInfo) {
+    return Row(
+      children: <Widget>[
+        accInfo != null && accInfo['identity']['judgements'].length > 0
+            ? Container(
+                width: 14,
+                margin: EdgeInsets.only(right: 4),
+                child: Image.asset('assets/images/assets/success.png'),
+              )
+            : Container(),
+        Expanded(
+          child: Text(accountDisplayNameString(address, accInfo)),
+        )
+      ],
+    );
+  }
+
+  static String addressOfAccount(AccountData acc, AppStore store) {
+    return store.account.pubKeyAddressMap[store.settings.endpoint.ss58]
+            [acc.pubKey] ??
+        acc.address ??
+        '';
   }
 }

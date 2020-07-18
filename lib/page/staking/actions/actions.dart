@@ -38,15 +38,25 @@ class _StakingActions extends State<StakingActions>
 
   final AppStore store;
 
+  bool _loading = false;
+
   int _txsPage = 0;
   bool _isLastPage = false;
   ScrollController _scrollController;
 
   Future<void> _updateStakingTxs() async {
-    if (store.settings.loading) {
+    if (store.settings.loading || _loading) {
       return;
     }
+    setState(() {
+      _loading = true;
+    });
     Map res = await webApi.staking.updateStaking(_txsPage);
+    if (mounted) {
+      setState(() {
+        _loading = false;
+      });
+    }
     if (mounted &&
         (res['extrinsics'] == null ||
             res['extrinsics'].length < tx_list_page_size)) {
@@ -67,11 +77,7 @@ class _StakingActions extends State<StakingActions>
   }
 
   void _changeCurrentAccount(AccountData acc) {
-    store.account.setCurrentAccount(acc.pubKey);
-    // refresh user's assets info
-    store.assets.loadAccountCache();
-    // refresh user's staking info
-    store.staking.loadAccountCache();
+    webApi.account.changeCurrentAccount(pubKey: acc.pubKey);
     globalBondingRefreshKey.currentState.show();
   }
 

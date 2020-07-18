@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polka_wallet/common/components/passwordInputDialog.dart';
 import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/page/account/scanPage.dart';
+import 'package:polka_wallet/page/account/uos/qrSignerPage.dart';
 import 'package:polka_wallet/page/assets/asset/assetPage.dart';
 import 'package:polka_wallet/page/assets/claim/attestPage.dart';
 import 'package:polka_wallet/page/assets/claim/claimPage.dart';
@@ -41,9 +43,7 @@ class _AssetsState extends State<Assets> {
 
   Future<void> _fetchBalance() async {
     if (store.settings.endpoint.info == networkEndpointAcala.info) {
-      await Future.wait([
-        webApi.assets.fetchBalance(),
-      ]);
+      await webApi.assets.fetchBalance();
     } else {
       await Future.wait([
         webApi.assets.fetchBalance(),
@@ -71,15 +71,98 @@ class _AssetsState extends State<Assets> {
   }
 
   Future<void> _handleScan() async {
+    final Map dic = I18n.of(context).account;
     final data = await Navigator.pushNamed(
       context,
       ScanPage.route,
       arguments: 'tx',
     );
     if (data != null) {
-      print('rawData detected');
-      print(data);
+      if (store.account.currentAccount.observation ?? false) {
+        showCupertinoDialog(
+          context: context,
+          builder: (_) {
+            return CupertinoAlertDialog(
+              title: Text(dic['uos.title']),
+              content: Text(dic['uos.acc.invalid']),
+              actions: <Widget>[
+                CupertinoButton(
+                  child: Text(I18n.of(context).home['ok']),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+
+      final Map sender =
+          await webApi.account.parseQrCode(data.toString().trim());
+      if (sender['signer'] != store.account.currentAddress) {
+        showCupertinoDialog(
+          context: context,
+          builder: (_) {
+            return CupertinoAlertDialog(
+              title: Text(dic['uos.title']),
+              content: sender['error'] != null
+                  ? Text(sender['error'])
+                  : sender['signer'] == null
+                      ? Text(dic['uos.qr.invalid'])
+                      : Text(dic['uos.acc.mismatch']),
+              actions: <Widget>[
+                CupertinoButton(
+                  child: Text(I18n.of(context).home['ok']),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        showCupertinoDialog(
+          context: context,
+          builder: (_) {
+            return PasswordInputDialog(
+              account: store.account.currentAccount,
+              title: Text(dic['uos.title']),
+              onOk: (password) {
+                print('pass ok: $password');
+                _signAsync(password);
+              },
+            );
+          },
+        );
+      }
     }
+  }
+
+  Future<void> _signAsync(String password) async {
+    final Map dic = I18n.of(context).account;
+    final Map signed = await webApi.account.signAsync(password);
+    print('signed: $signed');
+    if (signed['error'] != null) {
+      showCupertinoDialog(
+        context: context,
+        builder: (_) {
+          return CupertinoAlertDialog(
+            title: Text(dic['uos.title']),
+            content: Text(signed['error']),
+            actions: <Widget>[
+              CupertinoButton(
+                child: Text(I18n.of(context).home['ok']),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+    Navigator.of(context).pushNamed(
+      QrSignerPage.route,
+      arguments: signed['signature'].toString().substring(2),
+    );
   }
 
   Future<void> _getTokensFromFaucet() async {
@@ -227,9 +310,12 @@ class _AssetsState extends State<Assets> {
             title: Row(
               children: [
                 GestureDetector(
-                  child: Image.asset(
-                    'assets/images/assets/qrcode_${isAcala ? 'indigo' : isKusama ? 'black' : 'pink'}.png',
-                    width: 18,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 4),
+                    child: Image.asset(
+                      'assets/images/assets/qrcode_${isAcala ? 'indigo' : isKusama ? 'black' : 'pink'}.png',
+                      width: 18,
+                    ),
                   ),
                   onTap: () {
                     if (acc.address != '') {
@@ -265,6 +351,11 @@ class _AssetsState extends State<Assets> {
       store.settings.setNetworkLoading(true);
       webApi.connectNodeAll();
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!store.settings.loading) {
+        globalBalanceRefreshKey.currentState?.show();
+      }
+    });
     super.initState();
   }
 
@@ -272,8 +363,9 @@ class _AssetsState extends State<Assets> {
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) {
-        String symbol = store.settings.networkState.tokenSymbol;
-        int decimals = store.settings.networkState.tokenDecimals;
+        String symbol = store.settings.networkState.tokenSymbol ?? '';
+        int decimals =
+            store.settings.networkState.tokenDecimals ?? kusama_token_decimals;
         String networkName = store.settings.networkName ?? '';
 
         bool isAcala =

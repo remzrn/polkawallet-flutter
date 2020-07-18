@@ -13,7 +13,6 @@ import 'package:polka_wallet/common/components/roundedCard.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/page/profile/recovery/createRecoveryPage.dart';
 import 'package:polka_wallet/page/staking/actions/stakingDetailPage.dart';
-import 'package:polka_wallet/service/subscan.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/account/types/accountData.dart';
 import 'package:polka_wallet/store/account/types/accountRecoveryInfo.dart';
@@ -41,12 +40,17 @@ class _RecoverySettingPage extends State<RecoverySettingPage> {
 
   Future<void> _fetchData() async {
     /// fetch recovery config
-    webApi.account.queryRecoverable(widget.store.account.currentAddress);
+    final config = await webApi.account
+        .queryRecoverable(widget.store.account.currentAddress);
+    if (config == null) {
+      print('no recoverable config');
+      return;
+    }
     webApi.assets.fetchBalance();
 
     /// fetch active recoveries from txs
-    Map res = await SubScanApi.fetchTxs(
-      SubScanApi.module_Recovery,
+    Map res = await webApi.subScanApi.fetchTxsAsync(
+      webApi.subScanApi.moduleRecovery,
       call: 'initiate_recovery',
     );
     List<TxData> txs =

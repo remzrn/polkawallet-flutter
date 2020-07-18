@@ -35,13 +35,18 @@ class _AssetPageState extends State<AssetPage>
 
   final AppStore store;
 
+  bool _loading = false;
+
   TabController _tabController;
   int _txsPage = 0;
   bool _isLastPage = false;
   ScrollController _scrollController;
 
   Future<void> _updateData() async {
-    if (store.settings.loading) return;
+    if (store.settings.loading || _loading) return;
+    setState(() {
+      _loading = true;
+    });
 
     webApi.assets.fetchBalance();
     Map res = {"transfers": []};
@@ -55,6 +60,9 @@ class _AssetPageState extends State<AssetPage>
       webApi.staking.fetchAccountStaking();
       res = await webApi.assets.updateTxs(_txsPage);
     }
+    setState(() {
+      _loading = false;
+    });
 
     if (res['transfers'] == null ||
         res['transfers'].length < tx_list_page_size) {
@@ -111,8 +119,7 @@ class _AssetPageState extends State<AssetPage>
       List<TransferData> ls = store.acala.txsTransfer.reversed.toList();
       ls.retainWhere((i) => i.token.toUpperCase() == token.toUpperCase());
       res.addAll(ls.map((i) {
-        return TransferListItem(
-            i, token, i.from == store.account.currentAddress, false);
+        return TransferListItem(i, token, true, false);
       }));
       res.add(ListTail(
         isEmpty: ls.length == 0,
@@ -360,12 +367,15 @@ class TransferListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String address = isOut ? data.to : data.from;
     return Container(
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(width: 0.5, color: Colors.black12)),
       ),
       child: ListTile(
-        title: Text(data.extrinsicIndex ?? Fmt.address(data.hash)),
+        title: Text(Fmt.address(address) ??
+            data.extrinsicIndex ??
+            Fmt.address(data.hash)),
         subtitle: Text(
             DateTime.fromMillisecondsSinceEpoch(data.blockTimestamp * 1000)
                 .toString()),

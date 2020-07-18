@@ -64,16 +64,38 @@ class ApiAccount {
     return res;
   }
 
-//  Future<Map> getObservationAddressPubKey(String address) async {
-//    String ss58 = jsonEncode(network_ss58_map.values.toSet().toList());
-//    Map res = await apiRoot.evalJavascript('account.decodeAddress(["$address"])'
-//        '.then(res => account.encodeAddress(Object.keys(res), $ss58))');
-//    if (res != null) {
-//      Map<String, Map> addressMap = Map<String, Map>.from(res);
-//      store.account.setPubKeyAddressMap(addressMap);
-//    }
-//    return res;
-//  }
+  Future<void> changeCurrentAccount({
+    String pubKey,
+    bool fetchData = false,
+  }) async {
+    String current = pubKey;
+    if (pubKey == null) {
+      if (store.account.accountListAll.length > 0) {
+        current = store.account.accountListAll[0].pubKey;
+      } else {
+        current = '';
+      }
+    }
+    store.account.setCurrentAccount(current);
+
+    // refresh balance
+    store.assets.clearTxs();
+    store.assets.loadAccountCache();
+    if (fetchData) {
+      webApi.assets.fetchBalance();
+    }
+    if (store.settings.endpoint.info == networkEndpointAcala.info) {
+      store.acala.setTransferTxs([], reset: true);
+      store.acala.loadCache();
+    } else {
+      // refresh user's staking info if network is kusama or polkadot
+      store.staking.clearState();
+      store.staking.loadAccountCache();
+      if (fetchData) {
+        webApi.staking.fetchAccountStaking();
+      }
+    }
+  }
 
   Future<void> fetchAccountsBonded(List<String> pubKeys) async {
     if (pubKeys.length > 0) {
@@ -85,6 +107,7 @@ class ApiAccount {
 
   Future<Map> estimateTxFees(Map txInfo, List params, {String rawParam}) async {
     String param = rawParam != null ? rawParam : jsonEncode(params);
+    print(txInfo);
     Map res = await apiRoot.evalJavascript(
         'account.txFeeEstimate(${jsonEncode(txInfo)}, $param)',
         allowRepeat: true);
@@ -226,7 +249,9 @@ class ApiAccount {
 
     List res = [];
     ls.asMap().forEach((k, v) {
-      v['address'] = addresses[k];
+      if (v != null) {
+        v['address'] = addresses[k];
+      }
       res.add(v);
     });
 
@@ -264,6 +289,49 @@ class ApiAccount {
       'Promise.all([${queries.join(',')}])',
       allowRepeat: true,
     );
+    return res;
+  }
+
+  Future<Map> parseQrCode(String data) async {
+    final res = await apiRoot.evalJavascript('account.parseQrCode("$data")');
+    print('rawData: $data');
+    return res;
+  }
+
+  Future<Map> signAsync(String password) async {
+    final res = await apiRoot.evalJavascript('account.signAsync("$password")');
+    return res;
+  }
+
+  Future<Map> makeQrCode(Map txInfo, List params, {String rawParam}) async {
+    String param = rawParam != null ? rawParam : jsonEncode(params);
+    final Map res = await apiRoot.evalJavascript(
+      'account.makeTx(${jsonEncode(txInfo)}, $param)',
+      allowRepeat: true,
+    );
+    return res;
+  }
+
+  Future<Map> addSignatureAndSend(
+    String signed,
+    Map txInfo,
+    String pageTile,
+    String notificationTitle,
+  ) async {
+    final String address = store.account.currentAddress;
+    final Map res = await apiRoot.evalJavascript(
+      'account.addSignatureAndSend("$address", "$signed")',
+      allowRepeat: true,
+    );
+
+    if (res['hash'] != null) {
+      String hash = res['hash'];
+      NotificationPlugin.showNotification(
+        int.parse(hash.substring(0, 6)),
+        notificationTitle,
+        '$pageTile - ${txInfo['module']}.${txInfo['call']}',
+      );
+    }
     return res;
   }
 }

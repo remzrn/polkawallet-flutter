@@ -14,6 +14,7 @@ import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/page/assets/asset/assetPage.dart';
 import 'package:polka_wallet/page/assets/transfer/currencySelectPage.dart';
 import 'package:polka_wallet/page/profile/contacts/contactListPage.dart';
+import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/account/types/accountData.dart';
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/utils/UI.dart';
@@ -79,6 +80,7 @@ class _TransferPageState extends State<TransferPage> {
         },
         "detail": jsonEncode({
           "destination": _addressCtrl.text.trim(),
+          "currency": symbol,
           "amount": _amountCtrl.text.trim(),
         }),
         "params": [
@@ -135,11 +137,11 @@ class _TransferPageState extends State<TransferPage> {
           _addressCtrl.text = args.address;
         });
       }
-      if (args.symbol != null) {
-        setState(() {
-          _tokenSymbol = args.symbol;
-        });
-      }
+      setState(() {
+        _tokenSymbol = args.symbol ?? store.settings.networkState.tokenSymbol;
+      });
+
+      webApi.assets.fetchBalance();
     });
   }
 
@@ -166,9 +168,6 @@ class _TransferPageState extends State<TransferPage> {
             ? store.assets.balances[symbol].transferable
             : Fmt.balanceInt(store.assets.tokenBalances[symbol.toUpperCase()]);
 
-        final Map pubKeyAddressMap =
-            store.account.pubKeyAddressMap[store.settings.endpoint.ss58];
-
         return Scaffold(
           appBar: AppBar(
             title: Text(dic['transfer']),
@@ -179,6 +178,7 @@ class _TransferPageState extends State<TransferPage> {
                 onPressed: () async {
                   final to =
                       await Navigator.of(context).pushNamed(ScanPage.route);
+                  if (to == null) return;
                   setState(() {
                     _addressCtrl.text = (to as QRCodeAddressResult).address;
                   });
@@ -210,9 +210,8 @@ class _TransferPageState extends State<TransferPage> {
                                     if (to != null) {
                                       AccountData acc = to as AccountData;
                                       setState(() {
-                                        _addressCtrl.text = acc.encoded == null
-                                            ? acc.address
-                                            : pubKeyAddressMap[acc.pubKey];
+                                        _addressCtrl.text =
+                                            Fmt.addressOfAccount(acc, store);
                                       });
                                     }
                                   },

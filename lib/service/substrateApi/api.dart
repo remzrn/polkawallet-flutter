@@ -4,11 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:polka_wallet/common/consts/settings.dart';
+import 'package:polka_wallet/service/subscan.dart';
 import 'package:polka_wallet/service/substrateApi/acala/apiAcala.dart';
 import 'package:polka_wallet/service/substrateApi/apiAccount.dart';
 import 'package:polka_wallet/service/substrateApi/apiAssets.dart';
 import 'package:polka_wallet/service/substrateApi/apiGov.dart';
 import 'package:polka_wallet/service/substrateApi/apiStaking.dart';
+import 'package:polka_wallet/service/substrateApi/types/genExternalLinksParams.dart';
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/store/settings.dart';
 
@@ -28,6 +30,8 @@ class Api {
   ApiAssets assets;
   ApiStaking staking;
   ApiGovernance gov;
+
+  SubScanApi subScanApi = SubScanApi();
 
   Map<String, Function> _msgHandlers = {};
   Map<String, Completer> _msgCompleters = {};
@@ -66,10 +70,10 @@ class Api {
     _web.onStateChanged.listen((viewState) async {
       if (viewState.type == WebViewState.finishLoad) {
         String network = store.settings.endpoint.info=='edgeware'?'edgeware':'kusama';
-        print('webview loaded for network $network');
         if (store.settings.endpoint.info.contains('acala')) {
           network = 'acala';
         }
+        print('webview loaded for network $network');
         DefaultAssetBundle.of(context)
             .loadString('lib/js_service_$network/dist/main.js')
             .then((String js) {
@@ -242,5 +246,13 @@ class Api {
 
   Future<void> unsubscribeMessage(String channel) async {
     _web.evalJavascript('unsub$channel()');
+  }
+
+  Future<List> getExternalLinks(GenExternalLinksParams params) async {
+    final List res = await evalJavascript(
+      'settings.genLinks(${jsonEncode(GenExternalLinksParams.toJson(params))})',
+      allowRepeat: true,
+    );
+    return res;
   }
 }

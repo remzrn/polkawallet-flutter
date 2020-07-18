@@ -11,7 +11,7 @@ class WalletApi {
       if (res == null) {
         return null;
       } else {
-        return jsonDecode(res.body) as Map;
+        return jsonDecode(utf8.decode(res.bodyBytes)) as Map;
       }
     } catch (err) {
       print(err);

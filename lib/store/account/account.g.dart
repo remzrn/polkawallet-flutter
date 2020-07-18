@@ -15,20 +15,18 @@ mixin _$AccountStore on _AccountStore, Store {
   AccountData get currentAccount => (_$currentAccountComputed ??=
           Computed<AccountData>(() => super.currentAccount))
       .value;
-  Computed<ObservableList<AccountData>> _$optionalAccountsComputed;
+  Computed<List<AccountData>> _$optionalAccountsComputed;
 
   @override
-  ObservableList<AccountData> get optionalAccounts =>
-      (_$optionalAccountsComputed ??= Computed<ObservableList<AccountData>>(
-              () => super.optionalAccounts))
-          .value;
-  Computed<ObservableList<AccountData>> _$accountListAllComputed;
+  List<AccountData> get optionalAccounts => (_$optionalAccountsComputed ??=
+          Computed<List<AccountData>>(() => super.optionalAccounts))
+      .value;
+  Computed<List<AccountData>> _$accountListAllComputed;
 
   @override
-  ObservableList<AccountData> get accountListAll =>
-      (_$accountListAllComputed ??=
-              Computed<ObservableList<AccountData>>(() => super.accountListAll))
-          .value;
+  List<AccountData> get accountListAll => (_$accountListAllComputed ??=
+          Computed<List<AccountData>>(() => super.accountListAll))
+      .value;
   Computed<String> _$currentAddressComputed;
 
   @override
