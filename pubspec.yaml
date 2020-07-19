@@ -188,6 +188,7 @@ flutter:
     - assets/images/profile/address.png
     - assets/images/profile/setting.png
     ## images - edgeware
+    - assets/images/assets/scanner_green.png
     - assets/images/public/app.png
     - assets/images/public/Assets_green.png
     - assets/images/public/Governance_green.png
