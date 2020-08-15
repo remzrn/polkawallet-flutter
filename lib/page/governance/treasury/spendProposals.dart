@@ -14,6 +14,7 @@ import 'package:polka_wallet/page/governance/treasury/submitTipPage.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/store/gov/types/treasuryOverviewData.dart';
+import 'package:polka_wallet/utils/UI.dart';
 import 'package:polka_wallet/utils/format.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
@@ -27,9 +28,6 @@ class SpendProposals extends StatefulWidget {
 }
 
 class _ProposalsState extends State<SpendProposals> {
-  final GlobalKey<RefreshIndicatorState> _refreshKey =
-      new GlobalKey<RefreshIndicatorState>();
-
   Future<void> _fetchData() async {
     await webApi.gov.fetchTreasuryOverview();
   }
@@ -50,13 +48,12 @@ class _ProposalsState extends State<SpendProposals> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshKey.currentState?.show();
+      globalProposalsRefreshKey.currentState?.show();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     final Map dic = I18n.of(context).gov;
     return Observer(
       builder: (BuildContext context) {
@@ -64,25 +61,28 @@ class _ProposalsState extends State<SpendProposals> {
             kusama_token_decimals;
         final String symbol =
             widget.store.settings.networkState.tokenSymbol ?? '';
+        final String tokenView = Fmt.tokenView(
+          symbol,
+          decimalsDot: decimals,
+          network: widget.store.settings.endpoint.info,
+        );
         String balance = Fmt.balance(
           widget.store.gov.treasuryOverview.balance,
           decimals: decimals,
         );
         bool isCouncil = false;
-        if (widget.store.gov.council.members != null) {
-          widget.store.gov.council.members.forEach((e) {
-            if (widget.store.account.currentAddress == e[0]) {
-              isCouncil = true;
-            }
-          });
-        }
+        widget.store.gov.council.members.forEach((e) {
+          if (widget.store.account.currentAddress == e[0]) {
+            isCouncil = true;
+          }
+        });
         return RefreshIndicator(
           onRefresh: _fetchData,
-          key: _refreshKey,
+          key: globalProposalsRefreshKey,
           child: ListView(
             children: <Widget>[
               _OverviewCard(
-                symbol: symbol,
+                symbol: tokenView,
                 balance: balance,
                 spendPeriod: _getSpendPeriod(),
                 overview: widget.store.gov.treasuryOverview,
@@ -92,7 +92,7 @@ class _ProposalsState extends State<SpendProposals> {
                 color: Theme.of(context).cardColor,
                 margin: EdgeInsets.only(top: 8),
                 child: widget.store.gov.treasuryOverview.proposals == null
-                    ? CupertinoActivityIndicator()
+                    ? Center(child: CupertinoActivityIndicator())
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
@@ -113,7 +113,7 @@ class _ProposalsState extends State<SpendProposals> {
                                     Map accInfo = widget.store.account
                                         .accountIndexMap[e.proposal.proposer];
                                     return _ProposalItem(
-                                      symbol: symbol,
+                                      symbol: tokenView,
                                       accInfo: accInfo,
                                       proposal: e,
                                     );
@@ -147,7 +147,7 @@ class _ProposalsState extends State<SpendProposals> {
                                           .accountIndexMap[e.proposal.proposer];
                                       e.isApproval = true;
                                       return _ProposalItem(
-                                        symbol: symbol,
+                                        symbol: tokenView,
                                         accInfo: accInfo,
                                         proposal: e,
                                       );

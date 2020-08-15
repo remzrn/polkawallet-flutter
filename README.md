@@ -1,9 +1,19 @@
 # polkawallet-flutter
+
+### Download
+[![Apple Store](https://img.shields.io/badge/Apple%20Store-iOS-Silver?logo=apple)](https://apps.apple.com/us/app/polkawallet/id1520301768)
+[![Google Play](https://img.shields.io/badge/Google%20Play-Android-green?logo=google%20play)](https://play.google.com/store/apps/details?id=io.polkawallet.www.polka_wallet)
+
+----
+
 [![Build Status](https://travis-ci.com/polkawallet-io/polkawallet-flutter.svg?branch=master)](https://travis-ci.com/polkawallet-io/polkawallet-flutter)
+[![Release](https://img.shields.io/github/v/release/polkawallet-io/polkawallet-flutter)](https://github.com/polkawallet-io/polkawallet-flutter/releases)
+[![tag](https://img.shields.io/github/v/tag/polkawallet-io/polkawallet-flutter)](https://github.com/polkawallet-io/polkawallet-flutter/tags)
 
 Polkawallet built with Flutter, https://polkawallet.io
 
 ![](https://github.com/jiangfuyao/polkawallet-flutter-images/raw/master/cover-eb14f464e002642772ffad6d4c9debd5.png)
+
 
 ### Introduction
 
@@ -27,16 +37,21 @@ Polkawallet is aiming to provide a more convenient entrance of the polkadot netw
 - [x] Token transfer/staking/governance supported in Kusama/Polkadot.
 - [x] DOT claim in Polkadot.
 - [x] Token transfer/loan/swap/liquid-DOT supported in Acala Network testnet.
+- [x] Token-transfer/synthetic-swap/margin-trade supported in Laminar testnet.
 - [x] Basic account settings: changing name/password/address prefix/language/remote node.
 
 ### Todos
 
-- [ ] Support all available operations of Council/Democracy module.
-- [ ] Treasury module of Kusama/Polkadot.
 - [ ] Login polkassembly with a wallet account.
 - [ ] Refactor the App to support any Substrate-based-blockchain to integrate as plugins.
 
 ### Building
+
+#### Dependencies
+
+- `Flutter 1.20.x statble` 
+- `Dart 2.7.x` 
+- `Node 12.x` 
 
 #### Install Flutter 
 `polkawallet_flutter` is built with [Flutter](https://flutter.dev/), you need to have `Flutter` dev tools

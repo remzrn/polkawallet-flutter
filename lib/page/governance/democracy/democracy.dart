@@ -3,12 +3,16 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:polka_wallet/common/components/listTail.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
+import 'package:polka_wallet/page/governance/council/motionDetailPage.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/page/governance/democracy/referendumPanel.dart';
+import 'package:polka_wallet/service/substrateApi/types/genExternalLinksParams.dart';
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/store/gov/types/referendumInfoData.dart';
 import 'package:polka_wallet/utils/UI.dart';
+import 'package:polka_wallet/utils/format.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
 class Democracy extends StatefulWidget {
@@ -24,12 +28,28 @@ class _DemocracyState extends State<Democracy> {
 
   final AppStore store;
 
-  final String _bestNumberSubscribeChannel = 'BestNumber';
+  final Map<int, List> _links = {};
+
+  Future<List> _getExternalLinks(int id) async {
+    if (_links[id] != null) return _links[id];
+
+    final List res = await webApi.getExternalLinks(
+      GenExternalLinksParams.fromJson(
+          {'data': id.toString(), 'type': 'referendum'}),
+    );
+    if (res != null) {
+      setState(() {
+        _links[id] = res;
+      });
+    }
+    return res;
+  }
 
   Future<void> _fetchReferendums() async {
     if (store.settings.loading) {
       return;
     }
+    webApi.gov.getReferendumVoteConvictions();
     await webApi.gov.fetchReferendums();
   }
 
@@ -55,8 +75,7 @@ class _DemocracyState extends State<Democracy> {
   void initState() {
     super.initState();
     if (!store.settings.loading) {
-      webApi.subscribeMessage(
-          'chain', 'bestNumber', [], _bestNumberSubscribeChannel, (data) {
+      webApi.subscribeBestNumber((data) {
         store.gov.setBestNumber(data as int);
       });
     }
@@ -68,7 +87,7 @@ class _DemocracyState extends State<Democracy> {
 
   @override
   void dispose() {
-    webApi.unsubscribeMessage(_bestNumberSubscribeChannel);
+    webApi.unsubscribeBestNumber();
 
     super.dispose();
   }
@@ -77,35 +96,47 @@ class _DemocracyState extends State<Democracy> {
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) {
-        String symbol = store.settings.networkState.tokenSymbol;
-        int decimals = store.settings.networkState.tokenDecimals;
+        final int decimals = store.settings.networkState.tokenDecimals;
+        final String symbol = store.settings.networkState.tokenSymbol;
+        final String tokenView = Fmt.tokenView(
+          symbol,
+          decimalsDot: decimals,
+          network: store.settings.endpoint.info,
+        );
         List<ReferendumInfo> list = store.gov.referendums;
         int bestNumber = store.gov.bestNumber;
         return RefreshIndicator(
           key: globalDemocracyRefreshKey,
           onRefresh: _fetchReferendums,
-          child: list == null
-              ? Container()
-              : list.length == 0
-                  ? Container(
-                      height: 80,
-                      padding: EdgeInsets.all(24),
-                      child: Text(I18n.of(context).home['data.empty']),
-                    )
-                  : ListView.builder(
-                      itemCount: list.length,
-                      itemBuilder: (BuildContext context, int i) {
-                        return ReferendumPanel(
-                          data: list[i],
-                          bestNumber: bestNumber,
-                          symbol: symbol,
-                          decimals: decimals,
-                          onCancelVote: _submitCancelVote,
-                          blockDuration: store.settings.networkConst['babe']
-                              ['expectedBlockTime'],
-                        );
-                      },
-                    ),
+          child: list == null || list.length == 0
+              ? Center(child: ListTail(isEmpty: true, isLoading: false))
+              : ListView.builder(
+                  itemCount: list.length + 1,
+                  itemBuilder: (BuildContext context, int i) {
+                    return i == list.length
+                        ? Center(
+                            child: ListTail(
+                            isEmpty: false,
+                            isLoading: false,
+                          ))
+                        : ReferendumPanel(
+                            data: list[i],
+                            bestNumber: bestNumber,
+                            symbol: tokenView,
+                            onCancelVote: _submitCancelVote,
+                            blockDuration: store.settings.networkConst['babe']
+                                ['expectedBlockTime'],
+                            links: FutureBuilder(
+                              future: _getExternalLinks(list[i].index),
+                              builder: (_, AsyncSnapshot snapshot) {
+                                if (snapshot.hasData) {
+                                  return ExternalLinks(snapshot.data);
+                                }
+                                return Container();
+                              },
+                            ));
+                  },
+                ),
         );
       },
     );

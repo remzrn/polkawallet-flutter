@@ -89,6 +89,11 @@ class _BondPageState extends State<BondPage> {
     var assetDic = I18n.of(context).assets;
     String symbol = store.settings.networkState.tokenSymbol;
     int decimals = store.settings.networkState.tokenDecimals;
+    final String tokenView = Fmt.tokenView(
+      symbol,
+      decimalsDot: decimals,
+      network: store.settings.endpoint.info,
+    );
 
     double balance = 0;
     if (store.assets.balances[symbol] != null) {
@@ -133,12 +138,9 @@ class _BondPageState extends State<BondPage> {
                           decoration: InputDecoration(
                             hintText: assetDic['amount'],
                             labelText:
-                                '${assetDic['amount']} (${dic['balance']}: ${Fmt.doubleFormat(balance)} $symbol)',
+                                '${assetDic['amount']} (${dic['balance']}: ${Fmt.doubleFormat(balance)} $tokenView)',
                           ),
-                          inputFormatters: [
-                            RegExInputFormatter.withRegex(
-                                '^[0-9]{0,6}(\\.[0-9]{0,$decimals})?\$')
-                          ],
+                          inputFormatters: [UI.decimalInputFormatter(decimals)],
                           controller: _amountCtrl,
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),

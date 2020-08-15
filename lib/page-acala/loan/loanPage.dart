@@ -7,6 +7,8 @@ import 'package:polka_wallet/page-acala/loan/loanAdjustPage.dart';
 import 'package:polka_wallet/page-acala/loan/loanCard.dart';
 import 'package:polka_wallet/page-acala/loan/loanChart.dart';
 import 'package:polka_wallet/page-acala/loan/loanCreatePage.dart';
+import 'package:polka_wallet/page-acala/loan/loanHistoryPage.dart';
+import 'package:polka_wallet/page/assets/transfer/currencySelectPage.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/acala/types/loanType.dart';
 import 'package:polka_wallet/store/app.dart';
@@ -59,128 +61,143 @@ class _LoanPageState extends State<LoanPage> {
   @override
   Widget build(BuildContext context) {
     final Map dic = I18n.of(context).acala;
-    return Scaffold(
-      backgroundColor: Theme.of(context).cardColor,
-      appBar: AppBar(title: Text(dic['loan.title']), centerTitle: true),
-      body: Observer(
-        builder: (_) {
-          LoanData loan = store.acala.loans[_tab];
+    return Observer(
+      builder: (_) {
+        LoanData loan = store.acala.loans[_tab];
 
-          String balance = Fmt.priceFloorBigInt(
-              Fmt.balanceInt(store.assets.tokenBalances[acala_stable_coin]));
+        String balance = Fmt.priceFloorBigInt(
+            Fmt.balanceInt(store.assets.tokenBalances[acala_stable_coin]));
 
-          Color cardColor = Theme.of(context).cardColor;
-          Color primaryColor = Theme.of(context).primaryColor;
-          return SafeArea(
+        Color cardColor = Theme.of(context).cardColor;
+        Color primaryColor = Theme.of(context).primaryColor;
+        return Scaffold(
+          backgroundColor: Theme.of(context).cardColor,
+          appBar: AppBar(
+            title: Text(dic['loan.title']),
+            centerTitle: true,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.history),
+                onPressed: () => Navigator.of(context)
+                    .pushNamed(LoanHistoryPage.route, arguments: loan.type),
+              )
+            ],
+          ),
+          body: SafeArea(
             child: RefreshIndicator(
-                key: globalLoanRefreshKey,
-                onRefresh: _fetchData,
-                child: Column(
-                  children: <Widget>[
-                    CurrencyTab(store.acala.loanTypes, _tab, store.acala.prices,
-                        (i) {
-                      setState(() {
-                        _tab = i;
-                      });
-                    }),
-                    Expanded(
-                      child: loan != null
-                          ? ListView(
-                              children: <Widget>[
-                                loan.collaterals > BigInt.zero
-                                    ? LoanCard(loan, balance)
-                                    : RoundedCard(
-                                        margin: EdgeInsets.all(16),
-                                        padding:
-                                            EdgeInsets.fromLTRB(48, 24, 48, 24),
-                                        child: SvgPicture.asset(
-                                            'assets/images/acala/loan-start.svg'),
-                                      ),
-                                loan.debitInUSD > BigInt.zero
-                                    ? LoanChart(loan)
-//                                    ? LoanDonutChart(loan)
-                                    : Container()
-                              ],
-                            )
-                          : Container(),
-                    ),
-                    store.acala.loanTypes.length > 0
-                        ? Row(
+              key: globalLoanRefreshKey,
+              onRefresh: _fetchData,
+              child: Column(
+                children: <Widget>[
+                  CurrencySelector(
+                    tokenOptions:
+                        store.acala.loanTypes.map((e) => e.token).toList(),
+                    token: _tab,
+                    price: store.acala.prices[_tab],
+                    onSelect: (res) {
+                      if (res != null) {
+                        setState(() {
+                          _tab = res;
+                        });
+                      }
+                    },
+                  ),
+                  Expanded(
+                    child: loan != null
+                        ? ListView(
                             children: <Widget>[
-                              Expanded(
-                                child: Container(
-                                  color: Colors.blue,
-                                  child: FlatButton(
+                              loan.collaterals > BigInt.zero
+                                  ? LoanCard(loan, balance)
+                                  : RoundedCard(
+                                      margin: EdgeInsets.all(16),
                                       padding:
-                                          EdgeInsets.only(top: 16, bottom: 16),
-                                      child: Text(
-                                        dic['loan.borrow'],
-                                        style: TextStyle(color: cardColor),
-                                      ),
-                                      onPressed: () {
-                                        if (loan != null &&
-                                            loan.collaterals > BigInt.zero) {
-                                          Navigator.of(context).pushNamed(
-                                            LoanAdjustPage.route,
-                                            arguments: LoanAdjustPageParams(
-                                                LoanAdjustPage.actionTypeBorrow,
-                                                _tab),
-                                          );
-                                        } else {
-                                          Navigator.of(context).pushNamed(
-                                            LoanCreatePage.route,
-                                            arguments:
-                                                LoanAdjustPageParams('', _tab),
-                                          );
-                                        }
-                                      }),
-                                ),
-                              ),
-                              loan != null && loan.debitInUSD > BigInt.zero
-                                  ? Expanded(
-                                      child: Container(
-                                        color: primaryColor,
-                                        child: FlatButton(
-                                          padding: EdgeInsets.only(
-                                              top: 16, bottom: 16),
-                                          child: Text(
-                                            dic['loan.payback'],
-                                            style: TextStyle(color: cardColor),
-                                          ),
-                                          onPressed: () =>
-                                              Navigator.of(context).pushNamed(
-                                            LoanAdjustPage.route,
-                                            arguments: LoanAdjustPageParams(
-                                                LoanAdjustPage
-                                                    .actionTypePayback,
-                                                _tab),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : Container(),
+                                          EdgeInsets.fromLTRB(48, 24, 48, 24),
+                                      child: SvgPicture.asset(
+                                          'assets/images/acala/loan-start.svg'),
+                                    ),
+                              loan.debitInUSD > BigInt.zero
+                                  ? LoanChart(loan)
+//                                    ? LoanDonutChart(loan)
+                                  : Container()
                             ],
                           )
                         : Container(),
-                  ],
-                )),
-          );
-        },
-      ),
+                  ),
+                  store.acala.loanTypes.length > 0
+                      ? Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Container(
+                                color: Colors.blue,
+                                child: FlatButton(
+                                    padding:
+                                        EdgeInsets.only(top: 16, bottom: 16),
+                                    child: Text(
+                                      dic['loan.borrow'],
+                                      style: TextStyle(color: cardColor),
+                                    ),
+                                    onPressed: () {
+                                      if (loan != null &&
+                                          loan.collaterals > BigInt.zero) {
+                                        Navigator.of(context).pushNamed(
+                                          LoanAdjustPage.route,
+                                          arguments: LoanAdjustPageParams(
+                                              LoanAdjustPage.actionTypeBorrow,
+                                              _tab),
+                                        );
+                                      } else {
+                                        Navigator.of(context).pushNamed(
+                                          LoanCreatePage.route,
+                                          arguments:
+                                              LoanAdjustPageParams('', _tab),
+                                        );
+                                      }
+                                    }),
+                              ),
+                            ),
+                            loan != null && loan.debitInUSD > BigInt.zero
+                                ? Expanded(
+                                    child: Container(
+                                      color: primaryColor,
+                                      child: FlatButton(
+                                        padding: EdgeInsets.only(
+                                            top: 16, bottom: 16),
+                                        child: Text(
+                                          dic['loan.payback'],
+                                          style: TextStyle(color: cardColor),
+                                        ),
+                                        onPressed: () =>
+                                            Navigator.of(context).pushNamed(
+                                          LoanAdjustPage.route,
+                                          arguments: LoanAdjustPageParams(
+                                              LoanAdjustPage.actionTypePayback,
+                                              _tab),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : Container(),
+                          ],
+                        )
+                      : Container(),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
-class CurrencyTab extends StatelessWidget {
-  CurrencyTab(this.tabs, this.activeTab, this.prices, this.onTabChange);
-  final String activeTab;
-  final List<LoanType> tabs;
-  final Map<String, BigInt> prices;
-  final Function(String) onTabChange;
-
+class CurrencySelector extends StatelessWidget {
+  CurrencySelector({this.tokenOptions, this.token, this.price, this.onSelect});
+  final List<String> tokenOptions;
+  final String token;
+  final BigInt price;
+  final Function(String) onSelect;
   @override
   Widget build(BuildContext context) {
-    final Map dic = I18n.of(context).acala;
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -196,75 +213,38 @@ class CurrencyTab extends StatelessWidget {
           )
         ],
       ),
-      child: Row(
-        children: tabs.map((i) {
-          String price = Fmt.priceCeilBigInt(prices[i.token],
-              decimals: acala_token_decimals);
-          return Expanded(
-            child: GestureDetector(
-              child: Container(
-                  padding: EdgeInsets.only(top: 8, bottom: 6),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        width: 2,
-                        color: activeTab == i.token
-                            ? Theme.of(context).primaryColor
-                            : Theme.of(context).cardColor,
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        width: 32,
-                        margin: EdgeInsets.only(right: 8),
-                        child: activeTab == i.token
-                            ? Image.asset('assets/images/assets/${i.token}.png')
-                            : Container(
-                                width: 32,
-                                height: 32,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).dividerColor,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(32),
-                                  ),
-                                ),
-                              ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            i.token,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: activeTab == i.token
-                                  ? Theme.of(context).primaryColor
-                                  : Theme.of(context).unselectedWidgetColor,
-                            ),
-                          ),
-                          Text(
-                            '\$$price',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).unselectedWidgetColor,
-                            ),
-                          )
-                        ],
-                      )
-                    ],
-                  )),
-              onTap: () {
-                if (activeTab != i.token) {
-                  onTabChange(i.token);
-                }
-              },
-            ),
+      child: ListTile(
+        leading: CircleAvatar(
+          child: Image.asset('assets/images/assets/$token.png'),
+          radius: 16,
+        ),
+        title: Text(
+          Fmt.tokenView(token),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).primaryColor,
+          ),
+        ),
+        subtitle: price != null
+            ? Text(
+                '\$${Fmt.token(price, decimals: acala_token_decimals)}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).unselectedWidgetColor,
+                ),
+              )
+            : null,
+        trailing: Icon(Icons.arrow_forward_ios, size: 18),
+        onTap: () async {
+          final res = await Navigator.of(context).pushNamed(
+            CurrencySelectPage.route,
+            arguments: tokenOptions,
           );
-        }).toList(),
+          if (res != null) {
+            onSelect(res);
+          }
+        },
       ),
     );
   }

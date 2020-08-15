@@ -2,11 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polka_wallet/common/components/addressIcon.dart';
+import 'package:polka_wallet/common/components/listTail.dart';
 import 'package:polka_wallet/common/components/roundedCard.dart';
 import 'package:polka_wallet/page/governance/treasury/tipDetailPage.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/store/gov/types/treasuryTipData.dart';
+import 'package:polka_wallet/utils/UI.dart';
 import 'package:polka_wallet/utils/format.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
@@ -20,9 +22,6 @@ class MoneyTips extends StatefulWidget {
 }
 
 class _ProposalsState extends State<MoneyTips> {
-  final GlobalKey<RefreshIndicatorState> _refreshKey =
-      new GlobalKey<RefreshIndicatorState>();
-
   Future<void> _fetchData() async {
     webApi.gov.updateBestNumber();
     await webApi.gov.fetchTreasuryTips();
@@ -32,26 +31,38 @@ class _ProposalsState extends State<MoneyTips> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshKey.currentState?.show();
+      globalTipsRefreshKey.currentState?.show();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Observer(
       builder: (BuildContext context) {
+        List<TreasuryTipData> tips = [];
+        if (widget.store.gov.treasuryTips != null) {
+          tips.addAll(widget.store.gov.treasuryTips.reversed);
+        }
         return RefreshIndicator(
-          key: _refreshKey,
+          key: globalTipsRefreshKey,
           onRefresh: _fetchData,
-          child: widget.store.gov.treasuryTips == null
-              ? CupertinoActivityIndicator()
+          child: tips.length == 0
+              ? Center(
+                  child: ListTail(
+                  isEmpty: true,
+                  isLoading: false,
+                ))
               : ListView.builder(
                   padding: EdgeInsets.only(bottom: 32),
-                  itemCount: widget.store.gov.treasuryTips.length,
+                  itemCount: tips.length + 1,
                   itemBuilder: (_, int i) {
-                    final TreasuryTipData tip =
-                        widget.store.gov.treasuryTips[i];
+                    if (tips.length == i) {
+                      return ListTail(
+                        isEmpty: false,
+                        isLoading: false,
+                      );
+                    }
+                    final TreasuryTipData tip = tips[i];
                     final Map accInfo =
                         widget.store.account.accountIndexMap[tip.who];
                     return RoundedCard(

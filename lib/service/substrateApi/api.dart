@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/service/subscan.dart';
 import 'package:polka_wallet/service/substrateApi/acala/apiAcala.dart';
@@ -10,9 +11,11 @@ import 'package:polka_wallet/service/substrateApi/apiAccount.dart';
 import 'package:polka_wallet/service/substrateApi/apiAssets.dart';
 import 'package:polka_wallet/service/substrateApi/apiGov.dart';
 import 'package:polka_wallet/service/substrateApi/apiStaking.dart';
+import 'package:polka_wallet/service/substrateApi/laminar/apiLaminar.dart';
+import 'package:polka_wallet/service/walletApi.dart';
 import 'package:polka_wallet/service/substrateApi/types/genExternalLinksParams.dart';
 import 'package:polka_wallet/store/app.dart';
-import 'package:polka_wallet/store/settings.dart';
+import 'package:polka_wallet/utils/UI.dart';
 
 // global api instance
 Api webApi;
@@ -22,10 +25,12 @@ class Api {
 
   final BuildContext context;
   final AppStore store;
+  final jsStorage = GetStorage();
 
   ApiAccount account;
 
   ApiAcala acala;
+  ApiLaminar laminar;
 
   ApiAssets assets;
   ApiStaking staking;
@@ -38,18 +43,52 @@ class Api {
   FlutterWebviewPlugin _web;
   int _evalJavascriptUID = 0;
 
+  bool _jsCodeUpdated = false;
+
   Function _connectFunc;
+
+  /// preload js code for opening dApps
+  String asExtensionJSCode;
 
   void init() {
     account = ApiAccount(this);
 
     acala = ApiAcala(this);
+    laminar = ApiLaminar(this);
 
     assets = ApiAssets(this);
     staking = ApiStaking(this);
     gov = ApiGovernance(this);
 
     launchWebview();
+
+    DefaultAssetBundle.of(context)
+        .loadString('lib/js_as_extension/dist/main.js')
+        .then((String js) {
+      print('asExtensionJSCode loaded');
+      asExtensionJSCode = js;
+    });
+  }
+
+  Future<void> _checkJSCodeUpdate() async {
+    // check js code update
+    final network = store.settings.endpoint.info;
+    final jsVersion = await WalletApi.fetchPolkadotJSVersion(network);
+    final bool needUpdate =
+        await UI.checkJSCodeUpdate(context, jsVersion, network);
+    if (needUpdate) {
+      await UI.updateJSCode(context, jsStorage, network, jsVersion);
+    }
+  }
+
+  void _startJSCode(String js) {
+    // inject js file to webview
+    _web.evalJavascript(js);
+
+    // load keyPairs from local data
+    account.initAccounts();
+    // connect remote node
+    _connectFunc();
   }
 
   Future<void> launchWebview({bool customNode = false}) async {
@@ -60,6 +99,7 @@ class Api {
 
     _connectFunc = customNode ? connectNode : connectNodeAll;
 
+    await _checkJSCodeUpdate();
     if (_web != null) {
       _web.reload();
       return;
@@ -72,20 +112,22 @@ class Api {
         String network = store.settings.endpoint.info=='edgeware'?'edgeware':'kusama';
         if (store.settings.endpoint.info.contains('acala')) {
           network = 'acala';
+        } else if (store.settings.endpoint.info.contains('laminar')) {
+          network = 'laminar';
         }
         print('webview loaded for network $network');
-        DefaultAssetBundle.of(context)
-            .loadString('lib/js_service_$network/dist/main.js')
-            .then((String js) {
-          print('js file loaded');
-          // inject js file to webview
-          _web.evalJavascript(js);
-
-          // load keyPairs from local data
-          account.initAccounts();
-          // connect remote node
-          _connectFunc();
-        });
+        String jsCode = WalletApi.getPolkadotJSCode(jsStorage, network);
+        if (jsCode != null) {
+          print('js code loaded');
+          _startJSCode(jsCode);
+        } else {
+          DefaultAssetBundle.of(context)
+              .loadString('lib/js_service_$network/dist/main.js')
+              .then((String js) {
+            print('js file loaded');
+            _startJSCode(js);
+          });
+        }
       }
     });
 
@@ -182,9 +224,9 @@ class Api {
       store.settings.setNetworkName(null);
       return;
     }
-    EndpointData connected =
-        store.settings.endpointList.firstWhere((i) => i.value == res);
-    store.settings.setEndpoint(connected);
+    int index = store.settings.endpointList.indexWhere((i) => i.value == res);
+    if (index < 0) return;
+    store.settings.setEndpoint(store.settings.endpointList[index]);
     fetchNetworkProps();
   }
 
@@ -201,7 +243,9 @@ class Api {
 
     // fetch account balance
     if (store.account.accountListAll.length > 0) {
-      if (store.settings.endpoint.info == networkEndpointAcala.info) {
+      if (store.settings.endpoint.info == networkEndpointAcala.info ||
+          store.settings.endpoint.info == networkEndpointLaminar.info) {
+        laminar.subscribeTokenPrices();
         await assets.fetchBalance();
         return;
       }
@@ -232,16 +276,25 @@ class Api {
     store.assets.setBlockMap(data);
   }
 
+  Future<void> subscribeBestNumber(Function callback) async {
+    final String channel = "BestNumber";
+    subscribeMessage(
+        'settings.subscribeMessage("chain", "bestNumber", [], "$channel")',
+        channel,
+        callback);
+  }
+
+  Future<void> unsubscribeBestNumber() async {
+    unsubscribeMessage('BestNumber');
+  }
+
   Future<void> subscribeMessage(
-    String section,
-    String method,
-    List params,
+    String code,
     String channel,
     Function callback,
   ) async {
     _msgHandlers[channel] = callback;
-    evalJavascript(
-        'settings.subscribeMessage("$section", "$method", ${jsonEncode(params)}, "$channel")');
+    evalJavascript(code, allowRepeat: true);
   }
 
   Future<void> unsubscribeMessage(String channel) async {

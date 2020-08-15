@@ -14,6 +14,8 @@ class ApiAcala {
   final Api apiRoot;
   final store = globalAppStore;
 
+  final String tokenPricesSubscribeChannel = 'TokenPrices';
+
   Future<String> fetchFaucet() async {
     String address = store.account.currentAddress;
     String deviceId = address;
@@ -25,7 +27,7 @@ class ApiAcala {
       IosDeviceInfo info = await deviceInfo.iosInfo;
       deviceId = info.identifierForVendor;
     }
-    String res = await AcalaFaucetApi.getTokens(address, deviceId);
+    String res = await FaucetApi.getAcalaTokens(address, deviceId);
     return res;
   }
 
@@ -60,17 +62,17 @@ class ApiAcala {
         await apiRoot.evalJavascript(getCurrencyIds, wrapPromise: false);
     if (res == null) return;
 
-    List tokens = jsonDecode(res);
+    final List tokens = jsonDecode(res);
     String address = store.account.currentAddress;
     String queries = tokens
         .map((i) => 'api.query.airDrop.airDrops("$address", "$i")')
         .join(",");
-    List amount = await apiRoot.evalJavascript('Promise.all([$queries])',
+    final List amount = await apiRoot.evalJavascript('Promise.all([$queries])',
         allowRepeat: true);
-    Map<String, BigInt> amt = Map<String, BigInt>();
-    tokens.asMap().forEach((i, v) {
-      amt[v] = BigInt.parse(amount[i].toString());
-    });
+    final Map amt = {
+      'tokens': tokens,
+      'amount': amount,
+    };
     store.acala.setAirdrops(amt);
   }
 
@@ -101,7 +103,9 @@ class ApiAcala {
   }
 
   Future<void> subscribeTokenPrices() async {
-    await apiRoot.subscribeMessage('price', 'allPrices', [], 'TokenPrices',
+    final String code =
+        'settings.subscribeMessage("price", "allPrices", [], "$tokenPricesSubscribeChannel")';
+    await apiRoot.subscribeMessage(code, tokenPricesSubscribeChannel,
         (List res) async {
       var priceOfLDOT = await _fetchPriceOfLDOT();
       res.add(priceOfLDOT);
@@ -110,7 +114,7 @@ class ApiAcala {
   }
 
   Future<void> unsubscribeTokenPrices() async {
-    await apiRoot.unsubscribeMessage('TokenPrices');
+    await apiRoot.unsubscribeMessage(tokenPricesSubscribeChannel);
   }
 
   Future<String> fetchTokenSwapRatio() async {
@@ -155,7 +159,9 @@ class ApiAcala {
 
   Future<void> fetchDexPoolInfo(String currencyId) async {
     Map info = await apiRoot.evalJavascript(
-        'acala.fetchDexPoolInfo("$currencyId", "${store.account.currentAddress}")');
+      'acala.fetchDexPoolInfo("$currencyId", "${store.account.currentAddress}")',
+      allowRepeat: true,
+    );
     store.acala.setDexPoolInfo(currencyId, info);
   }
 

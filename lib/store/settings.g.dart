@@ -24,6 +24,7 @@ Map<String, dynamic> _$NetworkStateToJson(NetworkState instance) =>
 
 EndpointData _$EndpointDataFromJson(Map<String, dynamic> json) {
   return EndpointData()
+    ..color = json['color'] as String
     ..info = json['info'] as String
     ..ss58 = json['ss58'] as int
     ..text = json['text'] as String
@@ -32,6 +33,7 @@ EndpointData _$EndpointDataFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$EndpointDataToJson(EndpointData instance) =>
     <String, dynamic>{
+      'color': instance.color,
       'info': instance.info,
       'ss58': instance.ss58,
       'text': instance.text,
@@ -236,8 +238,10 @@ mixin _$SettingsStore on _SettingsStore, Store {
   final _$setNetworkStateAsyncAction = AsyncAction('setNetworkState');
 
   @override
-  Future<void> setNetworkState(Map<String, dynamic> data) {
-    return _$setNetworkStateAsyncAction.run(() => super.setNetworkState(data));
+  Future<void> setNetworkState(Map<String, dynamic> data,
+      {bool needCache = true}) {
+    return _$setNetworkStateAsyncAction
+        .run(() => super.setNetworkState(data, needCache: needCache));
   }
 
   final _$loadNetworkStateCacheAsyncAction =
@@ -252,8 +256,10 @@ mixin _$SettingsStore on _SettingsStore, Store {
   final _$setNetworkConstAsyncAction = AsyncAction('setNetworkConst');
 
   @override
-  Future<void> setNetworkConst(Map<String, dynamic> data) {
-    return _$setNetworkConstAsyncAction.run(() => super.setNetworkConst(data));
+  Future<void> setNetworkConst(Map<String, dynamic> data,
+      {bool needCache = true}) {
+    return _$setNetworkConstAsyncAction
+        .run(() => super.setNetworkConst(data, needCache: needCache));
   }
 
   final _$loadContactsAsyncAction = AsyncAction('loadContacts');

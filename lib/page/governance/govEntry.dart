@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polka_wallet/common/components/entryPageCard.dart';
+import 'package:polka_wallet/common/consts/settings.dart';
+import 'package:polka_wallet/page/asExtension/dAppWrapperPage.dart';
 import 'package:polka_wallet/page/governance/council/councilPage.dart';
 import 'package:polka_wallet/page/governance/democracy/democracyPage.dart';
 import 'package:polka_wallet/page/governance/treasury/treasuryPage.dart';
@@ -40,10 +42,13 @@ class GovEntry extends StatelessWidget {
             Expanded(
               child: Observer(
                 builder: (_) {
+                  final String network =
+                      store.settings.endpoint.info == network_name_polkadot
+                          ? 'polkadot'
+                          : 'kusama';
                   if (store.settings.loading) {
                     return CupertinoActivityIndicator();
                   }
-                  Color primaryColor = Theme.of(context).primaryColor;
                   return ListView(
                     padding: EdgeInsets.all(16),
                     children: <Widget>[
@@ -54,11 +59,11 @@ class GovEntry extends StatelessWidget {
                             dic['democracy'],
                             dic['democracy.brief'],
                             Icon(
-                              Icons.account_balance,
+                              Icons.event_note,
                               color: Colors.white,
                               size: 56,
                             ),
-                            color: primaryColor,
+                            color: Theme.of(context).primaryColor,
                           ),
                           onTap: () => Navigator.of(context)
                               .pushNamed(DemocracyPage.route),
@@ -75,7 +80,7 @@ class GovEntry extends StatelessWidget {
                               color: Colors.white,
                               size: 56,
                             ),
-                            color: primaryColor,
+                            color: Theme.of(context).primaryColor,
                           ),
                           onTap: () => Navigator.of(context)
                               .pushNamed(CouncilPage.route),
@@ -88,14 +93,31 @@ class GovEntry extends StatelessWidget {
                             dic['treasury'],
                             dic['treasury.brief'],
                             Icon(
-                              Icons.attach_money,
+                              Icons.account_balance,
                               color: Colors.white,
                               size: 56,
                             ),
-                            color: primaryColor,
+                            color: Theme.of(context).primaryColor,
                           ),
                           onTap: () => Navigator.of(context)
                               .pushNamed(TreasuryPage.route),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 16),
+                        child: GestureDetector(
+                          child: EntryPageCard(
+                            'Polkassembly',
+                            dic['polkassembly'],
+                            Image.asset(
+                              'assets/images/gov/polkassembly.png',
+                              width: 56,
+                            ),
+                            color: Colors.black87,
+                          ),
+                          onTap: () => Navigator.of(context).pushNamed(
+                              DAppWrapperPage.route,
+                              arguments: 'https://$network.polkassembly.io/'),
                         ),
                       ),
                     ],

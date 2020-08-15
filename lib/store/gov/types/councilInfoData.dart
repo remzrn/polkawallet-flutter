@@ -15,7 +15,7 @@ abstract class _CouncilInfoData {
   int termDuration;
   String votingBond;//can overflow int
 
-  List<List<String>> members;
+  List<List<dynamic>> members;
   List<List<dynamic>> runnersUp;
   List<String> candidates;
 

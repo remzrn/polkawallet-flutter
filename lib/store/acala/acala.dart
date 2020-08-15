@@ -21,6 +21,7 @@ abstract class _AcalaStore with Store {
   _AcalaStore(this.rootStore);
 
   final AppStore rootStore;
+  final String cacheAirdropKey = 'airdrop_balance';
   final String cacheTxsTransferKey = 'transfer_txs';
   final String cacheTxsLoanKey = 'loan_txs';
   final String cacheTxsSwapKey = 'swap_txs';
@@ -103,8 +104,22 @@ abstract class _AcalaStore with Store {
   }
 
   @action
-  void setAirdrops(Map<String, BigInt> amt) {
+  void setAirdrops(Map amount, {bool needCache = true}) {
+    if (amount['tokens'] == null) {
+      airdrops = {};
+      return;
+    }
+
+    Map<String, BigInt> amt = Map<String, BigInt>();
+    amount['tokens'].asMap().forEach((i, v) {
+      amt[v] = Fmt.balanceInt(amount['amount'][i].toString());
+    });
+
     airdrops = amt;
+    if (needCache) {
+      rootStore.localStorage.setAccountCache(
+          rootStore.account.currentAccountPubKey, cacheAirdropKey, amount);
+    }
   }
 
   @action
@@ -241,7 +256,6 @@ abstract class _AcalaStore with Store {
     }
   }
 
-  @action
   Future<void> _cacheTxs(List list, String cacheKey) async {
     String pubKey = rootStore.account.currentAccount.pubKey;
     List cached =
@@ -273,22 +287,38 @@ abstract class _AcalaStore with Store {
       rootStore.localStorage.getAccountCache(pubKey, cacheTxsSwapKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheTxsHomaKey),
       rootStore.localStorage.getAccountCache(pubKey, cacheTxsTransferKey),
+      rootStore.localStorage.getAccountCache(pubKey, cacheAirdropKey),
     ]);
 
     if (cached[0] != null) {
       setLoanTxs(cached[0], needCache: false);
+    } else {
+      setLoanTxs([], needCache: false, reset: true);
     }
     if (cached[1] != null) {
       setDexLiquidityTxs(cached[1], needCache: false);
+    } else {
+      setDexLiquidityTxs([], needCache: false, reset: true);
     }
     if (cached[2] != null) {
-      setSwapTxs(cached[2], needCache: false);
+      setSwapTxs(cached[2], needCache: false, reset: true);
+    } else {
+      setSwapTxs([], needCache: false, reset: true);
     }
     if (cached[3] != null) {
       setHomaTxs(cached[3], needCache: false);
+    } else {
+      setHomaTxs([], needCache: false, reset: true);
     }
     if (cached[4] != null) {
-      setTransferTxs(cached[4], needCache: false);
+      setTransferTxs(cached[4], reset: true, needCache: false);
+    } else {
+      setTransferTxs([], reset: true, needCache: false);
+    }
+    if (cached[5] != null) {
+      setAirdrops(cached[5], needCache: false);
+    } else {
+      setAirdrops({}, needCache: false);
     }
   }
 

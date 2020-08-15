@@ -187,6 +187,11 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     if (v.isEmpty) {
       return assetDic['amount.error'];
     }
+    try {
+      final double amt = double.parse(v);
+    } catch (err) {
+      return assetDic['amount.error'];
+    }
     final LoanAdjustPageParams params =
         ModalRoute.of(context).settings.arguments;
     if (params.actionType == LoanAdjustPage.actionTypeBorrow &&
@@ -208,7 +213,30 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     return null;
   }
 
-  Map _getTxParams(LoanData loan) {
+  Future<bool> _confirmPaybackParams() async {
+    var dic = I18n.of(context).acala;
+    final bool res = await showCupertinoDialog(
+        context: context,
+        builder: (_) {
+          return CupertinoAlertDialog(
+            content: Text(dic['loan.warn']),
+            actions: <Widget>[
+              CupertinoDialogAction(
+                child: Text(dic['loan.warn.back']),
+                onPressed: () => Navigator.of(context).pop(false),
+              ),
+              CupertinoDialogAction(
+                child: Text(I18n.of(context).home['ok']),
+                onPressed: () => Navigator.of(context).pop(true),
+              )
+            ],
+          );
+        });
+    return res;
+  }
+
+  Future<Map> _getTxParams(LoanData loan) async {
+    final int decimals = store.settings.networkState.tokenDecimals;
     final LoanAdjustPageParams params =
         ModalRoute.of(context).settings.arguments;
     switch (params.actionType) {
@@ -231,11 +259,15 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
             ? loan.debitShares
             : loan.type.debitToDebitShare(_amountDebit);
 
-        /// pay less if less than 1 share will be left,
-        /// make sure tx success by leaving more than 1 share.
-        if (loan.debits - _amountDebit <
-            loan.type.debitShareToDebit(BigInt.one)) {
-          debitSubtract = loan.debitShares - BigInt.one;
+        /// pay less if less than 1 debit(aUSD) will be left,
+        /// make sure tx success by leaving more than 1 debit(aUSD).
+        final debitValueOne = Fmt.tokenInt('1', decimals: decimals);
+        if (loan.debits - _amountDebit > BigInt.zero &&
+            loan.debits - _amountDebit < debitValueOne) {
+          final bool canContinue = await _confirmPaybackParams();
+          if (!canContinue) return null;
+          debitSubtract =
+              loan.debitShares - loan.type.debitToDebitShare(debitValueOne);
         }
         return {
           'detail': jsonEncode({
@@ -261,13 +293,19 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
           ]
         };
       case LoanAdjustPage.actionTypeWithdraw:
+
+        /// withdraw all if user input near max
+        BigInt amt =
+            loan.collaterals - _amountCollateral > BigInt.parse('1000000000000')
+                ? _amountCollateral
+                : loan.collaterals;
         return {
           'detail': jsonEncode({
             "amount": _amountCtrl.text.trim(),
           }),
           'params': [
             params.token,
-            (BigInt.zero - _amountCollateral).toString(),
+            (BigInt.zero - amt).toString(),
             0,
           ]
         };
@@ -276,8 +314,10 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
     }
   }
 
-  void _onSubmit(String pageTitle, LoanData loan) {
-    Map params = _getTxParams(loan);
+  Future<void> _onSubmit(String pageTitle, LoanData loan) async {
+    Map params = await _getTxParams(loan);
+    if (params == null) return;
+
     var args = {
       "title": pageTitle,
       "txInfo": {
@@ -437,8 +477,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                   ),
                                 ),
                                 inputFormatters: [
-                                  RegExInputFormatter.withRegex(
-                                      '^[0-9]{0,6}(\\.[0-9]{0,$decimals})?\$')
+                                  UI.decimalInputFormatter(decimals)
                                 ],
                                 controller: _amountCtrl,
                                 keyboardType: TextInputType.numberWithOptions(
@@ -483,8 +522,7 @@ class _LoanAdjustPageState extends State<LoanAdjustPage> {
                                   ),
                                 ),
                                 inputFormatters: [
-                                  RegExInputFormatter.withRegex(
-                                      '^[0-9]{0,6}(\\.[0-9]{0,$decimals})?\$')
+                                  UI.decimalInputFormatter(decimals)
                                 ],
                                 controller: _amountCtrl2,
                                 keyboardType: TextInputType.numberWithOptions(

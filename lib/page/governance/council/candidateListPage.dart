@@ -62,6 +62,13 @@ class _CandidateList extends State<CandidateListPage> {
   @override
   Widget build(BuildContext context) {
     var dic = I18n.of(context).gov;
+    final int decimals = store.settings.networkState.tokenDecimals;
+    final String symbol = store.settings.networkState.tokenSymbol;
+    final String tokenView = Fmt.tokenView(
+      symbol,
+      decimalsDot: decimals,
+      network: store.settings.endpoint.info,
+    );
 
     List<List> list = [];
     list.addAll(_selected);
@@ -111,26 +118,28 @@ class _CandidateList extends State<CandidateListPage> {
                     return CandidateItem(
                       accInfo: accInfo,
                       balance: i,
-                      tokenDecimals: store.settings.networkState.tokenDecimals,
-                      tokenSymbol: store.settings.networkState.tokenSymbol,
-                      switchValue: _selectedMap[i[0]],
-                      onSwitch: (value) {
-                        setState(() {
-                          _selectedMap[i[0]] = value;
-                        });
-                        Timer(Duration(milliseconds: 300), () {
+                      tokenSymbol: tokenView,
+                      trailing: CupertinoSwitch(
+                        value: _selectedMap[i[0]],
+                        onChanged: (value) {
                           setState(() {
-                            if (value) {
-                              _selected.add(i);
-                              _notSelected
-                                  .removeWhere((item) => item[0] == i[0]);
-                            } else {
-                              _selected.removeWhere((item) => item[0] == i[0]);
-                              _notSelected.add(i);
-                            }
+                            _selectedMap[i[0]] = value;
                           });
-                        });
-                      },
+                          Timer(Duration(milliseconds: 300), () {
+                            setState(() {
+                              if (value) {
+                                _selected.add(i);
+                                _notSelected
+                                    .removeWhere((item) => item[0] == i[0]);
+                              } else {
+                                _selected
+                                    .removeWhere((item) => item[0] == i[0]);
+                                _notSelected.add(i);
+                              }
+                            });
+                          });
+                        },
+                      ),
                     );
                   },
                 ).toList(),

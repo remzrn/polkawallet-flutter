@@ -361,13 +361,6 @@ mixin _$AcalaStore on _AcalaStore, Store {
         .run(() => super.setHomaTxs(list, reset: reset, needCache: needCache));
   }
 
-  final _$_cacheTxsAsyncAction = AsyncAction('_cacheTxs');
-
-  @override
-  Future<void> _cacheTxs(List list, String cacheKey) {
-    return _$_cacheTxsAsyncAction.run(() => super._cacheTxs(list, cacheKey));
-  }
-
   final _$loadCacheAsyncAction = AsyncAction('loadCache');
 
   @override
@@ -417,10 +410,10 @@ mixin _$AcalaStore on _AcalaStore, Store {
   final _$_AcalaStoreActionController = ActionController(name: '_AcalaStore');
 
   @override
-  void setAirdrops(Map<String, BigInt> amt) {
+  void setAirdrops(Map amount, {bool needCache = true}) {
     final _$actionInfo = _$_AcalaStoreActionController.startAction();
     try {
-      return super.setAirdrops(amt);
+      return super.setAirdrops(amount, needCache: needCache);
     } finally {
       _$_AcalaStoreActionController.endAction(_$actionInfo);
     }

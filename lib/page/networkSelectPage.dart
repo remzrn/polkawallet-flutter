@@ -34,6 +34,7 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
     networkEndpointPolkadot,
     networkEndpointKusama,
     networkEndpointAcala,
+    networkEndpointLaminar,
     networkEndpointEdgeware,
   ];
 
@@ -45,9 +46,15 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
     store.assets.clearTxs();
     store.assets.loadAccountCache();
 
-    if (store.settings.endpoint.info == networkEndpointAcala.info) {
+    final isAcala = store.settings.endpoint.info == networkEndpointAcala.info;
+    final isLaminar =
+        store.settings.endpoint.info == networkEndpointLaminar.info;
+    if (isAcala) {
       store.acala.setTransferTxs([], reset: true);
       store.acala.loadCache();
+    } else if (isLaminar) {
+      store.laminar.setTransferTxs([], reset: true);
+      store.laminar.loadCache();
     } else {
       // refresh user's staking info if network is kusama or polkadot
       store.staking.clearState();
@@ -59,20 +66,40 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
     setState(() {
       _networkChanging = true;
     });
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text(I18n.of(context).home['loading']),
+          content: Container(height: 64, child: CupertinoActivityIndicator()),
+        );
+      },
+    );
+
+    store.settings.setNetworkLoading(true);
+    await store.settings.setNetworkConst({}, needCache: false);
     store.settings.setEndpoint(_selectedNetwork);
 
-    store.settings.loadNetworkStateCache();
-    store.settings.setNetworkLoading(true);
+    await store.settings.loadNetworkStateCache();
 
-    store.gov.setReferendums([]);
-    store.assets.clearTxs();
+    store.gov.clearState();
     store.assets.loadCache();
     store.staking.clearState();
     store.staking.loadCache();
+    final isAcala = store.settings.endpoint.info == networkEndpointAcala.info;
+    final isLaminar =
+        store.settings.endpoint.info == networkEndpointLaminar.info;
+    if (isAcala) {
+      store.acala.loadCache();
+    } else if (isLaminar) {
+//      store.laminar.setTransferTxs([], reset: true);
+      store.laminar.loadCache();
+    }
 
     webApi.launchWebview();
     changeTheme();
     if (mounted) {
+      Navigator.of(context).pop();
       setState(() {
         _networkChanging = false;
       });
@@ -80,17 +107,12 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
   }
 
   Future<void> _onSelect(AccountData i, String address) async {
-    if (address != store.account.currentAddress) {
+    bool isCurrentNetwork =
+        _selectedNetwork.info == store.settings.endpoint.info;
+    if (address != store.account.currentAddress || !isCurrentNetwork) {
       /// set current account
       store.account.setCurrentAccount(i.pubKey);
 
-      if (store.settings.endpoint.info == networkEndpointEdgeware.info) {
-        // refresh user's staking info
-        store.staking.loadAccountCache();
-      }
-
-      bool isCurrentNetwork =
-          _selectedNetwork.info == store.settings.endpoint.info;
       if (isCurrentNetwork) {
         _loadAccountCache();
 
@@ -115,15 +137,6 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
 
   List<Widget> _buildAccountList() {
     Color primaryColor = Theme.of(context).primaryColor;
-    String colorSuffix
-      = networkEndpointAcala.info == store.settings.endpoint.info ?
-      'indigo'//Acala
-      : networkEndpointKusama.info == store.settings.endpoint.info ?
-      'black'//Kusama
-      : networkEndpointEdgeware.info == store.settings.endpoint.info ?
-      'green'//Edgeware
-      : //Default
-      'pink';
     List<Widget> res = [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -134,7 +147,7 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
           ),
           IconButton(
             icon: Image.asset(
-                'assets/images/assets/plus_$colorSuffix.png'),
+                'assets/images/assets/plus_${store.settings.endpoint.color ?? 'pink'}.png'),
             color: primaryColor,
             onPressed: () => _onCreateAccount(),
           )
@@ -149,8 +162,11 @@ class _NetworkSelectPageState extends State<NetworkSelectPage> {
     accounts.addAll(store.account.optionalAccounts);
 
     res.addAll(accounts.map((i) {
-      String address =
-          store.account.pubKeyAddressMap[_selectedNetwork.ss58][i.pubKey];
+      String address = i.address;
+      if (store.account.pubKeyAddressMap[_selectedNetwork.ss58] != null) {
+        address =
+            store.account.pubKeyAddressMap[_selectedNetwork.ss58][i.pubKey];
+      }
       return RoundedCard(
         border: address == store.account.currentAddress
             ? Border.all(color: Theme.of(context).primaryColorLight)

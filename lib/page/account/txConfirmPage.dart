@@ -16,8 +16,6 @@ import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/utils/format.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
-import '../../common/consts/settings.dart';
-
 // TODO: Add biometrics
 class TxConfirmPage extends StatefulWidget {
   const TxConfirmPage(this.store);
@@ -43,11 +41,6 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
     if (_fee['partialFee'] != null && !reload) {
       return _fee['partialFee'].toString();
     }
-    // For edgeware, it seems this call never returns, and freezes the action.
-    if (networkEndpointEdgeware.info==store.settings.endpoint.info){
-      _fee['partialFee']="100000000000000000";//0.1
-      return _fee['partialFee'].toString();
-    }
     if (store.account.currentAccount.observation ?? false) {
       webApi.account.queryRecoverable(store.account.currentAddress);
     }
@@ -55,8 +48,8 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
     final Map args = ModalRoute.of(context).settings.arguments;
     Map txInfo = args['txInfo'];
     txInfo['pubKey'] = store.account.currentAccount.pubKey;
+    txInfo['address'] = store.account.currentAddress;
     if (_proxyAccount != null) {
-      txInfo['address'] = store.account.currentAddress;
       txInfo['proxy'] = _proxyAccount.pubKey;
     }
     Map fee = await webApi.account
@@ -210,10 +203,10 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
 
     Map txInfo = args['txInfo'];
     txInfo['pubKey'] = store.account.currentAccount.pubKey;
+    txInfo['address'] = store.account.currentAddress;
     txInfo['password'] = password;
     txInfo['tip'] = _tipValue.toString();
     if (_proxyAccount != null) {
-      txInfo['address'] = store.account.currentAddress;
       txInfo['proxy'] = _proxyAccount.pubKey;
       txInfo['ss58'] = store.settings.endpoint.ss58.toString();
     }
@@ -276,6 +269,15 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      webApi.gov.updateBestNumber();
+    });
+  }
+
+  @override
   void dispose() {
     store.assets.setSubmitting(false);
     super.dispose();
@@ -289,6 +291,8 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
     final String symbol = store.settings.networkState.tokenSymbol ?? '';
     final int decimals =
         store.settings.networkState.tokenDecimals ?? kusama_token_decimals;
+    final String tokenView = Fmt.tokenView(symbol,
+        decimalsDot: decimals, network: store.settings.endpoint.info);
 
     final Map<String, dynamic> args = ModalRoute.of(context).settings.arguments;
 
@@ -312,6 +316,14 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
               : false;
           final AccountRecoveryInfo recoverable = store.account.recoveryInfo;
 
+          final bool isPolkadot =
+              store.settings.endpoint.info == network_name_polkadot;
+          bool isTxPaused = isPolkadot;
+          if (store.gov.bestNumber > 0 &&
+              (store.gov.bestNumber < dot_re_denominate_block - 1200 ||
+                  store.gov.bestNumber > dot_re_denominate_block + 1200)) {
+            isTxPaused = false;
+          }
           return Column(
             children: <Widget>[
               Expanded(
@@ -441,7 +453,7 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
                                               CrossAxisAlignment.start,
                                           children: <Widget>[
                                             Text(
-                                              '$fee $symbol',
+                                              '$fee $tokenView',
                                             ),
                                             isAcala
                                                 ? Text(
@@ -480,7 +492,7 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
                             child: Text(dicAsset['tip']),
                           ),
                           Text(
-                              '${Fmt.token(_tipValue, decimals: decimals)} $symbol'),
+                              '${Fmt.token(_tipValue, decimals: decimals)} $tokenView'),
                           TapTooltip(
                             message: dicAsset['tip.tip'],
                             child: Icon(
@@ -532,8 +544,8 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
                   ),
                   Expanded(
                     child: Container(
-                      color: store.assets.submitting
-                          ? Colors.black12
+                      color: store.assets.submitting || isTxPaused
+                          ? Theme.of(context).disabledColor
                           : Theme.of(context).primaryColor,
                       child: FlatButton(
                         padding: EdgeInsets.all(16),
@@ -547,15 +559,16 @@ class _TxConfirmPageState extends State<TxConfirmPage> {
                                   : dic['submit'],
                           style: TextStyle(color: Colors.white),
                         ),
-                        onPressed: isUnsigned
-                            ? () => _onSubmit(context)
-                            : (isObservation && _proxyAccount == null) ||
-                                    isProxyObservation
-                                ? () => _onSubmit(context, viaQr: true)
-                                : _fee['partialFee'] == null ||
-                                        store.assets.submitting
-                                    ? null
-                                    : () => _showPasswordDialog(context),
+                        onPressed: isTxPaused
+                            ? null
+                            : isUnsigned
+                                ? () => _onSubmit(context)
+                                : (isObservation && _proxyAccount == null) ||
+                                        isProxyObservation
+                                    ? () => _onSubmit(context, viaQr: true)
+                                    : store.assets.submitting
+                                        ? null
+                                        : () => _showPasswordDialog(context),
                       ),
                     ),
                   ),

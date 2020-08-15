@@ -7,13 +7,13 @@ import 'package:polka_wallet/common/components/currencyWithIcon.dart';
 import 'package:polka_wallet/common/components/roundedButton.dart';
 import 'package:polka_wallet/common/components/roundedCard.dart';
 import 'package:polka_wallet/common/consts/settings.dart';
-import 'package:polka_wallet/common/regInputFormatter.dart';
 import 'package:polka_wallet/page-acala/homa/homaHistoryPage.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/acala/types/stakingPoolInfoData.dart';
 import 'package:polka_wallet/store/acala/types/txHomaData.dart';
 import 'package:polka_wallet/store/app.dart';
+import 'package:polka_wallet/utils/UI.dart';
 import 'package:polka_wallet/utils/format.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
@@ -71,7 +71,7 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
 
   void _onRadioChange(int value) {
     if (value == 1) {
-      final Map dicAssets = I18n.of(context).assets;
+      final Map dic = I18n.of(context).acala;
       StakingPoolInfoData pool = store.acala.stakingPoolInfo;
       if (pool.freeList.length == 0) return;
 
@@ -90,7 +90,9 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
                 return Padding(
                   padding: EdgeInsets.all(16),
                   child: Text(
-                      'Era ${i.era}, ${dicAssets['available']} ${Fmt.priceFloor(i.free)}'),
+                    'Era ${i.era}, ${dic['homa.redeem.free']} ${Fmt.priceFloor(i.free)}',
+                    style: TextStyle(fontSize: 14),
+                  ),
                 );
               }).toList(),
               onSelectedItemChanged: (v) {
@@ -136,7 +138,7 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
         era = pool.freeList[_eraSelected].era;
       }
       var args = {
-        "title": I18n.of(context).acala['homa.mint'],
+        "title": I18n.of(context).acala['homa.redeem'],
         "txInfo": {
           "module": 'homa',
           "call": 'redeem',
@@ -262,8 +264,7 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
                                         ),
                                       ),
                                       inputFormatters: [
-                                        RegExInputFormatter.withRegex(
-                                            '^[0-9]{0,6}(\\.[0-9]{0,$decimals})?\$')
+                                        UI.decimalInputFormatter(decimals)
                                       ],
                                       controller: _amountPayCtrl,
                                       keyboardType:
@@ -398,7 +399,9 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
                                 child: Text(dic['homa.now']),
                               ),
                               Text(
-                                  '(${dicAssets['available']}: ${Fmt.priceFloor(pool.communalFree)} DOT)'),
+                                '(${dic['homa.redeem.free']}: ${Fmt.priceFloor(pool.communalFree)} DOT)',
+                                style: TextStyle(fontSize: 14),
+                              ),
                             ],
                           ),
                           onTap: () => _onRadioChange(0),
@@ -441,7 +444,9 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
                                 child: Text(dic['homa.unbond']),
                               ),
                               Text(
-                                  '(${pool.bondingDuration.toInt()} Era ≈ ${pool.unbondingDuration / 1000 ~/ SECONDS_OF_DAY} ${dic['homa.redeem.day']})'),
+                                '(${pool.bondingDuration.toInt()} Era ≈ ${pool.unbondingDuration / 1000 ~/ SECONDS_OF_DAY} ${dic['homa.redeem.day']})',
+                                style: TextStyle(fontSize: 14),
+                              ),
                             ],
                           ),
                           onTap: () => _onRadioChange(2),

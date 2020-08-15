@@ -6,13 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polka_wallet/common/components/currencyWithIcon.dart';
+import 'package:polka_wallet/common/components/outlinedButtonSmall.dart';
 import 'package:polka_wallet/common/components/roundedButton.dart';
 import 'package:polka_wallet/common/consts/settings.dart';
-import 'package:polka_wallet/common/regInputFormatter.dart';
 import 'package:polka_wallet/page/account/scanPage.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/page/assets/asset/assetPage.dart';
 import 'package:polka_wallet/page/assets/transfer/currencySelectPage.dart';
+import 'package:polka_wallet/page/assets/transfer/transferCrossChainPage.dart';
 import 'package:polka_wallet/page/profile/contacts/contactListPage.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/account/types/accountData.dart';
@@ -54,6 +55,8 @@ class _TransferPageState extends State<TransferPage> {
 
   String _tokenSymbol;
 
+  bool _crossChain = false;
+
   Future<void> _selectCurrency() async {
     List<String> symbolOptions =
         List<String>.from(store.settings.networkConst['currencyIds']);
@@ -62,6 +65,14 @@ class _TransferPageState extends State<TransferPage> {
         .pushNamed(CurrencySelectPage.route, arguments: symbolOptions);
 
     if (currency != null) {
+      if (_crossChain &&
+          (_tokenSymbol == acala_stable_coin_view ||
+              _tokenSymbol == acala_stable_coin) &&
+          _tokenSymbol != currency) {
+        setState(() {
+          _addressCtrl.text = '';
+        });
+      }
       setState(() {
         _tokenSymbol = currency;
       });
@@ -72,15 +83,20 @@ class _TransferPageState extends State<TransferPage> {
     if (_formKey.currentState.validate()) {
       String symbol = _tokenSymbol ?? store.settings.networkState.tokenSymbol;
       int decimals = store.settings.networkState.tokenDecimals;
+      final String tokenView = Fmt.tokenView(
+        symbol,
+        decimalsDot: decimals,
+        network: store.settings.endpoint.info,
+      );
       var args = {
-        "title": I18n.of(context).assets['transfer'] + ' $symbol',
+        "title": I18n.of(context).assets['transfer'] + ' $tokenView',
         "txInfo": {
           "module": 'balances',
           "call": 'transfer',
         },
         "detail": jsonEncode({
           "destination": _addressCtrl.text.trim(),
-          "currency": symbol,
+          "currency": tokenView,
           "amount": _amountCtrl.text.trim(),
         }),
         "params": [
@@ -91,7 +107,9 @@ class _TransferPageState extends State<TransferPage> {
         ],
       };
       bool isAcala = store.settings.endpoint.info == networkEndpointAcala.info;
-      if (isAcala) {
+      bool isLaminar =
+          store.settings.endpoint.info == networkEndpointLaminar.info;
+      if (isAcala || isLaminar) {
         args['txInfo'] = {
           "module": 'currencies',
           "call": 'transfer',
@@ -111,6 +129,9 @@ class _TransferPageState extends State<TransferPage> {
         if (isAcala) {
           store.acala.setTransferTxs([res]);
         }
+        if (isLaminar) {
+          store.laminar.setTransferTxs([res]);
+        }
         Navigator.popUntil(
             txPageContext, ModalRoute.withName(routeArgs.redirect));
         // user may route to transfer page from asset page
@@ -124,6 +145,57 @@ class _TransferPageState extends State<TransferPage> {
       };
       Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: args);
     }
+  }
+
+  void _onCrossChain() {
+    final bool isAcala =
+        store.settings.endpoint.info == network_name_acala_mandala;
+    showCupertinoModalPopup(
+      context: context,
+      builder: (_) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: CircleAvatar(
+                    child: Image.asset(
+                      isAcala
+                          ? 'assets/images/public/laminar-turbulence.png'
+                          : 'assets/images/public/acala-mandala.png',
+                    ),
+                    radius: 16,
+                  ),
+                ),
+                Text(
+                  isAcala
+                      ? network_name_laminar_turbulence.toUpperCase()
+                      : network_name_acala_mandala.toUpperCase(),
+                )
+              ],
+            ),
+            onPressed: () {
+              final TransferPageParams args =
+                  ModalRoute.of(context).settings.arguments;
+              Navigator.of(context)
+                  .popAndPushNamed(TransferCrossChainPage.route,
+                      arguments: TransferPageParams(
+                        symbol: _tokenSymbol,
+                        redirect: args?.redirect,
+                      ));
+            },
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          child: Text(I18n.of(context).home['cancel']),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -157,16 +229,34 @@ class _TransferPageState extends State<TransferPage> {
     return Observer(
       builder: (_) {
         final Map<String, String> dic = I18n.of(context).assets;
-        String baseTokenSymbol = store.settings.networkState.tokenSymbol;
+        final int decimals = store.settings.networkState.tokenDecimals;
+        final String baseTokenSymbol = store.settings.networkState.tokenSymbol;
+        final String baseTokenSymbolView = Fmt.tokenView(
+          baseTokenSymbol,
+          decimalsDot: decimals,
+          network: store.settings.endpoint.info,
+        );
         String symbol = _tokenSymbol ?? baseTokenSymbol;
         final bool isBaseToken = _tokenSymbol == baseTokenSymbol;
         List symbolOptions = store.settings.networkConst['currencyIds'];
 
-        int decimals = store.settings.networkState.tokenDecimals;
-
         BigInt available = isBaseToken
-            ? store.assets.balances[symbol].transferable
+            ? store.assets.balances[symbol.toUpperCase()].transferable
             : Fmt.balanceInt(store.assets.tokenBalances[symbol.toUpperCase()]);
+
+        final Map pubKeyAddressMap =
+            store.account.pubKeyAddressMap[store.settings.endpoint.ss58];
+
+        final bool isAcala =
+            store.settings.endpoint.info == networkEndpointAcala.info;
+        final bool isLaminar =
+            store.settings.endpoint.info == networkEndpointLaminar.info;
+        final bool canCrossChain = (_tokenSymbol == acala_stable_coin ||
+                _tokenSymbol == acala_stable_coin_view) &&
+            (isAcala || isLaminar);
+        final bool isCrossChain = (_tokenSymbol == acala_stable_coin ||
+                _tokenSymbol == acala_stable_coin_view) &&
+            _crossChain;
 
         return Scaffold(
           appBar: AppBar(
@@ -175,14 +265,17 @@ class _TransferPageState extends State<TransferPage> {
             actions: <Widget>[
               IconButton(
                 icon: Image.asset('assets/images/assets/Menu_scan.png'),
-                onPressed: () async {
-                  final to =
-                      await Navigator.of(context).pushNamed(ScanPage.route);
-                  if (to == null) return;
-                  setState(() {
-                    _addressCtrl.text = (to as QRCodeAddressResult).address;
-                  });
-                },
+                onPressed: isCrossChain
+                    ? null
+                    : () async {
+                        final to = await Navigator.of(context)
+                            .pushNamed(ScanPage.route);
+                        if (to == null) return;
+                        setState(() {
+                          _addressCtrl.text =
+                              (to as QRCodeAddressResult).address;
+                        });
+                      },
               )
             ],
           ),
@@ -197,6 +290,21 @@ class _TransferPageState extends State<TransferPage> {
                         child: ListView(
                           padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
                           children: <Widget>[
+                            canCrossChain
+                                ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: <Widget>[
+                                      Container(
+                                        margin: EdgeInsets.only(top: 16),
+                                        child: OutlinedButtonSmall(
+                                          content: dic['cross.chain'],
+                                          active: true,
+                                          onPressed: _onCrossChain,
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                : Container(),
                             TextFormField(
                               decoration: InputDecoration(
                                 hintText: dic['address'],
@@ -228,11 +336,14 @@ class _TransferPageState extends State<TransferPage> {
                               decoration: InputDecoration(
                                 hintText: dic['amount'],
                                 labelText:
-                                    '${dic['amount']} (${dic['balance']}: ${Fmt.token(available, decimals: decimals)})',
+                                    '${dic['amount']} (${dic['balance']}: ${Fmt.priceFloorBigInt(
+                                  available,
+                                  decimals: decimals,
+                                  lengthMax: 6,
+                                )})',
                               ),
                               inputFormatters: [
-                                RegExInputFormatter.withRegex(
-                                    '^[0-9]{0,6}(\\.[0-9]{0,$decimals})?\$')
+                                UI.decimalInputFormatter(decimals)
                               ],
                               controller: _amountCtrl,
                               keyboardType: TextInputType.numberWithOptions(
@@ -282,10 +393,11 @@ class _TransferPageState extends State<TransferPage> {
                                   ? () => _selectCurrency()
                                   : null,
                             ),
+                            Divider(),
                             Padding(
                               padding: EdgeInsets.only(top: 16),
                               child: Text(
-                                  'existentialDeposit: ${store.settings.existentialDeposit} $baseTokenSymbol',
+                                  'existentialDeposit: ${store.settings.existentialDeposit} $baseTokenSymbolView',
                                   style: TextStyle(
                                       fontSize: 16, color: Colors.black54)),
                             ),
@@ -299,7 +411,7 @@ class _TransferPageState extends State<TransferPage> {
                             Padding(
                               padding: EdgeInsets.only(top: 16),
                               child: Text(
-                                  'transactionByteFee: ${store.settings.transactionByteFee} $baseTokenSymbol',
+                                  'transactionByteFee: ${store.settings.transactionByteFee} $baseTokenSymbolView',
                                   style: TextStyle(
                                       fontSize: 16, color: Colors.black54)),
                             ),

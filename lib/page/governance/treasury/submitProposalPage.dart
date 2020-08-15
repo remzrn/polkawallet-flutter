@@ -4,11 +4,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polka_wallet/common/components/addressFormItem.dart';
 import 'package:polka_wallet/common/components/roundedButton.dart';
-import 'package:polka_wallet/common/regInputFormatter.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
+import 'package:polka_wallet/page/governance/treasury/treasuryPage.dart';
 import 'package:polka_wallet/page/profile/contacts/contactListPage.dart';
 import 'package:polka_wallet/store/account/types/accountData.dart';
 import 'package:polka_wallet/store/app.dart';
+import 'package:polka_wallet/utils/UI.dart';
 import 'package:polka_wallet/utils/format.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
@@ -52,7 +53,10 @@ class _SubmitProposalPageState extends State<SubmitProposalPage> {
           address,
         ],
         'onFinish': (BuildContext txPageContext, Map res) {
-          Navigator.popUntil(txPageContext, ModalRoute.withName('/'));
+          Navigator.popUntil(
+              txPageContext, ModalRoute.withName(TreasuryPage.route));
+
+          globalProposalsRefreshKey.currentState.show();
         }
       };
       Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: args);
@@ -81,6 +85,19 @@ class _SubmitProposalPageState extends State<SubmitProposalPage> {
     final Map dicAsset = I18n.of(context).assets;
     final int decimals = widget.store.settings.networkState.tokenDecimals;
     final String symbol = widget.store.settings.networkState.tokenSymbol;
+    final String tokenView = Fmt.tokenView(
+      symbol,
+      decimalsDot: decimals,
+      network: widget.store.settings.endpoint.info,
+    );
+    final BigInt bondPercentage = Fmt.balanceInt(widget
+            .store.settings.networkConst['treasury']['proposalBond']
+            .toString()) *
+        BigInt.from(100) ~/
+        BigInt.from(1000000);
+    final BigInt minBond = Fmt.balanceInt(widget
+        .store.settings.networkConst['treasury']['proposalBondMinimum']
+        .toString());
     return Scaffold(
       appBar: AppBar(title: Text(dic['treasury.submit']), centerTitle: true),
       body: SafeArea(
@@ -107,24 +124,73 @@ class _SubmitProposalPageState extends State<SubmitProposalPage> {
                         ),
                         Form(
                           key: _formKey,
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              hintText: dicAsset['amount'],
-                              labelText: '${dicAsset['amount']} ($symbol)',
-                            ),
-                            inputFormatters: [
-                              RegExInputFormatter.withRegex(
-                                  '^[0-9]{0,6}(\\.[0-9]{0,$decimals})?\$')
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                decoration: InputDecoration(
+                                  hintText: dicAsset['amount'],
+                                  labelText:
+                                      '${dicAsset['amount']} ($tokenView)',
+                                ),
+                                inputFormatters: [
+                                  UI.decimalInputFormatter(decimals)
+                                ],
+                                controller: _amountCtrl,
+                                keyboardType: TextInputType.numberWithOptions(
+                                    decimal: true),
+                                validator: (v) {
+                                  if (v.isEmpty) {
+                                    return dicAsset['amount.error'];
+                                  }
+                                  return null;
+                                },
+                              ),
+                              TextFormField(
+                                decoration: InputDecoration(
+                                  labelText:
+                                      '${dic['treasury.bond']} ($tokenView)',
+                                ),
+                                initialValue: '$bondPercentage%',
+                                readOnly: true,
+                                style: TextStyle(
+                                    color: Theme.of(context).disabledColor),
+                                validator: (v) {
+                                  final BigInt bond = Fmt.tokenInt(
+                                          _amountCtrl.text.trim(),
+                                          decimals: decimals) *
+                                      bondPercentage ~/
+                                      BigInt.from(100);
+                                  if (widget.store.assets.balances[symbol]
+                                          .transferable <=
+                                      bond) {
+                                    return dicAsset['amount.low'];
+                                  }
+                                  return null;
+                                },
+                              ),
+                              TextFormField(
+                                decoration: InputDecoration(
+                                  labelText:
+                                      '${dic['treasury.bond.min']} ($tokenView)',
+                                ),
+                                initialValue: Fmt.priceCeilBigInt(
+                                  minBond,
+                                  decimals: decimals,
+                                  lengthFixed: 3,
+                                ),
+                                readOnly: true,
+                                style: TextStyle(
+                                    color: Theme.of(context).disabledColor),
+                                validator: (v) {
+                                  if (widget.store.assets.balances[symbol]
+                                          .transferable <=
+                                      minBond) {
+                                    return dicAsset['amount.low'];
+                                  }
+                                  return null;
+                                },
+                              ),
                             ],
-                            controller: _amountCtrl,
-                            keyboardType:
-                                TextInputType.numberWithOptions(decimal: true),
-                            validator: (v) {
-                              if (v.isEmpty) {
-                                return dicAsset['amount.error'];
-                              }
-                              return null;
-                            },
                           ),
                         )
                       ],

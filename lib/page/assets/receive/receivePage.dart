@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polka_wallet/common/components/addressIcon.dart';
 import 'package:polka_wallet/common/components/roundedButton.dart';
-import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/utils/UI.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
@@ -19,15 +18,6 @@ class ReceivePage extends StatelessWidget {
     String codeAddress =
         'substrate:${store.account.currentAddress}:${store.account.currentAccount.pubKey}:${store.account.currentAccount.name}';
     Color themeColor = Theme.of(context).primaryColor;
-    String colorSuffix
-      = networkEndpointAcala.info == store.settings.endpoint.info ?
-      'indigo'//Acala
-      : networkEndpointKusama.info == store.settings.endpoint.info ?
-      'black'//Kusama
-      : networkEndpointEdgeware.info == store.settings.endpoint.info ?
-      'green'//Edgeware
-      : //Default
-      'pink';
     return Scaffold(
       backgroundColor: Colors.grey,
       appBar: AppBar(
@@ -44,7 +34,7 @@ class ReceivePage extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.only(top: 32),
                   child: Image.asset(
-                      'assets/images/assets/receive_line_$colorSuffix.png'),
+                      'assets/images/assets/receive_line_${store.settings.endpoint.color ?? 'pink'}.png'),
                 ),
                 Container(
                   margin: EdgeInsets.only(top: 40),

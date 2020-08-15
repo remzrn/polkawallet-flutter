@@ -1,3 +1,32 @@
+# 0.9.4
+- add KSM/DOT prices
+
+# 0.9.3
+- bug fix
+
+# 0.9.1
+- add support for opening dApps in webview
+
+# 0.9.0
+- add Governance proposals
+- add Council motions
+- add Treasury & Tips
+
+# 0.8.6
+- add laminar flow exchange support
+- add new DOT tickers: DOT (old) & New DOT
+- fix acala UI issues
+
+# 0.8.5
+- add cross chain aUSD transfer history bug
+- fix renBTC token display in Acala pages
+- fix Acala token selectors
+
+# 0.8.4
+- add laminar-turbulence
+- add cross chain aUSD transfer of Acala&Laminar
+- fix redeem unbonded token bug
+
 # 0.8.3
 - add tx sending with tips
 - fix Acala token transfer history bug

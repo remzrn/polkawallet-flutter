@@ -1,5 +1,6 @@
 import 'package:mobx/mobx.dart';
 import 'package:polka_wallet/store/app.dart';
+import 'package:polka_wallet/store/gov/types/proposalInfoData.dart';
 import 'package:polka_wallet/store/gov/types/referendumInfoData.dart';
 import 'package:polka_wallet/store/gov/types/councilInfoData.dart';
 import 'package:polka_wallet/store/gov/types/treasuryOverviewData.dart';
@@ -41,7 +42,13 @@ abstract class _GovernanceStore with Store {
   Map<String, dynamic> userCouncilVotes;
 
   @observable
-  ObservableList<ReferendumInfo> referendums;
+  List<ReferendumInfo> referendums;
+
+  @observable
+  List voteConvictions;
+
+  @observable
+  List<ProposalInfoData> proposals = [];
 
   @observable
   TreasuryOverviewData treasuryOverview = TreasuryOverviewData();
@@ -77,8 +84,20 @@ abstract class _GovernanceStore with Store {
 
   @action
   void setReferendums(List ls) {
-    referendums = ObservableList.of(ls.map((i) => ReferendumInfo.fromJson(
+    referendums = List.of(ls.map((i) => ReferendumInfo.fromJson(
         i as Map<String, dynamic>, rootStore.account.currentAddress)));
+  }
+
+  @action
+  void setReferendumVoteConvictions(List ls) {
+    voteConvictions = ls;
+  }
+
+  @action
+  void setProposals(List ls) {
+    proposals = ls
+        .map((i) => ProposalInfoData.fromJson(Map<String, dynamic>.of(i)))
+        .toList();
   }
 
   @action
@@ -108,5 +127,15 @@ abstract class _GovernanceStore with Store {
     councilMotions = data
         .map((e) => CouncilMotionData.fromJson(Map<String, dynamic>.of(e)))
         .toList();
+  }
+
+  @action
+  void clearState() {
+    referendums = [];
+    proposals = [];
+    council = CouncilInfoData();
+    councilMotions = [];
+    treasuryOverview = TreasuryOverviewData();
+    treasuryTips = [];
   }
 }

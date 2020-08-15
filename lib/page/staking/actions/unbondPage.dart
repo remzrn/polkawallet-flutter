@@ -34,6 +34,11 @@ class _UnBondPageState extends State<UnBondPage> {
     var assetDic = I18n.of(context).assets;
     String symbol = store.settings.networkState.tokenSymbol;
     int decimals = store.settings.networkState.tokenDecimals;
+    final String tokenView = Fmt.tokenView(
+      symbol,
+      decimalsDot: decimals,
+      network: store.settings.endpoint.info,
+    );
 
     String bonded = '0.000';
     bool hasData = store.staking.ledger['stakingLedger'] != null;
@@ -66,12 +71,9 @@ class _UnBondPageState extends State<UnBondPage> {
                         decoration: InputDecoration(
                           hintText: assetDic['amount'],
                           labelText:
-                              '${assetDic['amount']} (${dic['bonded']}: $bonded $symbol)',
+                              '${assetDic['amount']} (${dic['bonded']}: $bonded $tokenView)',
                         ),
-                        inputFormatters: [
-                          RegExInputFormatter.withRegex(
-                              '^[0-9]{0,6}(\\.[0-9]{0,$decimals})?\$')
-                        ],
+                        inputFormatters: [UI.decimalInputFormatter(decimals)],
                         controller: _amountCtrl,
                         keyboardType:
                             TextInputType.numberWithOptions(decimal: true),

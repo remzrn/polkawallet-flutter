@@ -169,6 +169,40 @@ mixin _$AssetsStore on _AssetsStore, Store {
     }, _$blockMapAtom, name: '${_$blockMapAtom.name}_set');
   }
 
+  final _$announcementsAtom = Atom(name: '_AssetsStore.announcements');
+
+  @override
+  List get announcements {
+    _$announcementsAtom.context.enforceReadPolicy(_$announcementsAtom);
+    _$announcementsAtom.reportObserved();
+    return super.announcements;
+  }
+
+  @override
+  set announcements(List value) {
+    _$announcementsAtom.context.conditionallyRunInAction(() {
+      super.announcements = value;
+      _$announcementsAtom.reportChanged();
+    }, _$announcementsAtom, name: '${_$announcementsAtom.name}_set');
+  }
+
+  final _$marketPricesAtom = Atom(name: '_AssetsStore.marketPrices');
+
+  @override
+  ObservableMap<String, double> get marketPrices {
+    _$marketPricesAtom.context.enforceReadPolicy(_$marketPricesAtom);
+    _$marketPricesAtom.reportObserved();
+    return super.marketPrices;
+  }
+
+  @override
+  set marketPrices(ObservableMap<String, double> value) {
+    _$marketPricesAtom.context.conditionallyRunInAction(() {
+      super.marketPrices = value;
+      _$marketPricesAtom.reportChanged();
+    }, _$marketPricesAtom, name: '${_$marketPricesAtom.name}_set');
+  }
+
   final _$setAccountBalancesAsyncAction = AsyncAction('setAccountBalances');
 
   @override
@@ -182,9 +216,10 @@ mixin _$AssetsStore on _AssetsStore, Store {
       AsyncAction('setAccountTokenBalances');
 
   @override
-  Future<void> setAccountTokenBalances(String pubKey, Map amt) {
-    return _$setAccountTokenBalancesAsyncAction
-        .run(() => super.setAccountTokenBalances(pubKey, amt));
+  Future<void> setAccountTokenBalances(String pubKey, Map amt,
+      {bool needCache = true}) {
+    return _$setAccountTokenBalancesAsyncAction.run(
+        () => super.setAccountTokenBalances(pubKey, amt, needCache: needCache));
   }
 
   final _$clearTxsAsyncAction = AsyncAction('clearTxs');
@@ -250,6 +285,26 @@ mixin _$AssetsStore on _AssetsStore, Store {
     final _$actionInfo = _$_AssetsStoreActionController.startAction();
     try {
       return super.setSubmitting(isSubmitting);
+    } finally {
+      _$_AssetsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setAnnouncements(List data) {
+    final _$actionInfo = _$_AssetsStoreActionController.startAction();
+    try {
+      return super.setAnnouncements(data);
+    } finally {
+      _$_AssetsStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setMarketPrices(String token, String price) {
+    final _$actionInfo = _$_AssetsStoreActionController.startAction();
+    try {
+      return super.setMarketPrices(token, price);
     } finally {
       _$_AssetsStoreActionController.endAction(_$actionInfo);
     }

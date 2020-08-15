@@ -37,7 +37,7 @@ class _CouncilVote extends State<CouncilVotePage> {
     var res = await Navigator.of(context)
         .pushNamed(CandidateListPage.route, arguments: _selected);
     if (res != null) {
-      setState(() { 
+      setState(() {
         _selected = List<List>.of(res);
       });
     }
@@ -63,7 +63,7 @@ class _CouncilVote extends State<CouncilVotePage> {
           // "votes"
           selected,
           // "voteValue"
-          Fmt.amountToFullDecimalIntString(amt, decimals),
+          Fmt.tokenInt(amt, decimals: decimals).toString(),
         ],
         'onFinish': (BuildContext txPageContext, Map res) {
           Navigator.popUntil(txPageContext, ModalRoute.withName('/'));
@@ -108,8 +108,7 @@ class _CouncilVote extends State<CouncilVotePage> {
                                   '${dic['amount']} (${dic['balance']}: ${Fmt.token(balance, decimals: decimals)})',
                             ),
                             inputFormatters: [
-                              RegExInputFormatter.withRegex(
-                                  '^[0-9]{0,6}(\\.[0-9]{0,$decimals})?\$')
+                              UI.decimalInputFormatter(decimals)
                             ],
                             controller: _amountCtrl,
                             keyboardType:
@@ -144,18 +143,25 @@ class _CouncilVote extends State<CouncilVotePage> {
                                   Container(
                                     width: 32,
                                     margin: EdgeInsets.only(right: 8),
-                                    child: AddressIcon(i[0], size: 32),
+                                    child: AddressIcon(
+                                      i[0],
+                                      size: 32,
+                                      tapToCopy: false,
+                                    ),
                                   ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Fmt.accountDisplayName(i[0], accInfo),
-                                      Text(
-                                        Fmt.address(i[0]),
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                    ],
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Fmt.accountDisplayName(i[0], accInfo),
+                                        Text(
+                                          Fmt.address(i[0]),
+                                          style:
+                                              TextStyle(color: Colors.black54),
+                                        ),
+                                      ],
+                                    ),
                                   )
                                 ],
                               ),

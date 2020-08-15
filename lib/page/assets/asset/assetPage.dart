@@ -51,15 +51,15 @@ class _AssetPageState extends State<AssetPage>
     webApi.assets.fetchBalance();
     Map res = {"transfers": []};
 
-    if (store.settings.endpoint.info != networkEndpointAcala.info) {
+    final String symbol = store.settings.networkState.tokenSymbol;
+    final String token = ModalRoute.of(context).settings.arguments;
+    final bool isBaseToken = token == symbol;
+    if (isBaseToken &&
+        store.settings.endpoint.info != networkEndpointLaminar.info) {
       webApi.staking.fetchAccountStaking();
       res = await webApi.assets.updateTxs(_txsPage);
     }
-    // For now we just do the same for Edgeware
-    if (store.settings.endpoint.info == networkEndpointEdgeware.info) {
-      webApi.staking.fetchAccountStaking();
-      res = await webApi.assets.updateTxs(_txsPage);
-    }
+    if (!mounted) return;
     setState(() {
       _loading = false;
     });
@@ -114,12 +114,35 @@ class _AssetPageState extends State<AssetPage>
 
   List<Widget> _buildTxList() {
     List<Widget> res = [];
+    final String symbol = store.settings.networkState.tokenSymbol;
     final String token = ModalRoute.of(context).settings.arguments;
-    if (store.settings.endpoint.info == networkEndpointAcala.info) {
-      List<TransferData> ls = store.acala.txsTransfer.reversed.toList();
+    final bool isBaseToken = token == symbol;
+//    final isAcala = store.settings.endpoint.info == networkEndpointAcala.info;
+    final isLaminar =
+        store.settings.endpoint.info == networkEndpointLaminar.info;
+    if (!isBaseToken || isLaminar) {
+      List<TransferData> ls = isLaminar
+          ? store.laminar.txsTransfer.reversed.toList()
+          : store.acala.txsTransfer.reversed.toList();
       ls.retainWhere((i) => i.token.toUpperCase() == token.toUpperCase());
       res.addAll(ls.map((i) {
-        return TransferListItem(i, token, true, false);
+        String crossChain;
+        Map<String, dynamic> tx = TransferData.toJson(i);
+        if (i.to == cross_chain_transfer_address_acala) {
+          tx['to'] = store.account.currentAddress;
+          crossChain = 'Acala';
+        }
+        if (i.to == cross_chain_transfer_address_laminar) {
+          tx['to'] = store.account.currentAddress;
+          crossChain = 'Laminar';
+        }
+        return TransferListItem(
+          data: crossChain != null ? TransferData.fromJson(tx) : i,
+          token: token,
+          isOut: true,
+          hasDetail: false,
+          crossChain: crossChain,
+        );
       }));
       res.add(ListTail(
         isEmpty: ls.length == 0,
@@ -128,7 +151,11 @@ class _AssetPageState extends State<AssetPage>
     } else {
       res.addAll(store.assets.txsView.map((i) {
         return TransferListItem(
-            i, token, i.from == store.account.currentAddress, true);
+          data: i,
+          token: token,
+          isOut: i.from == store.account.currentAddress,
+          hasDetail: true,
+        );
       }));
       res.add(ListTail(
         isEmpty: store.assets.txsView.length == 0,
@@ -141,10 +168,18 @@ class _AssetPageState extends State<AssetPage>
 
   @override
   Widget build(BuildContext context) {
+    final int decimals = store.settings.networkState.tokenDecimals;
     final String symbol = store.settings.networkState.tokenSymbol;
     final String token = ModalRoute.of(context).settings.arguments;
+    final String tokenView = Fmt.tokenView(
+      token,
+      decimalsDot: decimals,
+      network: store.settings.endpoint.info,
+    );
     final bool isBaseToken = token == symbol;
-    final isAcala = store.settings.endpoint.info == networkEndpointAcala.info;
+    final isPolkadot = store.settings.endpoint.info == network_name_polkadot;
+    final isLaminar =
+        store.settings.endpoint.info == networkEndpointLaminar.info;
 
     final dic = I18n.of(context).assets;
 
@@ -156,29 +191,46 @@ class _AssetPageState extends State<AssetPage>
 
     final primaryColor = Theme.of(context).primaryColor;
     final titleColor = Theme.of(context).cardColor;
+
+    Widget tokenViewTitle = Text(tokenView);
+    if (isPolkadot && tokenView == token_denomination_dot_new) {
+      tokenViewTitle = Text(
+        tokenView,
+        style: TextStyle(fontStyle: FontStyle.italic),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
-        title: Text(token),
+        title: tokenViewTitle,
         centerTitle: true,
         elevation: 0.0,
       ),
       body: SafeArea(
         child: Observer(
           builder: (_) {
-            int decimals = store.settings.networkState.tokenDecimals;
-
             BigInt balance =
                 Fmt.balanceInt(store.assets.tokenBalances[token.toUpperCase()]);
 
             BalancesInfo balancesInfo = store.assets.balances[symbol];
             String lockedInfo = '\n';
-            if (balancesInfo.lockedBreakdown != null) {
+            if (balancesInfo != null && balancesInfo.lockedBreakdown != null) {
               balancesInfo.lockedBreakdown.forEach((i) {
                 if (i.amount > BigInt.zero) {
                   lockedInfo +=
-                      '${Fmt.token(i.amount, decimals: decimals)} $symbol ${dic['lock.${i.use}']}\n';
+                      '${Fmt.token(i.amount, decimals: decimals)} $tokenView ${dic['lock.${i.use}']}\n';
                 }
               });
+            }
+
+            String tokenPrice;
+            if ((store.settings.endpoint.info == network_name_polkadot ||
+                    store.settings.endpoint.info == network_name_kusama) &&
+                store.assets.marketPrices[symbol] != null &&
+                balancesInfo != null) {
+              tokenPrice = (store.assets.marketPrices[symbol] *
+                      Fmt.bigIntToDouble(balancesInfo.total,
+                          decimals: decimals))
+                  .toStringAsFixed(4);
             }
 
             return Column(
@@ -190,7 +242,8 @@ class _AssetPageState extends State<AssetPage>
                   child: Column(
                     children: <Widget>[
                       Padding(
-                        padding: EdgeInsets.only(bottom: 16),
+                        padding: EdgeInsets.only(
+                            bottom: tokenPrice != null ? 4 : 16),
                         child: Text(
                           Fmt.token(isBaseToken ? balancesInfo.total : balance,
                               decimals: decimals, length: 8),
@@ -201,59 +254,66 @@ class _AssetPageState extends State<AssetPage>
                           ),
                         ),
                       ),
+                      tokenPrice != null
+                          ? Padding(
+                              padding: EdgeInsets.only(bottom: 16),
+                              child: Text(
+                                '≈ \$ ${tokenPrice ?? '--.--'}',
+                                style: TextStyle(
+                                  color: Theme.of(context).cardColor,
+                                ),
+                              ),
+                            )
+                          : Container(),
                       isBaseToken
-                          ? Builder(
-                              builder: (_) {
-                                return Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-                                      margin: EdgeInsets.only(right: 12),
-                                      child: Row(
-                                        children: <Widget>[
-                                          lockedInfo.length > 2
-                                              ? TapTooltip(
-                                                  message: lockedInfo,
-                                                  child: Padding(
-                                                    padding: EdgeInsets.only(
-                                                        right: 6),
-                                                    child: Icon(
-                                                      Icons.info,
-                                                      size: 16,
-                                                      color: titleColor,
-                                                    ),
-                                                  ),
-                                                  waitDuration:
-                                                      Duration(seconds: 0),
-                                                )
-                                              : Container(),
-                                          Text(
-                                            '${dic['locked']}: ${Fmt.token(balancesInfo.lockedBalance, decimals: decimals)}',
-                                            style: TextStyle(color: titleColor),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      margin: EdgeInsets.only(right: 12),
-                                      child: Text(
-                                        '${dic['available']}: ${Fmt.token(balancesInfo.transferable, decimals: decimals)}',
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Container(
+                                  margin: EdgeInsets.only(right: 12),
+                                  child: Row(
+                                    children: <Widget>[
+                                      lockedInfo.length > 2
+                                          ? TapTooltip(
+                                              message: lockedInfo,
+                                              child: Padding(
+                                                padding:
+                                                    EdgeInsets.only(right: 6),
+                                                child: Icon(
+                                                  Icons.info,
+                                                  size: 16,
+                                                  color: titleColor,
+                                                ),
+                                              ),
+                                              waitDuration:
+                                                  Duration(seconds: 0),
+                                            )
+                                          : Container(),
+                                      Text(
+                                        '${dic['locked']}: ${Fmt.token(balancesInfo.lockedBalance, decimals: decimals)}',
                                         style: TextStyle(color: titleColor),
                                       ),
-                                    ),
-                                    Text(
-                                      '${dic['reserved']}: ${Fmt.token(balancesInfo.reserved, decimals: decimals)}',
-                                      style: TextStyle(color: titleColor),
-                                    ),
-                                  ],
-                                );
-                              },
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  margin: EdgeInsets.only(right: 12),
+                                  child: Text(
+                                    '${dic['available']}: ${Fmt.token(balancesInfo.transferable, decimals: decimals)}',
+                                    style: TextStyle(color: titleColor),
+                                  ),
+                                ),
+                                Text(
+                                  '${dic['reserved']}: ${Fmt.token(balancesInfo.reserved, decimals: decimals)}',
+                                  style: TextStyle(color: titleColor),
+                                ),
+                              ],
                             )
                           : Container(),
                     ],
                   ),
                 ),
-                !isAcala
+                isBaseToken && !isLaminar
                     ? TabBar(
                         labelColor: Colors.black87,
                         labelStyle: TextStyle(fontSize: 18),
@@ -358,24 +418,31 @@ class _AssetPageState extends State<AssetPage>
 }
 
 class TransferListItem extends StatelessWidget {
-  TransferListItem(this.data, this.token, this.isOut, this.hasDetail);
+  TransferListItem({
+    this.data,
+    this.token,
+    this.isOut,
+    this.hasDetail,
+    this.crossChain,
+  });
 
   final TransferData data;
   final String token;
+  final String crossChain;
   final bool isOut;
   final bool hasDetail;
 
   @override
   Widget build(BuildContext context) {
     String address = isOut ? data.to : data.from;
+    String title =
+        Fmt.address(address) ?? data.extrinsicIndex ?? Fmt.address(data.hash);
     return Container(
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(width: 0.5, color: Colors.black12)),
       ),
       child: ListTile(
-        title: Text(Fmt.address(address) ??
-            data.extrinsicIndex ??
-            Fmt.address(data.hash)),
+        title: Text('$title${crossChain != null ? ' ($crossChain)' : ''}'),
         subtitle: Text(
             DateTime.fromMillisecondsSinceEpoch(data.blockTimestamp * 1000)
                 .toString()),

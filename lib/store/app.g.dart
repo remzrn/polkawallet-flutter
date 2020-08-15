@@ -111,6 +111,23 @@ mixin _$AppStore on _AppStore, Store {
     }, _$acalaAtom, name: '${_$acalaAtom.name}_set');
   }
 
+  final _$laminarAtom = Atom(name: '_AppStore.laminar');
+
+  @override
+  LaminarStore get laminar {
+    _$laminarAtom.context.enforceReadPolicy(_$laminarAtom);
+    _$laminarAtom.reportObserved();
+    return super.laminar;
+  }
+
+  @override
+  set laminar(LaminarStore value) {
+    _$laminarAtom.context.conditionallyRunInAction(() {
+      super.laminar = value;
+      _$laminarAtom.reportChanged();
+    }, _$laminarAtom, name: '${_$laminarAtom.name}_set');
+  }
+
   final _$isReadyAtom = Atom(name: '_AppStore.isReady');
 
   @override

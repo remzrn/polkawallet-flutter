@@ -4,11 +4,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polka_wallet/common/components/addressFormItem.dart';
 import 'package:polka_wallet/common/components/roundedButton.dart';
-import 'package:polka_wallet/common/regInputFormatter.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
+import 'package:polka_wallet/page/governance/treasury/treasuryPage.dart';
 import 'package:polka_wallet/page/profile/contacts/contactListPage.dart';
 import 'package:polka_wallet/store/account/types/accountData.dart';
 import 'package:polka_wallet/store/app.dart';
+import 'package:polka_wallet/utils/UI.dart';
 import 'package:polka_wallet/utils/format.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
@@ -71,7 +72,8 @@ class _SubmitTipPageState extends State<SubmitTipPage> {
                 address,
               ],
         'onFinish': (BuildContext txPageContext, Map res) {
-          Navigator.popUntil(txPageContext, ModalRoute.withName('/'));
+          Navigator.popUntil(
+              txPageContext, ModalRoute.withName(TreasuryPage.route));
         }
       };
       Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: args);
@@ -101,6 +103,11 @@ class _SubmitTipPageState extends State<SubmitTipPage> {
     final Map dicAsset = I18n.of(context).assets;
     final int decimals = widget.store.settings.networkState.tokenDecimals;
     final String symbol = widget.store.settings.networkState.tokenSymbol;
+    final String tokenView = Fmt.tokenView(
+      symbol,
+      decimalsDot: decimals,
+      network: widget.store.settings.endpoint.info,
+    );
     final bool isCouncil = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       appBar: AppBar(
@@ -156,11 +163,10 @@ class _SubmitTipPageState extends State<SubmitTipPage> {
                                       decoration: InputDecoration(
                                         hintText: dicAsset['amount'],
                                         labelText:
-                                            '${dicAsset['amount']} ($symbol)',
+                                            '${dicAsset['amount']} ($tokenView)',
                                       ),
                                       inputFormatters: [
-                                        RegExInputFormatter.withRegex(
-                                            '^[0-9]{0,6}(\\.[0-9]{0,$decimals})?\$')
+                                        UI.decimalInputFormatter(decimals)
                                       ],
                                       controller: _amountCtrl,
                                       keyboardType:

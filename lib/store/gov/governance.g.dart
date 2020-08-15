@@ -118,18 +118,52 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   final _$referendumsAtom = Atom(name: '_GovernanceStore.referendums');
 
   @override
-  ObservableList<ReferendumInfo> get referendums {
+  List<ReferendumInfo> get referendums {
     _$referendumsAtom.context.enforceReadPolicy(_$referendumsAtom);
     _$referendumsAtom.reportObserved();
     return super.referendums;
   }
 
   @override
-  set referendums(ObservableList<ReferendumInfo> value) {
+  set referendums(List<ReferendumInfo> value) {
     _$referendumsAtom.context.conditionallyRunInAction(() {
       super.referendums = value;
       _$referendumsAtom.reportChanged();
     }, _$referendumsAtom, name: '${_$referendumsAtom.name}_set');
+  }
+
+  final _$voteConvictionsAtom = Atom(name: '_GovernanceStore.voteConvictions');
+
+  @override
+  List get voteConvictions {
+    _$voteConvictionsAtom.context.enforceReadPolicy(_$voteConvictionsAtom);
+    _$voteConvictionsAtom.reportObserved();
+    return super.voteConvictions;
+  }
+
+  @override
+  set voteConvictions(List value) {
+    _$voteConvictionsAtom.context.conditionallyRunInAction(() {
+      super.voteConvictions = value;
+      _$voteConvictionsAtom.reportChanged();
+    }, _$voteConvictionsAtom, name: '${_$voteConvictionsAtom.name}_set');
+  }
+
+  final _$proposalsAtom = Atom(name: '_GovernanceStore.proposals');
+
+  @override
+  List<ProposalInfoData> get proposals {
+    _$proposalsAtom.context.enforceReadPolicy(_$proposalsAtom);
+    _$proposalsAtom.reportObserved();
+    return super.proposals;
+  }
+
+  @override
+  set proposals(List<ProposalInfoData> value) {
+    _$proposalsAtom.context.conditionallyRunInAction(() {
+      super.proposals = value;
+      _$proposalsAtom.reportChanged();
+    }, _$proposalsAtom, name: '${_$proposalsAtom.name}_set');
   }
 
   final _$treasuryOverviewAtom =
@@ -228,6 +262,26 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   }
 
   @override
+  void setReferendumVoteConvictions(List ls) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+    try {
+      return super.setReferendumVoteConvictions(ls);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setProposals(List ls) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+    try {
+      return super.setProposals(ls);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setTreasuryOverview(Map data) {
     final _$actionInfo = _$_GovernanceStoreActionController.startAction();
     try {
@@ -252,6 +306,16 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
     final _$actionInfo = _$_GovernanceStoreActionController.startAction();
     try {
       return super.setCouncilMotions(data);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void clearState() {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+    try {
+      return super.clearState();
     } finally {
       _$_GovernanceStoreActionController.endAction(_$actionInfo);
     }
