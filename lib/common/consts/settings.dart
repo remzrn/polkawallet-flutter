@@ -144,8 +144,6 @@ const int dot_re_denominate_block = 1248328;
 const int SECONDS_OF_DAY = 24 * 60 * 60; // seconds of one day
 const int SECONDS_OF_YEAR = 365 * 24 * 60 * 60; // seconds of one year
 
-const String token_denomination_dot_old = 'DOT (old)';
-const String token_denomination_dot_new = 'New DOT';
 const String acala_stable_coin = 'AUSD';
 const String acala_stable_coin_view = 'aUSD';
 const String acala_token_ren_btc = 'RENBTC';
@@ -156,14 +154,14 @@ const String cross_chain_transfer_address_laminar =
     '5CLaminarAUSDCrossChainTransferxxxxxxxxxxxxxwisu';
 
 /// app versions
-const String app_beta_version = '0.9.7-beta.4';
+const String app_beta_version = '0.9.8-beta.4';
 
 /// js code versions
 const Map<String, int> js_code_version_map = {
-  network_name_polkadot: 9610,
-  network_name_kusama: 9610,
-  network_name_acala_mandala: 9610,
-  network_name_laminar_turbulence: 9610,
+  network_name_polkadot: 9810,
+  network_name_kusama: 9810,
+  network_name_acala_mandala: 9810,
+  network_name_laminar_turbulence: 9810,
 };
 
 /// graphql for laminar

@@ -180,20 +180,92 @@ class _StakingOverviewPageState extends State<StakingOverviewPage>
   }
 
   Widget _buildNominatingList() {
+    final dic = I18n.of(context).staking;
     bool hasData = store.staking.ledger['stakingLedger'] != null;
     if (!hasData) {
       return Container();
     }
     String symbol = store.settings.networkState.tokenSymbol;
     int decimals = store.settings.networkState.tokenDecimals;
-    final String tokenView = Fmt.tokenView(
-      symbol,
-      decimalsDot: decimals,
-      network: store.settings.endpoint.info,
-    );
+
     String stashAddress = store.staking.ledger['stakingLedger']['stash'];
     List nominators = store.staking.ledger['nominators'];
 
+    final List<String> waiting = [];
+    final List<ValidatorData> active = [];
+    nominators.forEach((e) {
+      int validatorIndex =
+          store.staking.validatorsInfo.indexWhere((i) => i.accountId == e);
+      if (validatorIndex < 0) {
+        waiting.add(e);
+      } else {
+        active.add(store.staking.validatorsInfo[validatorIndex]);
+      }
+    });
+
+    active.sort((a, b) {
+      return a.nominators.indexWhere((i) => i['who'] == stashAddress) > -1
+          ? -1
+          : 1;
+    });
+    final List<Widget> list = active.map((validator) {
+      BigInt meStaked;
+      int meIndex =
+          validator.nominators.indexWhere((i) => i['who'] == stashAddress);
+      if (meIndex >= 0) {
+        meStaked =
+            BigInt.parse(validator.nominators[meIndex]['value'].toString());
+      }
+
+      Map accInfo = store.account.accountIndexMap[validator.accountId];
+
+      return Expanded(
+        child: ListTile(
+          dense: true,
+          leading: AddressIcon(validator.accountId, size: 32),
+          title: Fmt.accountDisplayName(validator.accountId, accInfo),
+          subtitle: Text(meStaked != null
+              ? '${dic['nominate.active']} ${Fmt.token(meStaked, decimals)} $symbol'
+              : dic['nominate.inactive']),
+          trailing: Container(
+            width: 100,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Expanded(
+                  child: Container(height: 4),
+                ),
+                Expanded(
+                  child: Text(validator.commission.isNotEmpty
+                      ? validator.commission
+                      : '~'),
+                ),
+                Expanded(
+                  child: Text('commission', style: TextStyle(fontSize: 12)),
+                ),
+              ],
+            ),
+          ),
+          onTap: () {
+            webApi.staking.queryValidatorRewards(validator.accountId);
+            Navigator.of(context)
+                .pushNamed(ValidatorDetailPage.route, arguments: validator);
+          },
+        ),
+      );
+    }).toList();
+
+    list.addAll(waiting.map((id) {
+      return Expanded(
+        child: ListTile(
+          dense: true,
+          leading: AddressIcon(id, size: 32),
+          title: Text(Fmt.address(id, pad: 6)),
+          subtitle: Text(dic['nominate.waiting']),
+        ),
+      );
+    }).toList());
     return Container(
       padding: EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -202,85 +274,7 @@ class _StakingOverviewPageState extends State<StakingOverviewPage>
         ),
       ),
       child: Column(
-        children: List<Widget>.from(nominators.map((id) {
-          ValidatorData validator;
-          int validatorIndex =
-              store.staking.validatorsInfo.indexWhere((i) => i.accountId == id);
-          if (validatorIndex < 0) {
-            return Expanded(
-              child: ListTile(
-                  dense: true,
-                  leading: AddressIcon(id),
-                  title: Text(I18n.of(context).staking['notElected']),
-                  subtitle: Text(Fmt.address(id, pad: 6))),
-            );
-          }
-          validator = store.staking.validatorsInfo[validatorIndex];
-
-          BigInt meStaked;
-          int meIndex =
-              validator.nominators.indexWhere((i) => i['who'] == stashAddress);
-          if (meIndex >= 0) {
-            meStaked =
-                BigInt.parse(validator.nominators[meIndex]['value'].toString());
-          }
-
-          Map accInfo = store.account.accountIndexMap[id];
-
-          bool hasPhalaAirdrop =
-              store.staking.phalaAirdropWhiteList[validator.accountId] ?? false;
-          return Expanded(
-            child: ListTile(
-              dense: true,
-              leading: AddressIcon(id),
-              title: Text(
-                  '${meStaked != null ? Fmt.token(meStaked, decimals) : '~'} $tokenView'),
-              subtitle: Fmt.accountDisplayName(validator.accountId, accInfo),
-              trailing: Container(
-                width: 120,
-                height: 48,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                      child: Text('commission'),
-                    ),
-                    Expanded(
-                      child: Text(validator.commission.isNotEmpty
-                          ? validator.commission
-                          : '~'),
-                    ),
-                    Expanded(
-                      child: hasPhalaAirdrop
-                          ? Container(
-                              child: Text(
-                                I18n.of(context).staking['phala'],
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Theme.of(context).cardColor,
-                                ),
-                              ),
-                              margin: EdgeInsets.only(left: 4),
-                              padding: EdgeInsets.fromLTRB(4, 2, 4, 2),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(4)),
-                              ),
-                            )
-                          : Container(),
-                    ),
-                  ],
-                ),
-              ),
-              onTap: () {
-                webApi.staking.queryValidatorRewards(validator.accountId);
-                Navigator.of(context)
-                    .pushNamed(ValidatorDetailPage.route, arguments: validator);
-              },
-            ),
-          );
-        }).toList()),
+        children: list,
       ),
     );
   }
@@ -380,15 +374,11 @@ class _StakingOverviewPageState extends State<StakingOverviewPage>
                         children: recommended.map((acc) {
                           Map accInfo =
                               store.account.accountIndexMap[acc.accountId];
-                          bool hasPhalaAirdrop = store.staking
-                                  .phalaAirdropWhiteList[acc.accountId] ??
-                              false;
                           return Validator(
                             acc,
                             accInfo,
                             decimals,
                             store.staking.nominationsAll[acc.accountId] ?? [],
-                            hasPhalaAirdrop: hasPhalaAirdrop,
                           );
                         }).toList(),
                       ),
@@ -426,14 +416,11 @@ class _StakingOverviewPageState extends State<StakingOverviewPage>
               ValidatorData acc = list[i];
               Map accInfo = store.account.accountIndexMap[acc.accountId];
 
-              bool hasPhalaAirdrop =
-                  store.staking.phalaAirdropWhiteList[acc.accountId] ?? false;
               return Validator(
                 acc,
                 accInfo,
                 decimals,
                 store.staking.nominationsAll[acc.accountId] ?? [],
-                hasPhalaAirdrop: hasPhalaAirdrop,
               );
             },
           ),
