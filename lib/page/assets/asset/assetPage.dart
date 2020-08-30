@@ -216,8 +216,11 @@ class _AssetPageState extends State<AssetPage>
             if (balancesInfo != null && balancesInfo.lockedBreakdown != null) {
               balancesInfo.lockedBreakdown.forEach((i) {
                 if (i.amount > BigInt.zero) {
-                  lockedInfo +=
-                      '${Fmt.token(i.amount, decimals: decimals)} $tokenView ${dic['lock.${i.use}']}\n';
+                  lockedInfo += '${Fmt.priceFloorBigInt(
+                    i.amount,
+                    decimals,
+                    lengthMax: 3,
+                  )} $tokenView ${dic['lock.${i.use}']}\n';
                 }
               });
             }
@@ -228,8 +231,7 @@ class _AssetPageState extends State<AssetPage>
                 store.assets.marketPrices[symbol] != null &&
                 balancesInfo != null) {
               tokenPrice = (store.assets.marketPrices[symbol] *
-                      Fmt.bigIntToDouble(balancesInfo.total,
-                          decimals: decimals))
+                      Fmt.bigIntToDouble(balancesInfo.total, decimals))
                   .toStringAsFixed(4);
             }
 
@@ -246,7 +248,8 @@ class _AssetPageState extends State<AssetPage>
                             bottom: tokenPrice != null ? 4 : 16),
                         child: Text(
                           Fmt.token(isBaseToken ? balancesInfo.total : balance,
-                              decimals: decimals, length: 8),
+                              decimals,
+                              length: 8),
                           style: TextStyle(
                             color: titleColor,
                             fontSize: 28,
@@ -267,45 +270,78 @@ class _AssetPageState extends State<AssetPage>
                           : Container(),
                       isBaseToken
                           ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: <Widget>[
-                                Container(
-                                  margin: EdgeInsets.only(right: 12),
-                                  child: Row(
-                                    children: <Widget>[
-                                      lockedInfo.length > 2
-                                          ? TapTooltip(
-                                              message: lockedInfo,
-                                              child: Padding(
-                                                padding:
-                                                    EdgeInsets.only(right: 6),
-                                                child: Icon(
-                                                  Icons.info,
-                                                  size: 16,
-                                                  color: titleColor,
+                                Column(
+                                  children: [
+                                    Text(
+                                      dic['locked'],
+                                      style: TextStyle(
+                                          color: titleColor, fontSize: 12),
+                                    ),
+                                    Row(
+                                      children: [
+                                        lockedInfo.length > 2
+                                            ? TapTooltip(
+                                                message: lockedInfo,
+                                                child: Padding(
+                                                  padding:
+                                                      EdgeInsets.only(right: 6),
+                                                  child: Icon(
+                                                    Icons.info,
+                                                    size: 16,
+                                                    color: titleColor,
+                                                  ),
                                                 ),
-                                              ),
-                                              waitDuration:
-                                                  Duration(seconds: 0),
-                                            )
-                                          : Container(),
-                                      Text(
-                                        '${dic['locked']}: ${Fmt.token(balancesInfo.lockedBalance, decimals: decimals)}',
-                                        style: TextStyle(color: titleColor),
+                                                waitDuration:
+                                                    Duration(seconds: 0),
+                                              )
+                                            : Container(),
+                                        Text(
+                                          Fmt.priceFloorBigInt(
+                                            balancesInfo.lockedBalance,
+                                            decimals,
+                                            lengthMax: 3,
+                                          ),
+                                          style: TextStyle(color: titleColor),
+                                        )
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text(
+                                      dic['available'],
+                                      style: TextStyle(
+                                          color: titleColor, fontSize: 12),
+                                    ),
+                                    Text(
+                                      Fmt.priceFloorBigInt(
+                                        balancesInfo.transferable,
+                                        decimals,
+                                        lengthMax: 3,
                                       ),
-                                    ],
-                                  ),
+                                      style: TextStyle(color: titleColor),
+                                    )
+                                  ],
                                 ),
-                                Container(
-                                  margin: EdgeInsets.only(right: 12),
-                                  child: Text(
-                                    '${dic['available']}: ${Fmt.token(balancesInfo.transferable, decimals: decimals)}',
-                                    style: TextStyle(color: titleColor),
-                                  ),
-                                ),
-                                Text(
-                                  '${dic['reserved']}: ${Fmt.token(balancesInfo.reserved, decimals: decimals)}',
-                                  style: TextStyle(color: titleColor),
+                                Column(
+                                  children: [
+                                    Text(
+                                      dic['reserved'],
+                                      style: TextStyle(
+                                          color: titleColor, fontSize: 12),
+                                    ),
+                                    Text(
+                                      Fmt.priceFloorBigInt(
+                                        balancesInfo.reserved,
+                                        decimals,
+                                        lengthMax: 3,
+                                      ),
+                                      style: TextStyle(color: titleColor),
+                                    )
+                                  ],
                                 ),
                               ],
                             )
@@ -443,9 +479,8 @@ class TransferListItem extends StatelessWidget {
       ),
       child: ListTile(
         title: Text('$title${crossChain != null ? ' ($crossChain)' : ''}'),
-        subtitle: Text(
-            DateTime.fromMillisecondsSinceEpoch(data.blockTimestamp * 1000)
-                .toString()),
+        subtitle: Text(Fmt.dateTime(
+            DateTime.fromMillisecondsSinceEpoch(data.blockTimestamp * 1000))),
         trailing: Container(
           width: 110,
           child: Row(

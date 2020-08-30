@@ -39,8 +39,10 @@ class _HomaPageState extends State<HomaPage> {
   }
 
   void _onSubmitWithdraw() {
-    HomaUserInfoData userInfo = store.acala.homaUserInfo;
-    String receive = Fmt.priceFloorBigInt(userInfo.unbonded, lengthMax: 3);
+    final int decimals = store.settings.networkState.tokenDecimals;
+    final HomaUserInfoData userInfo = store.acala.homaUserInfo;
+    final String receive =
+        Fmt.priceFloorBigInt(userInfo.unbonded, decimals, lengthMax: 3);
     var args = {
       "title": I18n.of(context).acala['homa.mint'],
       "txInfo": {
@@ -75,7 +77,7 @@ class _HomaPageState extends State<HomaPage> {
     return Observer(
       builder: (BuildContext context) {
         final Map dic = I18n.of(context).acala;
-        int decimals = store.settings.networkState.tokenDecimals;
+        final int decimals = store.settings.networkState.tokenDecimals;
 
         StakingPoolInfoData pool = store.acala.stakingPoolInfo;
         HomaUserInfoData userInfo = store.acala.homaUserInfo;
@@ -206,23 +208,27 @@ class _HomaPageState extends State<HomaPage> {
                                                       (pool.currentEra ?? 0))
                                                   .toInt()
                                                   .toString();
-                                              return Row(
-                                                children: <Widget>[
-                                                  InfoItem(
-                                                    title: I18n.of(context)
-                                                        .assets['amount'],
-                                                    content:
-                                                        Fmt.priceFloorBigInt(
-                                                            i.claimed,
-                                                            decimals: decimals),
-                                                  ),
-                                                  InfoItem(
-                                                    title:
-                                                        dic['homa.user.time'],
-                                                    content:
-                                                        '$unlockTime Era ≈ $unlockTime ${dic['homa.redeem.day']}',
-                                                  ),
-                                                ],
+                                              return Padding(
+                                                padding:
+                                                    EdgeInsets.only(bottom: 8),
+                                                child: Row(
+                                                  children: <Widget>[
+                                                    InfoItem(
+                                                      title: I18n.of(context)
+                                                          .assets['amount'],
+                                                      content:
+                                                          Fmt.priceFloorBigInt(
+                                                              i.claimed,
+                                                              decimals),
+                                                    ),
+                                                    InfoItem(
+                                                      title:
+                                                          dic['homa.user.time'],
+                                                      content:
+                                                          '$unlockTime Era ≈ $unlockTime ${dic['homa.redeem.day']}',
+                                                    ),
+                                                  ],
+                                                ),
                                               );
                                             }).toList(),
                                           )
@@ -238,7 +244,7 @@ class _HomaPageState extends State<HomaPage> {
                                                     dic['homa.user.redeemable'],
                                                 content: Fmt.priceFloorBigInt(
                                                     userInfo.unbonded,
-                                                    decimals: decimals),
+                                                    decimals),
                                               ),
                                               OutlinedButtonSmall(
                                                 margin: EdgeInsets.all(0),

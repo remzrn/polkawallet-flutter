@@ -6,8 +6,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polka_wallet/common/components/currencyWithIcon.dart';
 import 'package:polka_wallet/common/components/roundedButton.dart';
 import 'package:polka_wallet/common/components/roundedCard.dart';
-import 'package:polka_wallet/common/regInputFormatter.dart';
 import 'package:polka_wallet/page-acala/homa/homaHistoryPage.dart';
+import 'package:polka_wallet/page-acala/homa/homaPage.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/acala/types/stakingPoolInfoData.dart';
@@ -81,7 +81,7 @@ class _MintPageState extends State<MintPage> {
           "amountReceive": receive,
         }),
         "params": [
-          Fmt.tokenInt(pay, decimals: decimals).toString(),
+          Fmt.tokenInt(pay, decimals).toString(),
         ],
         "onFinish": (BuildContext txPageContext, Map res) {
 //          print(res);
@@ -89,8 +89,8 @@ class _MintPageState extends State<MintPage> {
           res['amountReceive'] = receive;
           store.acala.setHomaTxs([res]);
           Navigator.popUntil(
-              txPageContext, ModalRoute.withName(MintPage.route));
-          _refreshKey.currentState.show();
+              txPageContext, ModalRoute.withName(HomaPage.route));
+          globalHomaRefreshKey.currentState.show();
         }
       };
       Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: args);
@@ -181,12 +181,17 @@ class _MintPageState extends State<MintPage> {
                                           TextInputType.numberWithOptions(
                                               decimal: true),
                                       validator: (v) {
-                                        if (v.isEmpty) {
+                                        try {
+                                          if (v.isEmpty ||
+                                              double.parse(v) == 0) {
+                                            return dicAssets['amount.error'];
+                                          }
+                                        } catch (err) {
                                           return dicAssets['amount.error'];
                                         }
                                         if (double.parse(v.trim()) >=
-                                            Fmt.bigIntToDouble(balance,
-                                                decimals: decimals)) {
+                                            Fmt.bigIntToDouble(
+                                                balance, decimals)) {
                                           return dicAssets['amount.low'];
                                         }
                                         return null;
@@ -196,7 +201,7 @@ class _MintPageState extends State<MintPage> {
                                     Padding(
                                       padding: EdgeInsets.only(top: 8),
                                       child: Text(
-                                        '${dicAssets['balance']}: ${Fmt.token(balance, decimals: decimals)} DOT',
+                                        '${dicAssets['balance']}: ${Fmt.token(balance, decimals)} DOT',
                                         style: TextStyle(
                                             color: Theme.of(context)
                                                 .unselectedWidgetColor),

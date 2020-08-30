@@ -89,16 +89,14 @@ class ApiAcala {
   }
 
   Future<Map> _fetchPriceOfLDOT() async {
-    var res = await apiRoot.evalJavascript(
+    final decimals = store.settings.networkState.tokenDecimals;
+    final res = await apiRoot.evalJavascript(
       'acala.fetchLDOTPrice(api)',
       allowRepeat: true,
     );
     return {
       "token": 'LDOT',
-      "price": {
-        "value": Fmt.tokenInt(res.toString(), decimals: acala_token_decimals)
-            .toString()
-      }
+      "price": {"value": Fmt.tokenInt(res.toString(), decimals).toString()}
     };
   }
 
@@ -115,13 +113,6 @@ class ApiAcala {
 
   Future<void> unsubscribeTokenPrices() async {
     await apiRoot.unsubscribeMessage(tokenPricesSubscribeChannel);
-  }
-
-  Future<String> fetchTokenSwapRatio() async {
-    List<String> swapPair = store.acala.currentSwapPair;
-    String ratio = await fetchTokenSwapAmount('1', null, swapPair, '0');
-    store.acala.setSwapRatio(ratio);
-    return ratio;
   }
 
   Future<String> fetchTokenSwapAmount(String supplyAmount, String targetAmount,

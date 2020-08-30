@@ -7,7 +7,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polka_wallet/common/components/addressIcon.dart';
 import 'package:polka_wallet/common/components/roundedButton.dart';
 import 'package:polka_wallet/common/consts/settings.dart';
-import 'package:polka_wallet/common/regInputFormatter.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/page/governance/council/candidateListPage.dart';
 import 'package:polka_wallet/store/app.dart';
@@ -63,7 +62,7 @@ class _CouncilVote extends State<CouncilVotePage> {
           // "votes"
           selected,
           // "voteValue"
-          Fmt.tokenInt(amt, decimals: decimals).toString(),
+          Fmt.tokenInt(amt, decimals).toString(),
         ],
         'onFinish': (BuildContext txPageContext, Map res) {
           Navigator.popUntil(txPageContext, ModalRoute.withName('/'));
@@ -105,7 +104,7 @@ class _CouncilVote extends State<CouncilVotePage> {
                             decoration: InputDecoration(
                               hintText: dic['amount'],
                               labelText:
-                                  '${dic['amount']} (${dic['balance']}: ${Fmt.token(balance, decimals: decimals)})',
+                                  '${dic['amount']} (${dic['balance']}: ${Fmt.token(balance, decimals)})',
                             ),
                             inputFormatters: [
                               UI.decimalInputFormatter(decimals)

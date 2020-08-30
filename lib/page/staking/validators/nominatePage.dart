@@ -79,12 +79,12 @@ class _NominatePageState extends State<NominatePage> {
 
   Widget _buildListItem(BuildContext context, ValidatorData validator) {
     final dic = I18n.of(context).staking;
+    final int decimals = store.settings.networkState.tokenDecimals;
     final Map accInfo = store.account.accountIndexMap[validator.accountId];
     final bool hasPhalaAirdrop =
         store.staking.phalaAirdropWhiteList[validator.accountId] ?? false;
     final bool isWaiting = validator.total == BigInt.zero;
     final nominations = store.staking.nominationsAll[validator.accountId] ?? [];
-    final int decimals = store.settings.networkState.tokenDecimals;
     return GestureDetector(
       child: Container(
         padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -120,7 +120,7 @@ class _NominatePageState extends State<NominatePage> {
                   ),
                   !isWaiting
                       ? Text(
-                          '${dic['total']}: ${Fmt.token(validator.total, decimals: decimals)}',
+                          '${dic['total']}: ${Fmt.token(validator.total, decimals)}',
                           style: TextStyle(
                             color: Theme.of(context).unselectedWidgetColor,
                             fontSize: 12,

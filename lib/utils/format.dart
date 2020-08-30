@@ -26,6 +26,13 @@ class Fmt {
     return addr.substring(0, pad) + '...' + addr.substring(addr.length - pad);
   }
 
+  static String dateTime(DateTime time) {
+    if (time == null) {
+      return 'date-time';
+    }
+    return DateFormat('yyyy-MM-dd hh:mm').format(time);
+  }
+
   /// number transform 1:
   /// from raw <String> of Api data to <BigInt>
   static BigInt balanceInt(String raw) {
@@ -41,11 +48,11 @@ class Fmt {
 
   /// number transform 2:
   /// from <BigInt> to <double>
-  static double bigIntToDouble(BigInt value, {int decimals = 12}) {
+  static double bigIntToDouble(BigInt value, int decimals) {
     if (value == null) {
       return 0;
     }
-    return value / BigInt.from(pow(10, decimals ?? 12));
+    return value / BigInt.from(pow(10, decimals));
   }
 
   /// number transform 3:
@@ -67,40 +74,39 @@ class Fmt {
   /// combined number transform 1-3:
   /// from raw <String> to <String> in token format of ",##0.000"
   static String balance(
-    String raw, {
-    int decimals = 12,
+    String raw,
+    int decimals, {
     int length = 3,
   }) {
     if (raw == null || raw.length == 0) {
       return '~';
     }
-    return doubleFormat(bigIntToDouble(balanceInt(raw), decimals: decimals),
+    return doubleFormat(bigIntToDouble(balanceInt(raw), decimals),
         length: length);
   }
 
   /// combined number transform 1-2:
   /// from raw <String> to <double>
-  static double balanceDouble(String raw, {int decimals = 12}) {
-    return bigIntToDouble(balanceInt(raw), decimals: decimals);
+  static double balanceDouble(String raw, int decimals) {
+    return bigIntToDouble(balanceInt(raw), decimals);
   }
 
   /// combined number transform 2-3:
   /// from <BigInt> to <String> in token format of ",##0.000"
   static String token(
-    BigInt value, {
-    int decimals = 12,
+    BigInt value,
+    int decimals, {
     int length = 3,
   }) {
     if (value == null) {
       return '~';
     }
-    return doubleFormat(bigIntToDouble(value, decimals: decimals),
-        length: length);
+    return doubleFormat(bigIntToDouble(value, decimals), length: length);
   }
 
   /// number transform 4:
   /// from <String of double> to <BigInt>
-  static BigInt tokenInt(String value, {int decimals = 12}) {
+  static BigInt tokenInt(String value, int decimals) {
     if (value == null) {
       return BigInt.zero;
     }
@@ -128,12 +134,14 @@ class Fmt {
     if (value == null) {
       return '~';
     }
-    String tailDecimals =
+    final int x = pow(10, lengthMax ?? lengthFixed);
+    final double price = (value * x).ceilToDouble() / x;
+    final String tailDecimals =
         lengthMax == null ? '' : "#" * (lengthMax - lengthFixed);
-    NumberFormat f = NumberFormat(
-        ",##0${lengthFixed > 0 ? '.' : ''}${"0" * lengthFixed}$tailDecimals",
-        "en_US");
-    return f.format(value);
+    return NumberFormat(
+            ",##0${lengthFixed > 0 ? '.' : ''}${"0" * lengthFixed}$tailDecimals",
+            "en_US")
+        .format(price);
   }
 
   /// number transform 6:
@@ -147,12 +155,14 @@ class Fmt {
     if (value == null) {
       return '~';
     }
-    String tailDecimals =
+    final int x = pow(10, lengthMax ?? lengthFixed);
+    final double price = (value * x).floorToDouble() / x;
+    final String tailDecimals =
         lengthMax == null ? '' : "#" * (lengthMax - lengthFixed);
-    NumberFormat f = NumberFormat(
-        ",##0${lengthFixed > 0 ? '.' : ''}${"0" * lengthFixed}$tailDecimals",
-        "en_US");
-    return f.format(value);
+    return NumberFormat(
+            ",##0${lengthFixed > 0 ? '.' : ''}${"0" * lengthFixed}$tailDecimals",
+            "en_US")
+        .format(price);
   }
 
   /// number transform 7:
@@ -163,35 +173,29 @@ class Fmt {
   }
 
   static String priceCeilBigInt(
-    BigInt value, {
-    int decimals = acala_token_decimals,
+    BigInt value,
+    int decimals, {
     int lengthFixed = 2,
     int lengthMax,
   }) {
     if (value == null) {
       return '~';
     }
-    double price =
-        (value / BigInt.from(pow(10, decimals - (lengthMax ?? lengthFixed))))
-                .ceil() /
-            pow(10, lengthMax ?? lengthFixed);
-    return priceCeil(price, lengthFixed: lengthFixed, lengthMax: lengthMax);
+    return priceCeil(Fmt.bigIntToDouble(value, decimals),
+        lengthFixed: lengthFixed, lengthMax: lengthMax);
   }
 
   static String priceFloorBigInt(
-    BigInt value, {
-    int decimals = acala_token_decimals,
+    BigInt value,
+    int decimals, {
     int lengthFixed = 2,
     int lengthMax,
   }) {
     if (value == null) {
       return '~';
     }
-    double price =
-        (value / BigInt.from(pow(10, decimals - (lengthMax ?? lengthFixed))))
-                .floor() /
-            pow(10, lengthMax ?? lengthFixed);
-    return priceFloor(price, lengthFixed: lengthFixed, lengthMax: lengthMax);
+    return priceFloor(Fmt.bigIntToDouble(value, decimals),
+        lengthFixed: lengthFixed, lengthMax: lengthMax);
   }
 
   static String amountToFullDecimalIntString(
@@ -334,10 +338,14 @@ class Fmt {
 
   static String accountDisplayNameString(String address, Map accInfo) {
     String display = Fmt.address(address, pad: 6);
-    if (accInfo != null && accInfo['identity']['display'] != null) {
-      display = accInfo['identity']['display'];
-      if (accInfo['identity']['displayParent'] != null) {
-        display = '${accInfo['identity']['displayParent']}/$display';
+    if (accInfo != null) {
+      if (accInfo['identity']['display'] != null) {
+        display = accInfo['identity']['display'];
+        if (accInfo['identity']['displayParent'] != null) {
+          display = '${accInfo['identity']['displayParent']}/$display';
+        }
+      } else if (accInfo['accountIndex'] != null) {
+        display = accInfo['accountIndex'];
       }
       display = display.toUpperCase();
     }

@@ -8,6 +8,7 @@ import 'package:polka_wallet/common/components/roundedButton.dart';
 import 'package:polka_wallet/common/components/roundedCard.dart';
 import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/page-acala/homa/homaHistoryPage.dart';
+import 'package:polka_wallet/page-acala/homa/homaPage.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/acala/types/stakingPoolInfoData.dart';
@@ -149,7 +150,7 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
           "strategy": _radioSelect == 1 ? 'Era $era' : strategy,
         }),
         "params": [
-          Fmt.tokenInt(pay, decimals: decimals).toString(),
+          Fmt.tokenInt(pay, decimals).toString(),
           _radioSelect == 1 ? {"Target": era} : strategy
         ],
         "onFinish": (BuildContext txPageContext, Map res) {
@@ -158,8 +159,8 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
           res['amountReceive'] = receive;
           store.acala.setHomaTxs([res]);
           Navigator.popUntil(
-              txPageContext, ModalRoute.withName(HomaRedeemPage.route));
-          _refreshKey.currentState.show();
+              txPageContext, ModalRoute.withName(HomaPage.route));
+          globalHomaRefreshKey.currentState.show();
         }
       };
       Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: args);
@@ -210,8 +211,7 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
         String claimFee = '0';
         if (_amountReceiveCtrl.text.isNotEmpty) {
           claimFee = Fmt.priceCeil(
-            Fmt.balanceDouble(_amountReceiveCtrl.text, decimals: 0) *
-                claimFeeRatio,
+            Fmt.balanceDouble(_amountReceiveCtrl.text, 0) * claimFeeRatio,
             lengthMax: 4,
           );
         }
@@ -271,12 +271,18 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
                                           TextInputType.numberWithOptions(
                                               decimal: true),
                                       validator: (v) {
-                                        if (v.isEmpty) {
+                                        double amt;
+                                        try {
+                                          amt = double.parse(v.trim());
+                                          if (v.trim().isEmpty || amt == 0) {
+                                            return dicAssets['amount.error'];
+                                          }
+                                        } catch (err) {
                                           return dicAssets['amount.error'];
                                         }
-                                        if (double.parse(v.trim()) >=
-                                            Fmt.bigIntToDouble(balance,
-                                                decimals: decimals)) {
+                                        if (amt >=
+                                            Fmt.bigIntToDouble(
+                                                balance, decimals)) {
                                           return dicAssets['amount.low'];
                                         }
                                         if (_radioSelect < 2 &&
@@ -291,7 +297,7 @@ class _HomaRedeemPageState extends State<HomaRedeemPage> {
                                     Padding(
                                       padding: EdgeInsets.only(top: 8),
                                       child: Text(
-                                        '${dicAssets['balance']}: ${Fmt.token(balance, decimals: decimals)} LDOT',
+                                        '${dicAssets['balance']}: ${Fmt.token(balance, decimals)} LDOT',
                                         style: TextStyle(
                                             color: Theme.of(context)
                                                 .unselectedWidgetColor),

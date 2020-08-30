@@ -34,8 +34,8 @@ class TransferDetailPage extends StatelessWidget {
       action: txType,
       eventId: tx.extrinsicIndex,
       hash: tx.hash,
-      blockTime: DateTime.fromMillisecondsSinceEpoch(tx.blockTimestamp * 1000)
-          .toString(),
+      blockTime: Fmt.dateTime(
+          DateTime.fromMillisecondsSinceEpoch(tx.blockTimestamp * 1000)),
       blockNum: tx.blockNum,
       networkName: store.settings.endpoint.info,
       info: <DetailInfoItem>[
@@ -46,7 +46,7 @@ class TransferDetailPage extends StatelessWidget {
         DetailInfoItem(
           label: dic['fee'],
           title:
-              '${Fmt.balance(tx.fee, decimals: decimals, length: decimals)} $tokenView',
+              '${Fmt.balance(tx.fee, decimals, length: decimals)} $tokenView',
         ),
         DetailInfoItem(
           label: dic['from'],

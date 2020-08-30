@@ -33,6 +33,8 @@ class _ProposalPanelState extends State<ProposalPanel> {
     final CouncilProposalData proposalMeta = widget.proposal.image?.proposal;
     final Map accInfo =
         widget.store.account.accountIndexMap[widget.proposal.proposer];
+    final List seconding = widget.proposal.seconds.toList();
+    seconding.removeAt(0);
     return GestureDetector(
       child: RoundedCard(
         padding: EdgeInsets.all(16),
@@ -67,7 +69,10 @@ class _ProposalPanelState extends State<ProposalPanel> {
                         Fmt.accountDisplayName(
                             widget.proposal.proposer, accInfo),
                         Text(
-                          '${dic['treasury.bond']}: ${Fmt.balance(widget.proposal.balance.toString(), decimals: decimals)} $tokenView',
+                          '${dic['treasury.bond']}: ${Fmt.balance(
+                            widget.proposal.balance.toString(),
+                            decimals,
+                          )} $tokenView',
                           style: TextStyle(
                             color: Theme.of(context).unselectedWidgetColor,
                           ),
@@ -79,7 +84,7 @@ class _ProposalPanelState extends State<ProposalPanel> {
                 Column(
                   children: <Widget>[
                     Text(
-                      widget.proposal.seconds.length.toString(),
+                      seconding.length.toString(),
                       style: Theme.of(context).textTheme.headline4,
                     ),
                     Text(dic['proposal.seconds'])

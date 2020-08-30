@@ -209,6 +209,7 @@ class _StakingOverviewPageState extends State<StakingOverviewPage>
           if (validatorIndex < 0) {
             return Expanded(
               child: ListTile(
+                  dense: true,
                   leading: AddressIcon(id),
                   title: Text(I18n.of(context).staking['notElected']),
                   subtitle: Text(Fmt.address(id, pad: 6))),
@@ -230,9 +231,10 @@ class _StakingOverviewPageState extends State<StakingOverviewPage>
               store.staking.phalaAirdropWhiteList[validator.accountId] ?? false;
           return Expanded(
             child: ListTile(
+              dense: true,
               leading: AddressIcon(id),
               title: Text(
-                  '${meStaked != null ? Fmt.token(meStaked) : '~'} $tokenView'),
+                  '${meStaked != null ? Fmt.token(meStaked, decimals) : '~'} $tokenView'),
               subtitle: Fmt.accountDisplayName(validator.accountId, accInfo),
               trailing: Container(
                 width: 120,
@@ -305,6 +307,7 @@ class _StakingOverviewPageState extends State<StakingOverviewPage>
     final Map dic = I18n.of(context).staking;
     return Observer(
       builder: (_) {
+        final int decimals = store.settings.networkState.tokenDecimals;
         final List<Tab> _listTabs = <Tab>[
           Tab(
             text: '${dic['elected']} (${store.staking.validatorsInfo.length})',
@@ -383,8 +386,8 @@ class _StakingOverviewPageState extends State<StakingOverviewPage>
                           return Validator(
                             acc,
                             accInfo,
+                            decimals,
                             store.staking.nominationsAll[acc.accountId] ?? [],
-                            store.settings.networkState.tokenDecimals,
                             hasPhalaAirdrop: hasPhalaAirdrop,
                           );
                         }).toList(),
@@ -428,8 +431,8 @@ class _StakingOverviewPageState extends State<StakingOverviewPage>
               return Validator(
                 acc,
                 accInfo,
+                decimals,
                 store.staking.nominationsAll[acc.accountId] ?? [],
-                store.settings.networkState.tokenDecimals,
                 hasPhalaAirdrop: hasPhalaAirdrop,
               );
             },

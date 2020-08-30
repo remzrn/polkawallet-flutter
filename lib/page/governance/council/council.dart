@@ -154,8 +154,7 @@ class _CouncilState extends State<Council> {
                     },
                   ),
                   InfoItem(
-                    content:
-                        '${Fmt.token(voteAmount, decimals: decimals)} $tokenView',
+                    content: '${Fmt.token(voteAmount, decimals)} $tokenView',
                     title: dic['vote.my'],
                   ),
                   OutlinedButtonSmall(
@@ -186,6 +185,7 @@ class _CouncilState extends State<Council> {
                               accInfo: accInfo,
                               balance: [i],
                               tokenSymbol: tokenView,
+                              decimals: decimals,
                               noTap: true,
                             );
                           }).toList(),
@@ -247,6 +247,7 @@ class _CouncilState extends State<Council> {
                           accInfo: accInfo,
                           balance: i,
                           tokenSymbol: tokenView,
+                          decimals: decimals,
                         );
                       }).toList(),
                     ),
@@ -267,6 +268,7 @@ class _CouncilState extends State<Council> {
                           accInfo: accInfo,
                           balance: i,
                           tokenSymbol: tokenView,
+                          decimals: decimals,
                         );
                       }).toList(),
                     ),
@@ -288,6 +290,7 @@ class _CouncilState extends State<Council> {
                                 accInfo: accInfo,
                                 balance: [i],
                                 tokenSymbol: tokenView,
+                                decimals: decimals,
                               );
                             }).toList(),
                           )
@@ -309,6 +312,7 @@ class CandidateItem extends StatelessWidget {
     this.balance,
     this.tokenDecimals,
     this.tokenSymbol,
+    this.decimals,
     this.iconSize,
     this.noTap = false,
     this.trailing,
@@ -318,6 +322,7 @@ class CandidateItem extends StatelessWidget {
   final List balance;
   final int tokenDecimals;
   final String tokenSymbol;
+  final int decimals;
   final double iconSize;
   final bool noTap;
   final Widget trailing;
@@ -328,8 +333,11 @@ class CandidateItem extends StatelessWidget {
       title: Fmt.accountDisplayName(balance[0], accInfo),
       subtitle: balance.length == 1
           ? null
-          : Text(
-              '${I18n.of(context).gov['backing']}: ${Fmt.token(BigInt.parse(balance[1].toString()), decimals:  tokenDecimals)} $tokenSymbol'),
+          : Text('${I18n.of(context).gov['backing']}: ${Fmt.token(
+              BigInt.parse(balance[1].toString()),
+              decimals,
+              length: 0,
+            )} $tokenSymbol'),
       onTap: noTap
           ? null
           : () => Navigator.of(context).pushNamed(CandidateDetailPage.route,

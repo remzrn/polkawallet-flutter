@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:polka_wallet/common/components/infoItem.dart';
 import 'package:polka_wallet/common/components/listTail.dart';
 import 'package:polka_wallet/page/account/import/importAccountPage.dart';
 import 'package:polka_wallet/page/staking/actions/bondExtraPage.dart';
 import 'package:polka_wallet/page/staking/actions/bondPage.dart';
+import 'package:polka_wallet/page/staking/actions/rewardDetailPage.dart';
 import 'package:polka_wallet/page/staking/actions/setControllerPage.dart';
 import 'package:polka_wallet/page/staking/actions/payoutPage.dart';
 import 'package:polka_wallet/page/staking/actions/redeemPage.dart';
@@ -14,12 +16,12 @@ import 'package:polka_wallet/page/staking/actions/stakingDetailPage.dart';
 import 'package:polka_wallet/page/staking/actions/unbondPage.dart';
 import 'package:polka_wallet/service/subscan.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
-import 'package:polka_wallet/common/components/BorderedTitle.dart';
 import 'package:polka_wallet/common/components/addressIcon.dart';
 import 'package:polka_wallet/common/components/outlinedCircle.dart';
 import 'package:polka_wallet/common/components/roundedCard.dart';
 import 'package:polka_wallet/store/account/types/accountData.dart';
 import 'package:polka_wallet/store/app.dart';
+import 'package:polka_wallet/store/assets/types/balancesInfo.dart';
 import 'package:polka_wallet/utils/UI.dart';
 import 'package:polka_wallet/utils/format.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
@@ -38,6 +40,10 @@ class _StakingActions extends State<StakingActions>
   final AppStore store;
 
   bool _loading = false;
+  bool _rewardLoading = false;
+
+  TabController _tabController;
+  int _tab = 0;
 
   int _txsPage = 0;
   bool _isLastPage = false;
@@ -62,6 +68,21 @@ class _StakingActions extends State<StakingActions>
           _isLastPage = true;
         });
       }
+    }
+  }
+
+  Future<void> _updateStakingRewardTxs() async {
+    if (store.settings.loading) {
+      return;
+    }
+    setState(() {
+      _rewardLoading = true;
+    });
+    Map res = await webApi.staking.updateStakingRewards();
+    if (mounted) {
+      setState(() {
+        _rewardLoading = false;
+      });
     }
   }
 
@@ -93,9 +114,8 @@ class _StakingActions extends State<StakingActions>
                 : Image.asset('assets/images/staking/error.png'),
           ),
           title: Text(i.call),
-          subtitle: Text(
-              DateTime.fromMillisecondsSinceEpoch(i.blockTimestamp * 1000)
-                  .toIso8601String()),
+          subtitle: Text(Fmt.dateTime(
+              DateTime.fromMillisecondsSinceEpoch(i.blockTimestamp * 1000))),
           trailing: i.success
               ? Text(
                   'Success',
@@ -116,6 +136,45 @@ class _StakingActions extends State<StakingActions>
     res.add(ListTail(
       isLoading: store.staking.txsLoading,
       isEmpty: store.staking.txs.length == 0,
+    ));
+
+    return res;
+  }
+
+  List<Widget> _buildRewardsList() {
+    final int decimals = store.settings.networkState.tokenDecimals;
+    final String symbol = store.settings.networkState.tokenSymbol;
+    final tokenView = Fmt.tokenView(symbol,
+        decimalsDot: decimals, network: store.settings.endpoint.info);
+
+    List<Widget> res = [];
+    res.addAll(store.staking.txsRewards.map((i) {
+      return Container(
+        color: Theme.of(context).cardColor,
+        child: ListTile(
+          leading: Padding(
+            padding: EdgeInsets.only(top: 4),
+            child: i.eventId == 'Reward'
+                ? SvgPicture.asset('assets/images/staking/reward.svg',
+                    width: 32)
+                : SvgPicture.asset('assets/images/staking/slash.svg',
+                    width: 32),
+          ),
+          title: Text(i.eventId),
+          subtitle: Text(Fmt.dateTime(
+              DateTime.fromMillisecondsSinceEpoch(i.blockTimestamp * 1000))),
+          trailing: Text('${Fmt.balance(i.amount, decimals)} $tokenView'),
+          onTap: () {
+            Navigator.of(context)
+                .pushNamed(RewardDetailPage.route, arguments: i);
+          },
+        ),
+      );
+    }));
+
+    res.add(ListTail(
+      isLoading: _rewardLoading,
+      isEmpty: store.staking.txsRewards.length == 0,
     ));
 
     return res;
@@ -154,9 +213,9 @@ class _StakingActions extends State<StakingActions>
     }
 
     String symbol = store.settings.networkState.tokenSymbol;
-    final int decimals = store.settings.networkState.tokenDecimals;
+    int decimals = store.settings.networkState.tokenDecimals;
 
-    BigInt balance = store.assets.balances[symbol].total;
+    BalancesInfo info = store.assets.balances[symbol];
     BigInt bonded = BigInt.zero;
     BigInt redeemable = BigInt.zero;
     if (hasData) {
@@ -166,8 +225,6 @@ class _StakingActions extends State<StakingActions>
     }
     BigInt unlocking = store.staking.accountUnlockingTotal;
     unlocking -= redeemable;
-
-    BigInt available = isStash ? balance - bonded - unlocking : balance;
 
     return RoundedCard(
       margin: EdgeInsets.fromLTRB(16, 12, 16, 24),
@@ -196,13 +253,12 @@ class _StakingActions extends State<StakingActions>
                   ],
                 ),
               ),
-              Container(
-                width: 80,
+              Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      '${Fmt.balance(balance.toString(), decimals: decimals)}',
+                      '${Fmt.priceFloorBigInt(info.total, decimals, lengthMax: 3)}',
                       style: Theme.of(context).textTheme.headline4,
                     ),
                     Text(
@@ -226,12 +282,12 @@ class _StakingActions extends State<StakingActions>
             hasData: hasData,
             isStash: isStash,
             isController: isController,
+            decimals: decimals,
             bonded: bonded,
             unlocking: unlocking,
             redeemable: redeemable,
-            available: available,
+            available: info.transferable,
             payee: payee,
-            decimals: decimals,
             networkLoading: store.settings.loading,
           ),
           Divider(),
@@ -249,6 +305,8 @@ class _StakingActions extends State<StakingActions>
   @override
   void initState() {
     super.initState();
+
+    _tabController = TabController(vsync: this, length: 2);
 
     _scrollController = ScrollController();
     _scrollController.addListener(() {
@@ -283,15 +341,33 @@ class _StakingActions extends State<StakingActions>
           _buildActionCard(),
           Container(
             color: Theme.of(context).cardColor,
-            padding: EdgeInsets.all(16),
-            child: BorderedTitle(title: dic['txs']),
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: TabBar(
+              labelColor: Colors.black87,
+              labelStyle: TextStyle(fontSize: 18),
+              controller: _tabController,
+              tabs: <Tab>[
+                Tab(
+                  text: dic['txs'],
+                ),
+                Tab(
+                  text: dic['txs.reward'],
+                ),
+              ],
+              onTap: (i) {
+                i == 0 ? _updateStakingTxs() : _updateStakingRewardTxs();
+                setState(() {
+                  _tab = i;
+                });
+              },
+            ),
           ),
         ];
-        list.addAll(_buildTxList());
+        list.addAll(_tab == 0 ? _buildTxList() : _buildRewardsList());
         return RefreshIndicator(
           key: globalBondingRefreshKey,
           onRefresh: () async {
-            _updateStakingTxs();
+            _tab == 0 ? _updateStakingTxs() : _updateStakingRewardTxs();
             await _updateStakingInfo();
           },
           child: ListView(
@@ -440,24 +516,24 @@ class StakingInfoPanel extends StatelessWidget {
     this.hasData,
     this.isStash,
     this.isController,
+    this.decimals,
     this.bonded,
     this.unlocking,
     this.redeemable,
     this.available,
     this.payee,
-    this.decimals,
     this.networkLoading,
   });
 
   final bool hasData;
   final bool isStash;
   final bool isController;
+  final int decimals;
   final BigInt bonded;
   final BigInt unlocking;
   final BigInt redeemable;
   final BigInt available;
   final String payee;
-  final int decimals;
   final bool networkLoading;
 
   @override
@@ -473,12 +549,13 @@ class StakingInfoPanel extends StatelessWidget {
             children: <Widget>[
               InfoItem(
                 title: dic['bonded'],
-                content: Fmt.token(bonded, decimals: decimals),
+                content: Fmt.priceFloorBigInt(bonded, decimals, lengthMax: 3),
                 crossAxisAlignment: CrossAxisAlignment.center,
               ),
               InfoItem(
                 title: dic['bond.unlocking'],
-                content: Fmt.token(unlocking, decimals: decimals),
+                content:
+                    Fmt.priceFloorBigInt(unlocking, decimals, lengthMax: 3),
                 crossAxisAlignment: CrossAxisAlignment.center,
               ),
               Expanded(
@@ -491,8 +568,16 @@ class StakingInfoPanel extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(
-                          Fmt.token(redeemable, decimals: decimals),
-                          style: Theme.of(context).textTheme.headline4,
+                          Fmt.priceFloorBigInt(
+                            redeemable,
+                            decimals,
+                            lengthMax: 3,
+                          ),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).unselectedWidgetColor,
+                          ),
                         ),
                         isController && redeemable > BigInt.zero
                             ? GestureDetector(
@@ -524,7 +609,8 @@ class StakingInfoPanel extends StatelessWidget {
             children: <Widget>[
               InfoItem(
                 title: dic['available'],
-                content: Fmt.token(available, decimals: decimals),
+                content:
+                    Fmt.priceFloorBigInt(available, decimals, lengthMax: 3),
                 crossAxisAlignment: CrossAxisAlignment.center,
               ),
               InfoItem(

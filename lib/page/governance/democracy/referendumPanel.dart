@@ -188,8 +188,8 @@ class ReferendumPanel extends StatelessWidget {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text('${Fmt.token(votedNay, decimals: decimals)} $symbol'),
-          Text('${Fmt.token(votedAye, decimals: decimals)} $symbol')
+          Text('${Fmt.token(votedNay, decimals)} $symbol'),
+          Text('${Fmt.token(votedAye, decimals)} $symbol')
         ],
       ),
       Row(
@@ -208,7 +208,7 @@ class ReferendumPanel extends StatelessWidget {
                     : dic['vote.change.down'],
               ),
               Text(
-                '${Fmt.balance(data.changeNay, decimals: decimals)} $symbol',
+                '${Fmt.balance(data.changeNay, decimals)} $symbol',
                 style: TextStyle(
                     color: Theme.of(context).unselectedWidgetColor,
                     fontSize: 13),
@@ -228,7 +228,7 @@ class ReferendumPanel extends StatelessWidget {
                     : dic['vote.change.down'],
               ),
               Text(
-                '${Fmt.balance(data.changeAye, decimals: decimals)} $symbol',
+                '${Fmt.balance(data.changeAye, decimals)} $symbol',
                 style: TextStyle(
                     color: Theme.of(context).unselectedWidgetColor,
                     fontSize: 13),
@@ -240,7 +240,10 @@ class ReferendumPanel extends StatelessWidget {
     ]);
 
     if (data.userVoted != null) {
-      String amount = Fmt.balance(data.userVoted['balance'].toString());
+      String amount = Fmt.balance(
+        data.userVoted['balance'].toString(),
+        decimals,
+      );
       String conviction = data.userVoted['vote']['conviction'] == 'None'
           ? '0.1x'
           : (data.userVoted['vote']['conviction'] as String).substring(6);

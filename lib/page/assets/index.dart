@@ -472,9 +472,8 @@ class _AssetsState extends State<Assets> {
         }
         String tokenPrice;
         if (store.assets.marketPrices[symbol] != null && balancesInfo != null) {
-          tokenPrice = (store.assets.marketPrices[symbol] *
-                  Fmt.bigIntToDouble(balancesInfo.total, decimals: decimals))
-              .toStringAsFixed(2);
+          tokenPrice = Fmt.priceCeil(store.assets.marketPrices[symbol] *
+              Fmt.bigIntToDouble(balancesInfo.total, decimals));
         }
 
         return RefreshIndicator(
@@ -531,25 +530,18 @@ class _AssetsState extends State<Assets> {
                     Padding(
                       padding: EdgeInsets.only(top: 4),
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           BorderedTitle(
                             title: I18n.of(context).home['assets'],
                           ),
                           isAcala || isLaminar
-                              ? Expanded(
-                                  child: Padding(
-                                    padding:
-                                        EdgeInsets.only(bottom: 2, left: 8),
-                                    child: Text(
-                                      '(${I18n.of(context).assets['assets.test']})',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context)
-                                            .unselectedWidgetColor,
-                                      ),
-                                    ),
-                                  ),
+                              ? TextTag(
+                                  I18n.of(context).assets['assets.test'],
+                                  fontSize: 16,
+                                  color: Colors.red,
+                                  margin: EdgeInsets.only(left: 12),
+                                  padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
                                 )
                               : Container()
                         ],
@@ -573,7 +565,7 @@ class _AssetsState extends State<Assets> {
                                   balancesInfo != null
                                       ? balancesInfo.total
                                       : BigInt.zero,
-                                  decimals: decimals,
+                                  decimals,
                                   lengthFixed: 3),
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -621,7 +613,7 @@ class _AssetsState extends State<Assets> {
                             trailing: Text(
                               Fmt.priceFloorBigInt(
                                   Fmt.balanceInt(store.assets.tokenBalances[i]),
-                                  decimals: decimals,
+                                  decimals,
                                   lengthFixed: 3),
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -661,8 +653,8 @@ class _AssetsState extends State<Assets> {
                                   ),
                                   title: Text(i),
                                   trailing: Text(
-                                    Fmt.token(store.acala.airdrops[i],
-                                        decimals: decimals),
+                                    Fmt.token(
+                                        store.acala.airdrops[i], decimals),
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 20,
