@@ -124,6 +124,14 @@ List<EndpointData> networkEndpoints = [
     'text': 'Edgeware Mainnet #3 (hosted by Commonwealth Labs)',
     'value': 'wss://mainnet3.edgewa.re/',
   }),
+  networkEndpointEdgeware,
+  EndpointData.fromJson(const {
+    'color': 'green',
+    'info': network_name_edgeware,
+    'ss58': 7,  
+    'text': 'Edgeware Mainnet #4 (hosted by Commonwealth Labs)',
+    'value': 'wss://mainnet4.edgewa.re/',
+  }),
 ];
 
 const network_ss58_map = {

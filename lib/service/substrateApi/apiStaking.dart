@@ -116,7 +116,6 @@ class ApiStaking {
       page: page,
       sender: store.account.currentAddress,
       network: store.settings.networkName.toLowerCase(),
-      // network: store.settings.endpoint.info //xox
     );
 
     if (page == 0) {

@@ -291,15 +291,6 @@ class _AssetsState extends State<Assets> {
     bool isKusama = store.settings.endpoint.info == networkEndpointKusama.info;
     bool isPolkadot =
         store.settings.endpoint.info == networkEndpointPolkadot.info;
-    String colorSuffix
-      = isAcala ?
-      'indigo'//Acala
-      : isKusama ?
-      'black'//Kusama
-      : networkEndpointEdgeware.info == store.settings.endpoint.info ?
-      'green'//Edgeware
-      : //Default
-      'pink';
 
     return RoundedCard(
       margin: EdgeInsets.fromLTRB(16, 4, 16, 0),
@@ -445,6 +436,7 @@ class _AssetsState extends State<Assets> {
             store.settings.endpoint.info == networkEndpointLaminar.info;
         bool isPolkadot = store.settings.endpoint.info == network_name_polkadot;
         bool isKusama = store.settings.endpoint.info == network_name_kusama;
+        bool isEdgeware = store.settings.endpoint.info == network_name_edgeware;
 
         List<String> currencyIds = [];
         if ((isAcala || isLaminar) && networkName != null) {
@@ -561,7 +553,7 @@ class _AssetsState extends State<Assets> {
                                   fontSize: 20,
                                   color: Colors.black54),
                             ),
-                            isPolkadot || isKusama
+                            isPolkadot || isKusama || isEdgeware
                                 ? Text(
                                     '≈ \$ ${tokenPrice ?? '--.--'}',
                                     style: TextStyle(

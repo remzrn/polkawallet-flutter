@@ -6,7 +6,7 @@ part of 'laminar.dart';
 // StoreGenerator
 // **************************************************************************
 
-// ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
+// ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$LaminarStore on _LaminarStore, Store {
   Computed<List<LaminarSyntheticPoolTokenData>> _$syntheticTokensComputed;
@@ -15,136 +15,127 @@ mixin _$LaminarStore on _LaminarStore, Store {
   List<LaminarSyntheticPoolTokenData> get syntheticTokens =>
       (_$syntheticTokensComputed ??=
               Computed<List<LaminarSyntheticPoolTokenData>>(
-                  () => super.syntheticTokens))
+                  () => super.syntheticTokens,
+                  name: '_LaminarStore.syntheticTokens'))
           .value;
   Computed<List<LaminarMarginPairData>> _$marginTokensComputed;
 
   @override
   List<LaminarMarginPairData> get marginTokens => (_$marginTokensComputed ??=
-          Computed<List<LaminarMarginPairData>>(() => super.marginTokens))
+          Computed<List<LaminarMarginPairData>>(() => super.marginTokens,
+              name: '_LaminarStore.marginTokens'))
       .value;
 
   final _$txsTransferAtom = Atom(name: '_LaminarStore.txsTransfer');
 
   @override
   ObservableList<TransferData> get txsTransfer {
-    _$txsTransferAtom.context.enforceReadPolicy(_$txsTransferAtom);
-    _$txsTransferAtom.reportObserved();
+    _$txsTransferAtom.reportRead();
     return super.txsTransfer;
   }
 
   @override
   set txsTransfer(ObservableList<TransferData> value) {
-    _$txsTransferAtom.context.conditionallyRunInAction(() {
+    _$txsTransferAtom.reportWrite(value, super.txsTransfer, () {
       super.txsTransfer = value;
-      _$txsTransferAtom.reportChanged();
-    }, _$txsTransferAtom, name: '${_$txsTransferAtom.name}_set');
+    });
   }
 
   final _$txsSwapAtom = Atom(name: '_LaminarStore.txsSwap');
 
   @override
   ObservableList<LaminarTxSwapData> get txsSwap {
-    _$txsSwapAtom.context.enforceReadPolicy(_$txsSwapAtom);
-    _$txsSwapAtom.reportObserved();
+    _$txsSwapAtom.reportRead();
     return super.txsSwap;
   }
 
   @override
   set txsSwap(ObservableList<LaminarTxSwapData> value) {
-    _$txsSwapAtom.context.conditionallyRunInAction(() {
+    _$txsSwapAtom.reportWrite(value, super.txsSwap, () {
       super.txsSwap = value;
-      _$txsSwapAtom.reportChanged();
-    }, _$txsSwapAtom, name: '${_$txsSwapAtom.name}_set');
+    });
   }
 
   final _$tokenPricesAtom = Atom(name: '_LaminarStore.tokenPrices');
 
   @override
   Map<String, LaminarPriceData> get tokenPrices {
-    _$tokenPricesAtom.context.enforceReadPolicy(_$tokenPricesAtom);
-    _$tokenPricesAtom.reportObserved();
+    _$tokenPricesAtom.reportRead();
     return super.tokenPrices;
   }
 
   @override
   set tokenPrices(Map<String, LaminarPriceData> value) {
-    _$tokenPricesAtom.context.conditionallyRunInAction(() {
+    _$tokenPricesAtom.reportWrite(value, super.tokenPrices, () {
       super.tokenPrices = value;
-      _$tokenPricesAtom.reportChanged();
-    }, _$tokenPricesAtom, name: '${_$tokenPricesAtom.name}_set');
+    });
   }
 
   final _$syntheticPoolInfoAtom = Atom(name: '_LaminarStore.syntheticPoolInfo');
 
   @override
   ObservableMap<String, LaminarSyntheticPoolInfoData> get syntheticPoolInfo {
-    _$syntheticPoolInfoAtom.context.enforceReadPolicy(_$syntheticPoolInfoAtom);
-    _$syntheticPoolInfoAtom.reportObserved();
+    _$syntheticPoolInfoAtom.reportRead();
     return super.syntheticPoolInfo;
   }
 
   @override
   set syntheticPoolInfo(
       ObservableMap<String, LaminarSyntheticPoolInfoData> value) {
-    _$syntheticPoolInfoAtom.context.conditionallyRunInAction(() {
+    _$syntheticPoolInfoAtom.reportWrite(value, super.syntheticPoolInfo, () {
       super.syntheticPoolInfo = value;
-      _$syntheticPoolInfoAtom.reportChanged();
-    }, _$syntheticPoolInfoAtom, name: '${_$syntheticPoolInfoAtom.name}_set');
+    });
   }
 
   final _$marginPoolInfoAtom = Atom(name: '_LaminarStore.marginPoolInfo');
 
   @override
   ObservableMap<String, LaminarMarginPoolInfoData> get marginPoolInfo {
-    _$marginPoolInfoAtom.context.enforceReadPolicy(_$marginPoolInfoAtom);
-    _$marginPoolInfoAtom.reportObserved();
+    _$marginPoolInfoAtom.reportRead();
     return super.marginPoolInfo;
   }
 
   @override
   set marginPoolInfo(ObservableMap<String, LaminarMarginPoolInfoData> value) {
-    _$marginPoolInfoAtom.context.conditionallyRunInAction(() {
+    _$marginPoolInfoAtom.reportWrite(value, super.marginPoolInfo, () {
       super.marginPoolInfo = value;
-      _$marginPoolInfoAtom.reportChanged();
-    }, _$marginPoolInfoAtom, name: '${_$marginPoolInfoAtom.name}_set');
+    });
   }
 
   final _$marginTraderInfoAtom = Atom(name: '_LaminarStore.marginTraderInfo');
 
   @override
   ObservableMap<String, LaminarMarginTraderInfoData> get marginTraderInfo {
-    _$marginTraderInfoAtom.context.enforceReadPolicy(_$marginTraderInfoAtom);
-    _$marginTraderInfoAtom.reportObserved();
+    _$marginTraderInfoAtom.reportRead();
     return super.marginTraderInfo;
   }
 
   @override
   set marginTraderInfo(
       ObservableMap<String, LaminarMarginTraderInfoData> value) {
-    _$marginTraderInfoAtom.context.conditionallyRunInAction(() {
+    _$marginTraderInfoAtom.reportWrite(value, super.marginTraderInfo, () {
       super.marginTraderInfo = value;
-      _$marginTraderInfoAtom.reportChanged();
-    }, _$marginTraderInfoAtom, name: '${_$marginTraderInfoAtom.name}_set');
+    });
   }
 
-  final _$setSwapTxsAsyncAction = AsyncAction('setSwapTxs');
+  final _$setSwapTxsAsyncAction = AsyncAction('_LaminarStore.setSwapTxs');
 
   @override
-  Future<void> setSwapTxs(List list,
+  Future<void> setSwapTxs(List<dynamic> list,
       {bool reset = false, dynamic needCache = true}) {
     return _$setSwapTxsAsyncAction
         .run(() => super.setSwapTxs(list, reset: reset, needCache: needCache));
   }
 
-  final _$loadAccountCacheAsyncAction = AsyncAction('loadAccountCache');
+  final _$loadAccountCacheAsyncAction =
+      AsyncAction('_LaminarStore.loadAccountCache');
 
   @override
   Future<void> loadAccountCache() {
     return _$loadAccountCacheAsyncAction.run(() => super.loadAccountCache());
   }
 
-  final _$loadCacheAsyncAction = AsyncAction('loadCache');
+  final _$loadCacheAsyncAction = AsyncAction('_LaminarStore.loadCache');
 
   @override
   Future<void> loadCache() {
@@ -155,9 +146,10 @@ mixin _$LaminarStore on _LaminarStore, Store {
       ActionController(name: '_LaminarStore');
 
   @override
-  void setTransferTxs(List list,
+  void setTransferTxs(List<dynamic> list,
       {bool reset = false, dynamic needCache = true}) {
-    final _$actionInfo = _$_LaminarStoreActionController.startAction();
+    final _$actionInfo = _$_LaminarStoreActionController.startAction(
+        name: '_LaminarStore.setTransferTxs');
     try {
       return super.setTransferTxs(list, reset: reset, needCache: needCache);
     } finally {
@@ -166,8 +158,9 @@ mixin _$LaminarStore on _LaminarStore, Store {
   }
 
   @override
-  void setTokenPrices(List prices) {
-    final _$actionInfo = _$_LaminarStoreActionController.startAction();
+  void setTokenPrices(List<dynamic> prices) {
+    final _$actionInfo = _$_LaminarStoreActionController.startAction(
+        name: '_LaminarStore.setTokenPrices');
     try {
       return super.setTokenPrices(prices);
     } finally {
@@ -176,8 +169,9 @@ mixin _$LaminarStore on _LaminarStore, Store {
   }
 
   @override
-  void setSyntheticPoolInfo(Map info) {
-    final _$actionInfo = _$_LaminarStoreActionController.startAction();
+  void setSyntheticPoolInfo(Map<dynamic, dynamic> info) {
+    final _$actionInfo = _$_LaminarStoreActionController.startAction(
+        name: '_LaminarStore.setSyntheticPoolInfo');
     try {
       return super.setSyntheticPoolInfo(info);
     } finally {
@@ -186,8 +180,9 @@ mixin _$LaminarStore on _LaminarStore, Store {
   }
 
   @override
-  void setMarginPoolInfo(Map info) {
-    final _$actionInfo = _$_LaminarStoreActionController.startAction();
+  void setMarginPoolInfo(Map<dynamic, dynamic> info) {
+    final _$actionInfo = _$_LaminarStoreActionController.startAction(
+        name: '_LaminarStore.setMarginPoolInfo');
     try {
       return super.setMarginPoolInfo(info);
     } finally {
@@ -196,12 +191,27 @@ mixin _$LaminarStore on _LaminarStore, Store {
   }
 
   @override
-  void setMarginTraderInfo(Map info) {
-    final _$actionInfo = _$_LaminarStoreActionController.startAction();
+  void setMarginTraderInfo(Map<dynamic, dynamic> info) {
+    final _$actionInfo = _$_LaminarStoreActionController.startAction(
+        name: '_LaminarStore.setMarginTraderInfo');
     try {
       return super.setMarginTraderInfo(info);
     } finally {
       _$_LaminarStoreActionController.endAction(_$actionInfo);
     }
+  }
+
+  @override
+  String toString() {
+    return '''
+txsTransfer: ${txsTransfer},
+txsSwap: ${txsSwap},
+tokenPrices: ${tokenPrices},
+syntheticPoolInfo: ${syntheticPoolInfo},
+marginPoolInfo: ${marginPoolInfo},
+marginTraderInfo: ${marginTraderInfo},
+syntheticTokens: ${syntheticTokens},
+marginTokens: ${marginTokens}
+    ''';
   }
 }

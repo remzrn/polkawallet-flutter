@@ -24,8 +24,6 @@ class ApiGovernance {
     return info;
   }
 
-  void setCouncilInfo(Map info) => store.gov.setCouncilInfo(info);
-
   Future<Map> fetchCouncilVotes() async {
     Map votes = await apiRoot.evalJavascript('gov.fetchCouncilVotes()');
     if (votes != null) {

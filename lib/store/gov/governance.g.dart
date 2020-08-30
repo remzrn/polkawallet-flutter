@@ -6,7 +6,7 @@ part of 'governance.dart';
 // StoreGenerator
 // **************************************************************************
 
-// ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
+// ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$GovernanceStore on _GovernanceStore, Store {
   final _$cacheCouncilTimestampAtom =
@@ -14,87 +14,76 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
 
   @override
   int get cacheCouncilTimestamp {
-    _$cacheCouncilTimestampAtom.context
-        .enforceReadPolicy(_$cacheCouncilTimestampAtom);
-    _$cacheCouncilTimestampAtom.reportObserved();
+    _$cacheCouncilTimestampAtom.reportRead();
     return super.cacheCouncilTimestamp;
   }
 
   @override
   set cacheCouncilTimestamp(int value) {
-    _$cacheCouncilTimestampAtom.context.conditionallyRunInAction(() {
+    _$cacheCouncilTimestampAtom.reportWrite(value, super.cacheCouncilTimestamp,
+        () {
       super.cacheCouncilTimestamp = value;
-      _$cacheCouncilTimestampAtom.reportChanged();
-    }, _$cacheCouncilTimestampAtom,
-        name: '${_$cacheCouncilTimestampAtom.name}_set');
+    });
   }
 
   final _$bestNumberAtom = Atom(name: '_GovernanceStore.bestNumber');
 
   @override
   int get bestNumber {
-    _$bestNumberAtom.context.enforceReadPolicy(_$bestNumberAtom);
-    _$bestNumberAtom.reportObserved();
+    _$bestNumberAtom.reportRead();
     return super.bestNumber;
   }
 
   @override
   set bestNumber(int value) {
-    _$bestNumberAtom.context.conditionallyRunInAction(() {
+    _$bestNumberAtom.reportWrite(value, super.bestNumber, () {
       super.bestNumber = value;
-      _$bestNumberAtom.reportChanged();
-    }, _$bestNumberAtom, name: '${_$bestNumberAtom.name}_set');
+    });
   }
 
   final _$councilAtom = Atom(name: '_GovernanceStore.council');
 
   @override
   CouncilInfoData get council {
-    _$councilAtom.context.enforceReadPolicy(_$councilAtom);
-    _$councilAtom.reportObserved();
+    _$councilAtom.reportRead();
     return super.council;
   }
 
   @override
   set council(CouncilInfoData value) {
-    _$councilAtom.context.conditionallyRunInAction(() {
+    _$councilAtom.reportWrite(value, super.council, () {
       super.council = value;
-      _$councilAtom.reportChanged();
-    }, _$councilAtom, name: '${_$councilAtom.name}_set');
+    });
   }
 
   final _$councilMotionsAtom = Atom(name: '_GovernanceStore.councilMotions');
 
   @override
   List<CouncilMotionData> get councilMotions {
-    _$councilMotionsAtom.context.enforceReadPolicy(_$councilMotionsAtom);
-    _$councilMotionsAtom.reportObserved();
+    _$councilMotionsAtom.reportRead();
     return super.councilMotions;
   }
 
   @override
   set councilMotions(List<CouncilMotionData> value) {
-    _$councilMotionsAtom.context.conditionallyRunInAction(() {
+    _$councilMotionsAtom.reportWrite(value, super.councilMotions, () {
       super.councilMotions = value;
-      _$councilMotionsAtom.reportChanged();
-    }, _$councilMotionsAtom, name: '${_$councilMotionsAtom.name}_set');
+    });
   }
 
   final _$councilVotesAtom = Atom(name: '_GovernanceStore.councilVotes');
 
   @override
   Map<String, Map<String, dynamic>> get councilVotes {
-    _$councilVotesAtom.context.enforceReadPolicy(_$councilVotesAtom);
-    _$councilVotesAtom.reportObserved();
+    _$councilVotesAtom.reportRead();
     return super.councilVotes;
   }
 
   @override
   set councilVotes(Map<String, Map<String, dynamic>> value) {
-    _$councilVotesAtom.context.conditionallyRunInAction(() {
+    _$councilVotesAtom.reportWrite(value, super.councilVotes, () {
       super.councilVotes = value;
-      _$councilVotesAtom.reportChanged();
-    }, _$councilVotesAtom, name: '${_$councilVotesAtom.name}_set');
+    });
   }
 
   final _$userCouncilVotesAtom =
@@ -102,68 +91,60 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
 
   @override
   Map<String, dynamic> get userCouncilVotes {
-    _$userCouncilVotesAtom.context.enforceReadPolicy(_$userCouncilVotesAtom);
-    _$userCouncilVotesAtom.reportObserved();
+    _$userCouncilVotesAtom.reportRead();
     return super.userCouncilVotes;
   }
 
   @override
   set userCouncilVotes(Map<String, dynamic> value) {
-    _$userCouncilVotesAtom.context.conditionallyRunInAction(() {
+    _$userCouncilVotesAtom.reportWrite(value, super.userCouncilVotes, () {
       super.userCouncilVotes = value;
-      _$userCouncilVotesAtom.reportChanged();
-    }, _$userCouncilVotesAtom, name: '${_$userCouncilVotesAtom.name}_set');
+    });
   }
 
   final _$referendumsAtom = Atom(name: '_GovernanceStore.referendums');
 
   @override
   List<ReferendumInfo> get referendums {
-    _$referendumsAtom.context.enforceReadPolicy(_$referendumsAtom);
-    _$referendumsAtom.reportObserved();
+    _$referendumsAtom.reportRead();
     return super.referendums;
   }
 
   @override
   set referendums(List<ReferendumInfo> value) {
-    _$referendumsAtom.context.conditionallyRunInAction(() {
+    _$referendumsAtom.reportWrite(value, super.referendums, () {
       super.referendums = value;
-      _$referendumsAtom.reportChanged();
-    }, _$referendumsAtom, name: '${_$referendumsAtom.name}_set');
+    });
   }
 
   final _$voteConvictionsAtom = Atom(name: '_GovernanceStore.voteConvictions');
 
   @override
-  List get voteConvictions {
-    _$voteConvictionsAtom.context.enforceReadPolicy(_$voteConvictionsAtom);
-    _$voteConvictionsAtom.reportObserved();
+  List<dynamic> get voteConvictions {
+    _$voteConvictionsAtom.reportRead();
     return super.voteConvictions;
   }
 
   @override
-  set voteConvictions(List value) {
-    _$voteConvictionsAtom.context.conditionallyRunInAction(() {
+  set voteConvictions(List<dynamic> value) {
+    _$voteConvictionsAtom.reportWrite(value, super.voteConvictions, () {
       super.voteConvictions = value;
-      _$voteConvictionsAtom.reportChanged();
-    }, _$voteConvictionsAtom, name: '${_$voteConvictionsAtom.name}_set');
+    });
   }
 
   final _$proposalsAtom = Atom(name: '_GovernanceStore.proposals');
 
   @override
   List<ProposalInfoData> get proposals {
-    _$proposalsAtom.context.enforceReadPolicy(_$proposalsAtom);
-    _$proposalsAtom.reportObserved();
+    _$proposalsAtom.reportRead();
     return super.proposals;
   }
 
   @override
   set proposals(List<ProposalInfoData> value) {
-    _$proposalsAtom.context.conditionallyRunInAction(() {
+    _$proposalsAtom.reportWrite(value, super.proposals, () {
       super.proposals = value;
-      _$proposalsAtom.reportChanged();
-    }, _$proposalsAtom, name: '${_$proposalsAtom.name}_set');
+    });
   }
 
   final _$treasuryOverviewAtom =
@@ -171,37 +152,33 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
 
   @override
   TreasuryOverviewData get treasuryOverview {
-    _$treasuryOverviewAtom.context.enforceReadPolicy(_$treasuryOverviewAtom);
-    _$treasuryOverviewAtom.reportObserved();
+    _$treasuryOverviewAtom.reportRead();
     return super.treasuryOverview;
   }
 
   @override
   set treasuryOverview(TreasuryOverviewData value) {
-    _$treasuryOverviewAtom.context.conditionallyRunInAction(() {
+    _$treasuryOverviewAtom.reportWrite(value, super.treasuryOverview, () {
       super.treasuryOverview = value;
-      _$treasuryOverviewAtom.reportChanged();
-    }, _$treasuryOverviewAtom, name: '${_$treasuryOverviewAtom.name}_set');
+    });
   }
 
   final _$treasuryTipsAtom = Atom(name: '_GovernanceStore.treasuryTips');
 
   @override
   List<TreasuryTipData> get treasuryTips {
-    _$treasuryTipsAtom.context.enforceReadPolicy(_$treasuryTipsAtom);
-    _$treasuryTipsAtom.reportObserved();
+    _$treasuryTipsAtom.reportRead();
     return super.treasuryTips;
   }
 
   @override
   set treasuryTips(List<TreasuryTipData> value) {
-    _$treasuryTipsAtom.context.conditionallyRunInAction(() {
+    _$treasuryTipsAtom.reportWrite(value, super.treasuryTips, () {
       super.treasuryTips = value;
-      _$treasuryTipsAtom.reportChanged();
-    }, _$treasuryTipsAtom, name: '${_$treasuryTipsAtom.name}_set');
+    });
   }
 
-  final _$loadCacheAsyncAction = AsyncAction('loadCache');
+  final _$loadCacheAsyncAction = AsyncAction('_GovernanceStore.loadCache');
 
   @override
   Future<void> loadCache() {
@@ -212,8 +189,9 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
       ActionController(name: '_GovernanceStore');
 
   @override
-  void setCouncilInfo(Map info, {bool shouldCache = true}) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+  void setCouncilInfo(Map<dynamic, dynamic> info, {bool shouldCache = true}) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setCouncilInfo');
     try {
       return super.setCouncilInfo(info, shouldCache: shouldCache);
     } finally {
@@ -222,8 +200,9 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   }
 
   @override
-  void setCouncilVotes(Map votes) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+  void setCouncilVotes(Map<dynamic, dynamic> votes) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setCouncilVotes');
     try {
       return super.setCouncilVotes(votes);
     } finally {
@@ -232,8 +211,9 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   }
 
   @override
-  void setUserCouncilVotes(Map votes) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+  void setUserCouncilVotes(Map<dynamic, dynamic> votes) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setUserCouncilVotes');
     try {
       return super.setUserCouncilVotes(votes);
     } finally {
@@ -243,7 +223,8 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
 
   @override
   void setBestNumber(int number) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setBestNumber');
     try {
       return super.setBestNumber(number);
     } finally {
@@ -252,8 +233,9 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   }
 
   @override
-  void setReferendums(List ls) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+  void setReferendums(List<dynamic> ls) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setReferendums');
     try {
       return super.setReferendums(ls);
     } finally {
@@ -262,8 +244,9 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   }
 
   @override
-  void setReferendumVoteConvictions(List ls) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+  void setReferendumVoteConvictions(List<dynamic> ls) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setReferendumVoteConvictions');
     try {
       return super.setReferendumVoteConvictions(ls);
     } finally {
@@ -272,8 +255,9 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   }
 
   @override
-  void setProposals(List ls) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+  void setProposals(List<dynamic> ls) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setProposals');
     try {
       return super.setProposals(ls);
     } finally {
@@ -282,8 +266,9 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   }
 
   @override
-  void setTreasuryOverview(Map data) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+  void setTreasuryOverview(Map<dynamic, dynamic> data) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setTreasuryOverview');
     try {
       return super.setTreasuryOverview(data);
     } finally {
@@ -292,8 +277,9 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   }
 
   @override
-  void setTreasuryTips(List data) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+  void setTreasuryTips(List<dynamic> data) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setTreasuryTips');
     try {
       return super.setTreasuryTips(data);
     } finally {
@@ -302,8 +288,9 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   }
 
   @override
-  void setCouncilMotions(List data) {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+  void setCouncilMotions(List<dynamic> data) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setCouncilMotions');
     try {
       return super.setCouncilMotions(data);
     } finally {
@@ -313,11 +300,29 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
 
   @override
   void clearState() {
-    final _$actionInfo = _$_GovernanceStoreActionController.startAction();
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.clearState');
     try {
       return super.clearState();
     } finally {
       _$_GovernanceStoreActionController.endAction(_$actionInfo);
     }
+  }
+
+  @override
+  String toString() {
+    return '''
+cacheCouncilTimestamp: ${cacheCouncilTimestamp},
+bestNumber: ${bestNumber},
+council: ${council},
+councilMotions: ${councilMotions},
+councilVotes: ${councilVotes},
+userCouncilVotes: ${userCouncilVotes},
+referendums: ${referendums},
+voteConvictions: ${voteConvictions},
+proposals: ${proposals},
+treasuryOverview: ${treasuryOverview},
+treasuryTips: ${treasuryTips}
+    ''';
   }
 }

@@ -305,7 +305,6 @@ class CandidateItem extends StatelessWidget {
   CandidateItem({
     this.accInfo,
     this.balance,
-    this.tokenDecimals,
     this.tokenSymbol,
     this.decimals,
     this.iconSize,
@@ -315,7 +314,6 @@ class CandidateItem extends StatelessWidget {
   final Map accInfo;
   // balance == [<candidate_address>, <0x_candidate_backing_amount>]
   final List balance;
-  final int tokenDecimals;
   final String tokenSymbol;
   final int decimals;
   final double iconSize;

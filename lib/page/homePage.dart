@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
   _HomePageState(this.store);
 
   final AppStore store;
-  
+
   final PageController _pageController = PageController();
 
   NotificationPlugin _notificationPlugin;
